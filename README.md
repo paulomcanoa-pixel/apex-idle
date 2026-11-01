@@ -15,3 +15,7 @@ Próximas etapas: 1) validar o ritmo e diferenciar pistas; 2) pilotos, pneus, bo
 ## Limites
 
 Protótipo solo; sem backend, pagamentos ou multiplayer. Saves locais podem ser editados e não servem para ranking online confiável. O armazenamento depende do navegador e da origem; exporte antes de trocar de navegador ou publicar. Ainda não publicado e não cadastrado no TopIdle. Sem marcas, equipes ou pilotos oficiais.
+
+## Invocação de F1
+
+Menu → Invocação F1: 200 CR por sorteio. Chances: Vento 60%, Scarlatto 30%, Solar 9%, Eclipse 1%. Repetidos devolvem 100 CR. Pause para equipar; bônus de ritmo de 3%, 6%, 10% e 15% somam ao denominador de velocidade das melhorias. Modelos fictícios, sem pagamentos. Coleção e carro equipado acompanham o save local e a exportação. Saves antigos recebem o Aurora inicial. Testes automatizados de economia e persistência; validação com jogadores pendente.

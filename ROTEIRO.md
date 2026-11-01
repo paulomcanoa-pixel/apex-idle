@@ -62,3 +62,7 @@ Equipes fictícias e equilibradas, sem vantagens iniciais. Seleção troca ident
 ## Validação de produto planejada
 
 Observar se um novo jogador consegue iniciar, comprar melhoria e entender um acerto sem ajuda. Medir tempo até primeira decisão, compreensão da previsão, conclusão de corrida e vontade de continuar. Instrumentação e testes com pessoas ainda não realizados. Ajustar economia com esses resultados antes de monetização ou multiplayer.
+
+## Incremento entregue — Invocação
+
+Aba de invocação com créditos do jogo, quatro modelos fictícios sorteáveis, chances explícitas, reembolso de repetidos e coleção persistida. Carro equipado altera pintura e ritmo. Sem monetização, garantia de raridade ou mercado. Testes de regras e compatibilidade de saves adicionados; balanceamento com jogadores e inspeção visual em dispositivo real pendentes.
