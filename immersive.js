@@ -10,6 +10,17 @@ menus.summon={title:'Invocação de F1',node:summoning};
 const summonCinema=document.createElement('dialog');summonCinema.className='summon-cinema';summonCinema.setAttribute('aria-labelledby','cinemaTitle');
 summonCinema.innerHTML='<div class="cinema-heading"><p class="eyebrow">A CHEGADA DE UM NOVO MONOPOSTO</p><h2 id="cinemaTitle">Quem vem para a sua garagem?</h2><p id="cinemaProgress"></p></div><div id="cinemaStage" class="cinema-stage" data-phase="mystery"><div class="cinema-road"><div class="cinema-finish" aria-hidden="true"></div><span class="finish-caption">CHEGADA</span></div><div class="cinema-car"><svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="#080d12" stroke="#3f515d" stroke-width="2"><rect x="58" y="14" width="52" height="31" rx="7"/><rect x="58" y="105" width="52" height="31" rx="7"/><rect x="218" y="22" width="43" height="29" rx="7"/><rect x="218" y="99" width="43" height="29" rx="7"/></g><g fill="currentColor"><path d="M40 49H120L164 61L277 68V82L164 89L120 101H40Z"/><rect x="31" y="23" width="14" height="104" rx="4"/><rect x="273" y="29" width="13" height="92" rx="4"/><path d="M105 45L163 57V93L105 105Z"/></g><path d="M122 60H157Q181 75 157 90H122Z" fill="#101c26" stroke="#87a3ae" stroke-width="3"/><path d="M52 75H110M186 75H263" stroke="white" stroke-opacity=".35" stroke-width="3"/></svg><span class="cinema-question">?</span></div><p id="cinemaCaption" role="status" aria-live="polite"></p></div><div class="cinema-controls"><button id="skipSummon">Revelar todos</button><button id="nextSummon" class="primary" disabled>Próximo carro →</button></div>';
 document.body.append(summonCinema);
+const dropsDialog=document.createElement('dialog');dropsDialog.className='drops-dialog';dropsDialog.setAttribute('aria-labelledby','dropsTitle');
+dropsDialog.innerHTML='<div class="drops-heading"><p class="eyebrow">SEUS DROPS ESTÃO NO GRID</p><h2 id="dropsTitle">Sua nova formação</h2><p>O carro mais raro ocupa o centro do pódio.</p></div><canvas id="dropsCanvas" role="img" aria-label="Carros invocados, com o mais raro no centro"></canvas><ol id="dropsAccessible" class="sr-only"></ol><div class="drops-controls"><button id="closeDrops" class="primary">Continuar na garagem →</button></div>';
+document.body.append(dropsDialog);let stopDrops=null;
+function closeDrops(){if(stopDrops){stopDrops();stopDrops=null}if(dropsDialog.open)dropsDialog.close();if(drawer.open)$('summonCar').focus()}
+dropsDialog.addEventListener('close',closeDrops);dropsDialog.addEventListener('cancel',e=>{e.preventDefault();closeDrops()});$('closeDrops').onclick=closeDrops;
+function showDrops(results){
+closeDrops();
+$('dropsAccessible').replaceChildren(...DropShowcase.order(results).map(result=>{const li=document.createElement('li');li.textContent=resultText(result);return li}));
+try{dropsDialog.showModal();stopDrops=DropShowcase.mount($('dropsCanvas'),results);$('closeDrops').focus()}catch{closeDrops()}
+}
+
 
 const bank=document.createElement('div');bank.hidden=true;document.body.append(bank);Object.values(menus).forEach(m=>bank.append(m.node));
 let collectionView='',summonBusy=false,revealTimer=null,pendingReveal=null,revealIndex=0;
@@ -41,7 +52,7 @@ const results=pendingReveal;pendingReveal=null;summonBusy=false;
 $('summonResult').replaceChildren(...results.map(resultCard));
 if(summonCinema.open)summonCinema.close();
 render();radio(results.length+' invocaç'+(results.length===1?'ão concluída.':'ões concluídas.'));
-if(drawer.open)$('summonCar').focus()
+showDrops(results)
 }
 function revealCurrent(){
 if(!pendingReveal)return;
@@ -50,7 +61,7 @@ $('cinemaStage').dataset.phase='revealed';
 $('cinemaStage').style.setProperty('--reveal-color',result.car.color);
 $('cinemaCaption').textContent=resultText(result);
 $('nextSummon').disabled=false;
-$('nextSummon').textContent=revealIndex===pendingReveal.length-1?'Ver garagem →':'Próximo carro →';
+$('nextSummon').textContent=revealIndex===pendingReveal.length-1?'Ver todos os drops →':'Próximo carro →';
 revealTimer=setTimeout(nextSummon,1200)
 }
 function raceCurrent(){

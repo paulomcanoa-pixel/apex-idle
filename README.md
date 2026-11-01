@@ -37,3 +37,6 @@ Abra a URL do jogo com ?test=1 para receber 1.000.000 CR uma vez por save. O pro
 - Idle Heroes: wiki comunitária descreve invocações básica, heroica e de amizade, estrelas e pacotes de dez. Referência para ×1/×10 e progressão. Taxas externas variam por modalidade/evento e não foram copiadas. https://idleheroes.fandom.com/wiki/Summon_Circle
 
 As cinco qualidades são decisão do Apex, não a classificação de Genshin. Testes automatizados cobrem chances, garantias, prioridade, reinícios, lotes atômicos, histórico e saves. Build e sintaxe verificados. Inspeção visual local bloqueada pelo navegador sem acesso ao servidor local; testes com jogadores pendentes.
+
+## Pódio dos drops em Canvas
+Ao concluir ou pular as revelações, uma janela central permanece aberta mostrando os carros em Canvas 2D. O mais raro ocupa o centro com arte maior e brilho da qualidade; os demais ficam nas laterais, com as qualidades menores mais afastadas. Cada drop exibe nome, qualidade e status novo/repetido. No celular, o destaque vem primeiro no centro e os demais seguem em pares. Arte original de F1 com pneus, asas, cockpit, halo e pintura; flutuação e brilho animados, com respeito a movimento reduzido. Continuar ou Escape fecha a janela e encerra o loop de desenho. Testes cobrem posição, ordem, limites e ausência de sobreposição em 320/600/900/1200 px; inspeção visual não realizada.

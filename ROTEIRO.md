@@ -75,3 +75,6 @@ As regras atuais substituem os valores do incremento anterior: lendário 0,5%, m
 
 ## Revelação central de invocação
 Diálogo centralizado e responsivo com F1 vetorial original misterioso, interrogação, passagem pela linha de chegada e revelações individuais. Avanço automático/manual, revelar todos, Escape e modo de movimento reduzido. Verificação automatizada da sequência e cobrança única, além dos testes do motor e build. Inspeção visual interrompida pela ferramenta de navegador por não conseguir identificar a URL do Chrome com segurança; não foi validada visualmente.
+
+## Pódio final dos drops
+Apresentação persistente em Canvas após a sequência: mais raro central e maior, raridades menores nas pontas, nomes/qualidades e pontos visíveis. Layout móvel em pares, alternativa textual acessível, animações leves e loop encerrado ao fechar. Alterações recentes de corrida/estratégia/arte no repositório preservadas. Testes de disposição e regressões de jogo passaram; inspeção visual pendente.
