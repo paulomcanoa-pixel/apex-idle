@@ -6,13 +6,13 @@ const models=[
 {id:'solar',name:'Solar 04',color:'#ffbd57',accent:'#403159',nose:41,width:14,wing:30,fin:3},
 {id:'eclipse',name:'Eclipse 05',color:'#b498ff',accent:'#55ded8',nose:45,width:12,wing:28,fin:4}
 ];
-function draw(ctx,{x=0,y=0,a=0,scale=1,id='aurora',color,number='01',shadow=true}={}){const m=models.find(v=>v.id===id)||models[0],paint=color||m.color;ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.scale(scale,scale);
+function draw(ctx,{x=0,y=0,a=0,scale=1,id='aurora',color,number='01',shadow=true,wing,suspension}={}){const original=models.find(v=>v.id===id)||models[0],m={...original,wing:Number.isFinite(wing)?20+wing*1.4:original.wing},paint=color||m.color;ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.scale(scale,scale);
 function poly(points,fill,stroke){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=.65;ctx.stroke()}}
 function rect(x,y,w,h,fill){ctx.fillStyle=fill;ctx.fillRect(x,y,w,h)}
 if(shadow){ctx.shadowColor='#0009';ctx.shadowBlur=6;ctx.shadowOffsetY=3;poly([[-37,-19],[m.nose+2,-24],[m.nose+2,24],[-37,19]],'#00000008');ctx.shadowBlur=0;ctx.shadowOffsetY=0}
 // Carbon-fibre floor, wheels, suspension and brake ducts.
 poly([[-30,-10],[-12,-m.width-4],[12,-m.width-2],[23,-7],[25,7],[12,m.width+2],[-12,m.width+4],[-30,10]],'#10202a','#42525d');
-for(const side of [-1,1]){const y=side*20;for(const axle of [-24,22]){ctx.strokeStyle='#80949c';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(axle-4,side*7);ctx.lineTo(axle-6,y);ctx.moveTo(axle+5,side*7);ctx.lineTo(axle+4,y);ctx.stroke();rect(axle-8,y-5,15,10,'#071016');rect(axle-7,y-4,13,1,'#455059');rect(axle-7,y+3,13,1,'#222b30');rect(axle-5,y-4,2,8,'#b59b5b');rect(axle+3,y-4,2,8,'#b59b5b')}}
+for(const side of [-1,1]){const y=side*(Number.isFinite(suspension)?18+suspension*.4:20);for(const axle of [-24,22]){ctx.strokeStyle='#80949c';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(axle-4,side*7);ctx.lineTo(axle-6,y);ctx.moveTo(axle+5,side*7);ctx.lineTo(axle+4,y);ctx.stroke();rect(axle-8,y-5,15,10,'#071016');rect(axle-7,y-4,13,1,'#455059');rect(axle-7,y+3,13,1,'#222b30');rect(axle-5,y-4,2,8,'#b59b5b');rect(axle+3,y-4,2,8,'#b59b5b')}}
 // Broad rear wing, two front-wing elements and coloured endplates.
 rect(-37,-25,6,50,'#0a141d');rect(-37,-24,2,48,paint);rect(-38,-26,10,3,m.accent);rect(-38,23,10,3,m.accent);
 poly([[m.nose-8,-m.wing],[m.nose-1,-m.wing],[m.nose+1,-6],[m.nose+1,6],[m.nose-1,m.wing],[m.nose-8,m.wing],[m.nose-4,5],[m.nose-4,-5]],'#182833','#789098');rect(m.nose-6,-m.wing,5,3,paint);rect(m.nose-6,m.wing-3,5,3,paint);
