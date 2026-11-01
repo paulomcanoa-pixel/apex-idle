@@ -27,3 +27,4 @@ g.summonPity={epic:9,legendary:49,mythic:99};assert.equal(A.summon(g,()=>0).car.
 assert(!A.validate({...A.initial(),summonPity:{epic:10,legendary:0,mythic:0}}));assert(!A.validate({...A.initial(),summonHistory:[{id:'unknown'}]}));
 assert(A.validate(JSON.parse(JSON.stringify(g))));
 console.log('OK: cinco raridades, garantias 10/50/100, reinício dos contadores, lote atômico e histórico persistido.');
+
