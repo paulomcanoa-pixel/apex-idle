@@ -15,31 +15,43 @@ function advance(s,seconds,mult=1){if(!s.running)return 0;const total=s.progress
 
 const cars=[
 {id:'aurora',name:'Aurora F1-01',rarity:'Inicial',chance:0,bonus:0,color:'#d4fc5a'},
-{id:'vento',name:'Vento F1-02',rarity:'Comum',chance:60,bonus:.03,color:'#a8b3bd'},
-{id:'scarlatto',name:'Scarlatto F1-03',rarity:'Raro',chance:25,bonus:.06,color:'#66b8ff'},
-{id:'solar',name:'Solar F1-04',rarity:'Épico',chance:10,bonus:.10,color:'#bd9aff'},
-{id:'eclipse',name:'Eclipse F1-05',rarity:'Lendário',chance:4,bonus:.15,color:'#ffc857'},
-{id:'zenith',name:'Zenith F1-06',rarity:'Mítico',chance:1,bonus:.22,color:'#ff7aa8'}
+{id:'vento',name:'Vento F1-02',rarity:'Comum',chance:49.4,bonus:.03,color:'#a8b3bd'},
+{id:'scarlatto',name:'Scarlatto F1-03',rarity:'Raro',chance:35,bonus:.06,color:'#66b8ff'},
+{id:'solar',name:'Solar F1-04',rarity:'Épico',chance:15,bonus:.10,color:'#bd9aff'},
+{id:'eclipse',name:'Eclipse F1-05',rarity:'Lendário',chance:.5,bonus:.15,color:'#ffc857'},
+{id:'zenith',name:'Zenith F1-06',rarity:'Mítico',chance:.1,bonus:.22,color:'#ff7aa8'}
 ];
-const summonCost=200,duplicateRefund=100;
+const summonCost=200;
+const duplicatePoints={vento:5,scarlatto:15,solar:50,eclipse:200,zenith:1000};
+const shopPrices={vento:50,scarlatto:150,solar:500,eclipse:2000,zenith:10000};
 function ownedCars(s){return s.ownedCars===undefined?['aurora']:s.ownedCars}
 function equippedCar(s){return cars.find(c=>c.id===(s.equippedCar||'aurora'))||cars[0]}
 function validCollection(s){const owned=ownedCars(s);return Array.isArray(owned)&&owned.length>0&&owned.length<=cars.length&&new Set(owned).size===owned.length&&owned.includes('aurora')&&owned.every(id=>cars.some(c=>c.id===id))&&(s.equippedCar===undefined||owned.includes(s.equippedCar))}
-const pityLimits={epic:10,legendary:50,mythic:100};
+const pityLimits={epic:10,legendary:200};
 function pity(s){return s.summonPity||{epic:0,legendary:0,mythic:0}}
-function validGacha(s){return (s.summonPity===undefined||s.summonPity&&Object.keys(pityLimits).every(k=>Number.isInteger(s.summonPity[k])&&s.summonPity[k]>=0&&s.summonPity[k]<pityLimits[k]))&&(s.summonHistory===undefined||Array.isArray(s.summonHistory)&&s.summonHistory.length<=10&&s.summonHistory.every(h=>h&&cars.slice(1).some(c=>c.id===h.id)&&typeof h.duplicate==='boolean'&&typeof h.guaranteed==='boolean'))}
+function points(s){return s.summonPoints||0}
+function summonRates(s){
+const misses=pity(s).mythic,extra=Math.min(24.9,misses*.01);
+let rates=cars.slice(1).map(c=>({id:c.id,chance:c.chance+(c.id==='zenith'?extra:c.id==='vento'?-extra:0)}));
+const chosen=rates.find(r=>r.id===s.wishCar);
+if(chosen){const original=chosen.chance,factor=(100-2*original)/(100-original);rates=rates.map(r=>({id:r.id,chance:r.id===chosen.id?2*original:r.chance*factor}))}
+return rates
+}
+function setWish(s,id){if(id!==''&&!cars.slice(1).some(c=>c.id===id))return false;s.wishCar=id;return true}
+function validGacha(s){return (s.summonPity===undefined||s.summonPity&&['epic','legendary','mythic'].every(k=>Number.isSafeInteger(s.summonPity[k])&&s.summonPity[k]>=0&&(k==='mythic'||s.summonPity[k]<pityLimits[k])))&&(s.summonPoints===undefined||Number.isSafeInteger(s.summonPoints)&&s.summonPoints>=0)&&(s.wishCar===undefined||s.wishCar===''||cars.slice(1).some(c=>c.id===s.wishCar))&&(s.testCreditsGranted===undefined||typeof s.testCreditsGranted==='boolean')&&(s.summonHistory===undefined||Array.isArray(s.summonHistory)&&s.summonHistory.length<=10&&s.summonHistory.every(h=>h&&cars.slice(1).some(c=>c.id===h.id)&&typeof h.duplicate==='boolean'&&typeof h.guaranteed==='boolean'&&(h.points===undefined||Number.isSafeInteger(h.points)&&h.points>=0)))}
 function summon(s,rng=Math.random){
 if(s.money<summonCost)return null;
 const roll=rng();if(!Number.isFinite(roll)||roll<0||roll>=1)return null;
-let threshold=0,car=cars.slice(1).find(c=>{threshold+=c.chance;return roll*100<threshold});
+let threshold=0;const rates=summonRates(s),hit=rates.find(r=>{threshold+=r.chance;return roll*100<threshold})||rates[rates.length-1];
+let car=cars.find(c=>c.id===hit.id);
 const p=pity(s);let guaranteed=false;
-const floor=p.mythic>=99?5:p.legendary>=49?4:p.epic>=9?3:0;
+const floor=p.legendary>=199?4:p.epic>=9?3:0;
 if(cars.indexOf(car)<floor){car=cars[floor];guaranteed=true}
-const rank=cars.indexOf(car),owned=ownedCars(s).slice(),duplicate=owned.includes(car.id);
-s.money-=summonCost;if(duplicate)s.money+=duplicateRefund;else owned.push(car.id);
-s.ownedCars=owned;s.summonPity={epic:rank>=3?0:p.epic+1,legendary:rank>=4?0:p.legendary+1,mythic:rank>=5?0:p.mythic+1};
-s.summonHistory=[{id:car.id,duplicate,guaranteed},...(s.summonHistory||[])].slice(0,10);
-return {car,duplicate,guaranteed,refund:duplicate?duplicateRefund:0}
+const rank=cars.indexOf(car),owned=ownedCars(s).slice(),duplicate=owned.includes(car.id),earned=duplicate?duplicatePoints[car.id]:0;
+s.money-=summonCost;s.summonPoints=points(s)+earned;if(!duplicate)owned.push(car.id);
+s.ownedCars=owned;s.summonPity={epic:rank>=3?0:p.epic+1,legendary:rank>=4?0:p.legendary+1,mythic:rank>=5?0:Math.min(Number.MAX_SAFE_INTEGER,p.mythic+1)};
+s.summonHistory=[{id:car.id,duplicate,guaranteed,points:earned},...(s.summonHistory||[])].slice(0,10);
+return {car,duplicate,guaranteed,points:earned}
 }
 function summonMany(s,count=10,rng=Math.random){
 if(![1,10].includes(count)||s.money<summonCost*count)return null;
@@ -47,9 +59,11 @@ const draft=JSON.parse(JSON.stringify(s)),results=[];
 for(let i=0;i<count;i++){const result=summon(draft,rng);if(!result)return null;results.push(result)}
 Object.assign(s,draft);return results
 }
+function shopBuy(s,id){const price=shopPrices[id];if(!price||ownedCars(s).includes(id)||points(s)<price)return false;s.summonPoints=points(s)-price;s.ownedCars=[...ownedCars(s),id];return true}
+function grantTestCredits(s){if(s.testCreditsGranted)return false;s.money+=1000000;s.testCreditsGranted=true;return true}
 function equipCar(s,id){if(s.running||!cars.some(c=>c.id===id)||!ownedCars(s).includes(id))return false;s.equippedCar=id;s.color=equippedCar(s).color;return true}
 
 const baseValidate=validate;
 function validSave(s){return baseValidate(s)&&validCollection(s)&&validGacha(s)&&(s.onboarded===undefined||typeof s.onboarded==='boolean')&&(s.team===undefined||Number.isInteger(s.team)&&s.team>=0&&s.team<teams.length)&&(s.color===undefined||/^#[0-9a-f]{6}$/i.test(s.color))&&(s.setup===undefined||s.setup&&['wing','suspension'].every(k=>Number.isInteger(s.setup[k])&&s.setup[k]>=0&&s.setup[k]<=10))}
-const api={pity,pityLimits,summonMany,cars,summonCost,duplicateRefund,ownedCars,equippedCar,summon,equipCar,circuits,parts,teams,setup,setupPenalty,initial,validate:validSave,duration,reward,cost,buy,advance};root.Apex=api;if(typeof module!=='undefined')module.exports=api;
+const api={summonRates,setWish,points,duplicatePoints,shopPrices,shopBuy,grantTestCredits,pity,pityLimits,summonMany,cars,summonCost,ownedCars,equippedCar,summon,equipCar,circuits,parts,teams,setup,setupPenalty,initial,validate:validSave,duration,reward,cost,buy,advance};root.Apex=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

@@ -16,12 +16,19 @@ Próximas etapas: 1) validar o ritmo e diferenciar pistas; 2) pilotos, pneus, bo
 
 Protótipo solo; sem backend, pagamentos ou multiplayer. Saves locais podem ser editados e não servem para ranking online confiável. O armazenamento depende do navegador e da origem; exporte antes de trocar de navegador ou publicar. Ainda não publicado e não cadastrado no TopIdle. Sem marcas, equipes ou pilotos oficiais.
 
-## Invocação de F1 — gacha
-Menu → Invocação F1. Um sorteio custa 200 CR; ×10 custa 2.000 CR de saldo inicial. Chances base: comum 60%, raro 25%, épico 10%, lendário 4%, mítico 1%. Um modelo por raridade; Aurora permanece como inicial. Repetidos devolvem 100 CR.
+## Invocação de F1 — regras atuais
+Menu → Invocação F1. ×1 custa 200 CR, ×10 custa 2.000 CR. Base sem desejo nem progresso: comum 49,4%, raro 35%, épico 15%, lendário 0,5%, mítico 0,1%. Um modelo por qualidade. Saves antigos mantêm a coleção.
 
-Garantias persistidas: épico+ em até 10 tentativas; lendário+ em até 50; mítico em até 100. Cada qualidade ou superior reinicia o contador correspondente. Na tentativa limite, um resultado inferior é elevado ao piso garantido; mítico tem prioridade. Garantias podem repetir carros e alteram a distribuição efetiva. Não há soft pity. ×10 segue exatamente dez sorteios individuais e mantém as garantias entre lotes. Histórico dos últimos dez resultados, contadores e coleção acompanham exportação/importação. Saves anteriores mantêm os carros e começam os novos contadores em zero.
+Escolha um modelo na lista de desejos: sua chance atual dobra exatamente antes das garantias; as outras são reduzidas proporcionalmente para somar 100%. As chances dinâmicas são exibidas. A chance base mítica cresce +0,01 ponto percentual por invocação sem mítico, até 25% antes do desejo. Receber mítico por invocação reinicia esse aumento; com desejo mítico, o reinício aparece como 0,2%. Não há garantia mítica.
 
-Pause para equipar. Bônus de ritmo: comum 3%, raro 6%, épico 10%, lendário 15%, mítico 22%, somados ao denominador de velocidade das melhorias. Só moeda do jogo; sem pagamentos.
+Garantias: épico ou superior em até dez tentativas, lendário ou superior em até duzentas. Receber a qualidade ou superior reinicia o contador correspondente. Mítico não é forçado em nenhuma tentativa. Lotes seguem as mesmas regras dos sorteios individuais. Contadores e histórico são persistidos.
+
+Repetidos não devolvem créditos: rendem 5/15/50/200/1.000 pontos para comum/raro/épico/lendário/mítico. A loja troca 50/150/500/2.000/10.000 pontos pelo respectivo modelo ainda bloqueado. Compras não alteram contadores e não equipam automaticamente. Reembolsos antigos já recebidos permanecem no saldo.
+
+Animação de chegada ao box por 1,8 s, botão de pular e respeito a movimento reduzido. Saldo/resultados são salvos antes da animação; cliques extras são bloqueados durante a revelação. Fechar o menu encerra a animação sem perder o resultado.
+
+### Créditos de teste
+Abra a URL do jogo com ?test=1 para receber 1.000.000 CR uma vez por save. O progresso existente é preservado, e a concessão é marcada no save/exportação. O jogo é solo e local, sem autenticação ou moeda real; esse modo não concede créditos remotamente a outro navegador. Não altera o saldo inicial dos visitantes comuns.
 
 ## Pesquisa de referência — 01/11/2026
 - Genshin: regras variam por banner; a HoYoverse orienta consultar Detalhes no jogo. A página oficial do banner permanente documenta garantias de 4★+ em 10 e 5★ em 90. Inspiração: garantias e probabilidades explícitas, sem copiar taxas ou personagens. https://support.hoyoverse.com/hc/en-us/articles/50333906347929-What-are-the-rules-for-making-a-Wish e https://webstatic-sea.hoyoverse.com/genshin/event/e20190909gacha/index.html?gacha_id=fecafa7b6560db5f3182222395d88aaa6aaac1bc&lang=en&region=os_asia
