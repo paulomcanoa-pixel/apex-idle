@@ -1,4 +1,5 @@
 (function(root){
+const equipment=typeof PartsShop!=='undefined'?PartsShop:typeof require==='function'?require('./parts-shop-model.js'):{factor:()=>1,validate:()=>true};
 const circuits=[{name:'Vale Verde',region:'BRASIL',rep:0,mult:1,time:16},{name:'Costa Azul',region:'PORTUGAL',rep:30,mult:2.3,time:20},{name:'Deserto Solar',region:'BAHREIN',rep:100,mult:4.8,time:25}];
 const parts=[{name:'Unidade de potência',desc:'Mais velocidade nas retas.',base:100},{name:'Aerodinâmica',desc:'Curvas rápidas, voltas mais curtas.',base:140},{name:'Engenharia de pneus',desc:'Aderência que se transforma em ritmo.',base:120},{name:'Patrocínio',desc:'Aumente os créditos de cada volta.',base:180}];
 function initial(){return {version:1,money:220,laps:0,rep:0,levels:[0,0,0,0],circuit:0,progress:0,running:false,savedAt:Date.now()}}
@@ -7,7 +8,7 @@ const teams=[{name:'Aurora Racing',color:'#d4fc5a',style:'Identidade brasileira 
 const targets=[{wing:7,suspension:7},{wing:5,suspension:4},{wing:2,suspension:3}];
 function setup(s){return s.setup||{wing:5,suspension:5}}
 function setupPenalty(s){const p=setup(s),t=targets[s.circuit];return (Math.abs(p.wing-t.wing)+Math.abs(p.suspension-t.suspension))*.012}
-function duration(s){return circuits[s.circuit].time*(1+setupPenalty(s))/(1+s.levels[0]*.08+s.levels[1]*.06+s.levels[2]*.05+equippedCar(s).bonus)}
+function duration(s){return circuits[s.circuit].time*(1+setupPenalty(s))/(1+s.levels[0]*.08+s.levels[1]*.06+s.levels[2]*.05+equippedCar(s).bonus)/equipment.factor(s)}
 function reward(s){return Math.floor(45*circuits[s.circuit].mult*(1+s.levels[3]*.3))}
 function cost(s,i){return Math.ceil(parts[i].base*1.55**s.levels[i])}
 function buy(s,i){if(!Number.isInteger(i)||i<0||i>3||s.levels[i]>=100||s.money<cost(s,i))return false;s.money-=cost(s,i);s.levels[i]++;return true}
@@ -64,6 +65,6 @@ function grantTestCredits(s){if(s.testCreditsGranted)return false;s.money+=10000
 function equipCar(s,id){if(s.running||!cars.some(c=>c.id===id)||!ownedCars(s).includes(id))return false;s.equippedCar=id;s.color=equippedCar(s).color;return true}
 
 const baseValidate=validate;
-function validSave(s){return baseValidate(s)&&validCollection(s)&&validGacha(s)&&(s.onboarded===undefined||typeof s.onboarded==='boolean')&&(s.team===undefined||Number.isInteger(s.team)&&s.team>=0&&s.team<teams.length)&&(s.color===undefined||/^#[0-9a-f]{6}$/i.test(s.color))&&(s.setup===undefined||s.setup&&['wing','suspension'].every(k=>Number.isInteger(s.setup[k])&&s.setup[k]>=0&&s.setup[k]<=10))}
+function validSave(s){return equipment.validate(s)&&baseValidate(s)&&validCollection(s)&&validGacha(s)&&(s.onboarded===undefined||typeof s.onboarded==='boolean')&&(s.team===undefined||Number.isInteger(s.team)&&s.team>=0&&s.team<teams.length)&&(s.color===undefined||/^#[0-9a-f]{6}$/i.test(s.color))&&(s.setup===undefined||s.setup&&['wing','suspension'].every(k=>Number.isInteger(s.setup[k])&&s.setup[k]>=0&&s.setup[k]<=10))}
 const api={summonRates,setWish,points,duplicatePoints,shopPrices,shopBuy,grantTestCredits,pity,pityLimits,summonMany,cars,summonCost,ownedCars,equippedCar,summon,equipCar,circuits,parts,teams,setup,setupPenalty,initial,validate:validSave,duration,reward,cost,buy,advance};root.Apex=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
