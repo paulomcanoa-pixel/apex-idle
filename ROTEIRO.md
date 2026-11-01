@@ -72,3 +72,6 @@ Comum, raro, épico, lendário e mítico com identidade por cor, taxas explícit
 
 ## Revisão solicitada — desejo, loja e testes
 As regras atuais substituem os valores do incremento anterior: lendário 0,5%, mítico 0,1%; desejo dobra a chance atual do carro; repetidos rendem pontos; loja de modelos; garantias épico 10/lendário 200; sem garantia mítica, com +0,01 pp por falha até 25% antes do desejo e reinício no mítico. Comum 49,4%/raro 35%/épico 15% completam o pool base e permitem dobrar qualquer modelo sem ultrapassar 100%. Animação com pular e modo ?test=1 concede um milhão de créditos uma vez por save. Testes cobrem regras, persistência, loja, crédito idempotente e mil sorteios reproduzíveis; sintaxe e build verificados. Inspeção visual permanece pendente por indisponibilidade de acesso do navegador ao servidor local.
+
+## Revelação central de invocação
+Diálogo centralizado e responsivo com F1 vetorial original misterioso, interrogação, passagem pela linha de chegada e revelações individuais. Avanço automático/manual, revelar todos, Escape e modo de movimento reduzido. Verificação automatizada da sequência e cobrança única, além dos testes do motor e build. Inspeção visual interrompida pela ferramenta de navegador por não conseguir identificar a URL do Chrome com segurança; não foi validada visualmente.

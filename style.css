@@ -7,4 +7,29 @@
 
 .summon-actions{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0}.summon-guarantees{padding:14px;background:#283322;color:var(--lime);border-radius:6px;line-height:1.8;font-size:12px}.summon-rules{margin:18px 0;padding:14px;border:1px solid var(--line);border-radius:6px}.summon-rules summary{cursor:pointer;font-weight:600}.summon-rules p,.summon-rules li{font-size:12px;color:#b4c4cc;line-height:1.8}.summon-reveal{padding:12px;margin:6px 0;border-left:4px solid var(--car-color);color:var(--car-color);animation:summonReveal .35s ease-out}@keyframes summonReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@media(prefers-reduced-motion:reduce){.summon-reveal{animation:none}}
 
-#wishCar{display:block;width:100%;padding:12px;margin-top:10px;background:#202c34;color:white;border:1px solid #46555f;border-radius:6px}.summon-shop{margin-top:28px;padding-top:22px;border-top:1px solid var(--line)}.summon-animation{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;overflow:hidden;background:radial-gradient(ellipse,#35464b,#0b1014);border:1px solid #617977;border-radius:12px}.summon-animation[hidden]{display:none}.summon-orbit{font-size:75px;color:var(--lime);animation:summonOrbit 1.2s ease-in-out infinite;filter:drop-shadow(0 0 20px #d4fc5a)}@keyframes summonOrbit{0%{transform:rotate(0deg) scale(.6);opacity:.4}70%{transform:rotate(180deg) scale(1.3);opacity:1}100%{transform:rotate(360deg) scale(.6);opacity:.4}}@media(prefers-reduced-motion:reduce){.summon-orbit{animation:none}}
+#wishCar{display:block;width:100%;padding:12px;margin-top:10px;background:#202c34;color:white;border:1px solid #46555f;border-radius:6px}.summon-shop{margin-top:28px;padding-top:22px;border-top:1px solid var(--line)}
+.summon-cinema{position:fixed;inset:0;margin:auto;width:min(780px,calc(100vw - 28px));max-height:calc(100dvh - 28px);overflow:auto;padding:28px;color:#f5f8fa;border:1px solid #576c7c;border-radius:20px;background:radial-gradient(ellipse at 50% 35%,#243a49,#0b111b 75%);box-shadow:0 30px 120px #000b;text-align:center}
+.summon-cinema::backdrop{background:#03080de8;backdrop-filter:blur(10px)}
+.cinema-heading h2{font-size:clamp(24px,5vw,36px)}.cinema-heading>p:last-child{font-size:11px;letter-spacing:3px;color:#a3b6c4}
+.cinema-stage{--reveal-color:#a2b6c4;position:relative;isolation:isolate;height:300px;overflow:hidden;border:1px solid #3f5362;border-radius:12px;background:radial-gradient(ellipse at 50% 42%,#3c5364,#101b27 75%)}
+.cinema-road{position:absolute;inset:38px 0 74px;background:#1a2631;border-top:3px solid #577079;border-bottom:3px solid #577079}
+.cinema-road::before{content:"";position:absolute;inset:50% 0 auto;border-top:2px dashed #9fb1b53d}
+.cinema-finish{position:absolute;left:68%;top:0;bottom:0;width:38px;background:conic-gradient(#eef3ee 25%,#10161e 0 50%,#eef3ee 0 75%,#10161e 0) 0 0/19px 19px;box-shadow:0 0 28px #d4fc5a22}
+.finish-caption{position:absolute;left:68%;top:-26px;transform:translateX(-20%);font-size:9px;letter-spacing:3px;color:#d9e5e8}
+.cinema-car{position:absolute;top:69px;left:50%;width:clamp(165px,35vw,270px);transform:translateX(-50%);color:#070e15;filter:drop-shadow(0 8px 18px #0008)}
+.cinema-car svg{display:block;width:100%;height:auto;filter:brightness(.55)}
+.cinema-question{position:absolute;inset:0;display:grid;place-items:center;color:white;font:bold 64px 'Barlow Condensed',Arial;filter:drop-shadow(0 0 15px white)}
+#cinemaCaption{position:absolute;bottom:10px;left:18px;right:18px;min-height:42px;margin:0;color:#bdcdd8;font-size:13px;display:grid;place-items:center}
+.cinema-stage[data-phase=mystery] .cinema-car{animation:mysteryPulse .75s ease-in-out infinite alternate}
+.cinema-stage[data-phase=racing] .cinema-car{animation:finishSprint .85s cubic-bezier(.45,0,.85,.4) both}
+.cinema-stage[data-phase=racing] .cinema-question{display:none}
+.cinema-stage[data-phase=revealed] .cinema-car{color:var(--reveal-color);animation:carReveal .4s ease-out both;filter:drop-shadow(0 0 26px var(--reveal-color))}
+.cinema-stage[data-phase=revealed] .cinema-car svg{filter:none}.cinema-stage[data-phase=revealed] .cinema-question{display:none}
+.cinema-stage[data-phase=revealed] #cinemaCaption{color:var(--reveal-color);font-weight:700}
+.cinema-controls{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:22px}
+.summon-reveal svg{width:130px;max-width:100%;display:block;color:var(--car-color)}.summon-reveal p{margin:5px 0}
+@keyframes mysteryPulse{from{opacity:.6;filter:drop-shadow(0 0 8px #bbd5df33)}to{opacity:1;filter:drop-shadow(0 0 24px #bbd5df77)}}
+@keyframes finishSprint{from{left:-35%;transform:translateX(-50%)}to{left:135%;transform:translateX(-50%)}}
+@keyframes carReveal{from{opacity:0;transform:translateX(-50%) scale(.8)}to{opacity:1;transform:translateX(-50%) scale(1)}}
+@media(max-width:480px){.summon-cinema{padding:18px 12px}.cinema-stage{height:265px}.cinema-car{top:78px}.cinema-question{font-size:48px}.cinema-controls button{flex:1}.cinema-heading .eyebrow{font-size:8px;letter-spacing:1px}}
+@media(prefers-reduced-motion:reduce){.cinema-stage .cinema-car{animation:none!important}.summon-reveal{animation:none}}

@@ -25,7 +25,7 @@ Garantias: épico ou superior em até dez tentativas, lendário ou superior em a
 
 Repetidos não devolvem créditos: rendem 5/15/50/200/1.000 pontos para comum/raro/épico/lendário/mítico. A loja troca 50/150/500/2.000/10.000 pontos pelo respectivo modelo ainda bloqueado. Compras não alteram contadores e não equipam automaticamente. Reembolsos antigos já recebidos permanecem no saldo.
 
-Animação de chegada ao box por 1,8 s, botão de pular e respeito a movimento reduzido. Saldo/resultados são salvos antes da animação; cliques extras são bloqueados durante a revelação. Fechar o menu encerra a animação sem perder o resultado.
+Revelação central em diálogo: primeiro um monoposto vetorial original escuro com interrogação; depois o carro cruza uma linha de chegada quadriculada; por fim, cada carro ganha a cor de raridade e nome. Lotes são revelados um a um, com avanço automático, Próximo carro e Revelar todos. Escape encerra com resumo completo. Respeita movimento reduzido. Saldo/resultados são salvos antes da animação; cliques extras são bloqueados durante a revelação. Fechar o menu encerra a animação sem perder o resultado.
 
 ### Créditos de teste
 Abra a URL do jogo com ?test=1 para receber 1.000.000 CR uma vez por save. O progresso existente é preservado, e a concessão é marcada no save/exportação. O jogo é solo e local, sem autenticação ou moeda real; esse modo não concede créditos remotamente a outro navegador. Não altera o saldo inicial dos visitantes comuns.
