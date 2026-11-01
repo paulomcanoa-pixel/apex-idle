@@ -78,3 +78,6 @@ Diálogo centralizado e responsivo com F1 vetorial original misterioso, interrog
 
 ## Pódio final dos drops
 Apresentação persistente em Canvas após a sequência: mais raro central e maior, raridades menores nas pontas, nomes/qualidades e pontos visíveis. Layout móvel em pares, alternativa textual acessível, animações leves e loop encerrado ao fechar. Alterações recentes de corrida/estratégia/arte no repositório preservadas. Testes de disposição e regressões de jogo passaram; inspeção visual pendente.
+
+## Celebração inspirada em cartas de anime
+Estilo final ampliado em Canvas com entrada progressiva, raios, partículas, estrelas, bordas de qualidade, destaque central e título dourado. Referência Anime Idle observada apenas na página pública e no modo visitante; animação final específica não acessível sem cadastro. Não afirmar reprodução exata. Layout automatizado validado e alterações paralelas de garagem preservadas.
