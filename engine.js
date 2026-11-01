@@ -1,0 +1,18 @@
+(function(root){
+const circuits=[{name:'Vale Verde',region:'BRASIL',rep:0,mult:1,time:16},{name:'Costa Azul',region:'PORTUGAL',rep:30,mult:2.3,time:20},{name:'Deserto Solar',region:'BAHREIN',rep:100,mult:4.8,time:25}];
+const parts=[{name:'Unidade de potência',desc:'Mais velocidade nas retas.',base:100},{name:'Aerodinâmica',desc:'Curvas rápidas, voltas mais curtas.',base:140},{name:'Engenharia de pneus',desc:'Aderência que se transforma em ritmo.',base:120},{name:'Patrocínio',desc:'Aumente os créditos de cada volta.',base:180}];
+function initial(){return {version:1,money:220,laps:0,rep:0,levels:[0,0,0,0],circuit:0,progress:0,running:false,savedAt:Date.now()}}
+function validate(s){return s&&s.version===1&&Number.isFinite(s.money)&&s.money>=0&&s.money<1e100&&Number.isSafeInteger(s.laps)&&s.laps>=0&&Number.isSafeInteger(s.rep)&&s.rep>=0&&Array.isArray(s.levels)&&s.levels.length===4&&s.levels.every(n=>Number.isInteger(n)&&n>=0&&n<=100)&&Number.isInteger(s.circuit)&&s.circuit>=0&&s.circuit<3&&s.rep>=circuits[s.circuit].rep&&Number.isFinite(s.progress)&&s.progress>=0&&s.progress<1&&typeof s.running==='boolean'&&Number.isFinite(s.savedAt)&&s.savedAt>0}
+const teams=[{name:'Aurora Racing',color:'#d4fc5a',style:'Identidade brasileira · verde elétrico'},{name:'Scarlatto Corse',color:'#ff685c',style:'Tradição italiana · vermelho'},{name:'Atlantic Motorsport',color:'#66b8ff',style:'Engenharia britânica · azul'}];
+const targets=[{wing:7,suspension:7},{wing:5,suspension:4},{wing:2,suspension:3}];
+function setup(s){return s.setup||{wing:5,suspension:5}}
+function setupPenalty(s){const p=setup(s),t=targets[s.circuit];return (Math.abs(p.wing-t.wing)+Math.abs(p.suspension-t.suspension))*.012}
+function duration(s){return circuits[s.circuit].time*(1+setupPenalty(s))/(1+s.levels[0]*.08+s.levels[1]*.06+s.levels[2]*.05)}
+function reward(s){return Math.floor(45*circuits[s.circuit].mult*(1+s.levels[3]*.3))}
+function cost(s,i){return Math.ceil(parts[i].base*1.55**s.levels[i])}
+function buy(s,i){if(!Number.isInteger(i)||i<0||i>3||s.levels[i]>=100||s.money<cost(s,i))return false;s.money-=cost(s,i);s.levels[i]++;return true}
+function advance(s,seconds,mult=1){if(!s.running)return 0;const total=s.progress+Math.max(0,seconds)*mult/duration(s),laps=Math.floor(total);s.progress=total-laps;s.laps+=laps;s.rep+=laps;s.money+=laps*reward(s);return laps}
+const baseValidate=validate;
+function validSave(s){return baseValidate(s)&&(s.onboarded===undefined||typeof s.onboarded==='boolean')&&(s.team===undefined||Number.isInteger(s.team)&&s.team>=0&&s.team<teams.length)&&(s.color===undefined||/^#[0-9a-f]{6}$/i.test(s.color))&&(s.setup===undefined||s.setup&&['wing','suspension'].every(k=>Number.isInteger(s.setup[k])&&s.setup[k]>=0&&s.setup[k]<=10))}
+const api={circuits,parts,teams,setup,setupPenalty,initial,validate:validSave,duration,reward,cost,buy,advance};root.Apex=api;if(typeof module!=='undefined')module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);
