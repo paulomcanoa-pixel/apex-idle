@@ -66,3 +66,6 @@ Observar se um novo jogador consegue iniciar, comprar melhoria e entender um ace
 ## Incremento entregue — Invocação
 
 Aba de invocação com créditos do jogo, quatro modelos fictícios sorteáveis, chances explícitas, reembolso de repetidos e coleção persistida. Carro equipado altera pintura e ritmo. Sem monetização, garantia de raridade ou mercado. Testes de regras e compatibilidade de saves adicionados; balanceamento com jogadores e inspeção visual em dispositivo real pendentes.
+
+## Incremento gacha — cinco qualidades
+Comum, raro, épico, lendário e mítico com identidade por cor, taxas explícitas 60/25/10/4/1%, invocação ×1/×10, histórico de dez resultados e garantias 10/50/100. Receber a qualidade-alvo ou superior reinicia sua garantia; contadores persistem entre sessões e lotes. Preserva carros já obtidos; contadores novos começam em zero. Referências e limitações no README. Wishlist, evolução por cópias e banners de destaque ficam como possibilidades futuras, sem anúncio de entrega. Testes de regras e build passaram; inspeção visual local bloqueada por acesso ao localhost.

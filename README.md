@@ -16,6 +16,17 @@ Próximas etapas: 1) validar o ritmo e diferenciar pistas; 2) pilotos, pneus, bo
 
 Protótipo solo; sem backend, pagamentos ou multiplayer. Saves locais podem ser editados e não servem para ranking online confiável. O armazenamento depende do navegador e da origem; exporte antes de trocar de navegador ou publicar. Ainda não publicado e não cadastrado no TopIdle. Sem marcas, equipes ou pilotos oficiais.
 
-## Invocação de F1
+## Invocação de F1 — gacha
+Menu → Invocação F1. Um sorteio custa 200 CR; ×10 custa 2.000 CR de saldo inicial. Chances base: comum 60%, raro 25%, épico 10%, lendário 4%, mítico 1%. Um modelo por raridade; Aurora permanece como inicial. Repetidos devolvem 100 CR.
 
-Menu → Invocação F1: 200 CR por sorteio. Chances: Vento 60%, Scarlatto 30%, Solar 9%, Eclipse 1%. Repetidos devolvem 100 CR. Pause para equipar; bônus de ritmo de 3%, 6%, 10% e 15% somam ao denominador de velocidade das melhorias. Modelos fictícios, sem pagamentos. Coleção e carro equipado acompanham o save local e a exportação. Saves antigos recebem o Aurora inicial. Testes automatizados de economia e persistência; validação com jogadores pendente.
+Garantias persistidas: épico+ em até 10 tentativas; lendário+ em até 50; mítico em até 100. Cada qualidade ou superior reinicia o contador correspondente. Na tentativa limite, um resultado inferior é elevado ao piso garantido; mítico tem prioridade. Garantias podem repetir carros e alteram a distribuição efetiva. Não há soft pity. ×10 segue exatamente dez sorteios individuais e mantém as garantias entre lotes. Histórico dos últimos dez resultados, contadores e coleção acompanham exportação/importação. Saves anteriores mantêm os carros e começam os novos contadores em zero.
+
+Pause para equipar. Bônus de ritmo: comum 3%, raro 6%, épico 10%, lendário 15%, mítico 22%, somados ao denominador de velocidade das melhorias. Só moeda do jogo; sem pagamentos.
+
+## Pesquisa de referência — 01/11/2026
+- Genshin: regras variam por banner; a HoYoverse orienta consultar Detalhes no jogo. A página oficial do banner permanente documenta garantias de 4★+ em 10 e 5★ em 90. Inspiração: garantias e probabilidades explícitas, sem copiar taxas ou personagens. https://support.hoyoverse.com/hc/en-us/articles/50333906347929-What-are-the-rules-for-making-a-Wish e https://webstatic-sea.hoyoverse.com/genshin/event/e20190909gacha/index.html?gacha_id=fecafa7b6560db5f3182222395d88aaa6aaac1bc&lang=en&region=os_asia
+- AFK Journey: guia comunitário Prydwen descreve wishlist para restringir resultados e uso de duplicatas na ascensão. Referência para futura seleção de modelos; wishlist e ascensão não foram implementadas. https://www.prydwen.gg/afk-journey/guides/wishlist-tips
+- AFK Arena: guia comunitário descreve diferentes pools, wishlist e conversão de comuns. Referência de gestão de coleção. https://www.afk.global/afk-arena/guides/summoning
+- Idle Heroes: wiki comunitária descreve invocações básica, heroica e de amizade, estrelas e pacotes de dez. Referência para ×1/×10 e progressão. Taxas externas variam por modalidade/evento e não foram copiadas. https://idleheroes.fandom.com/wiki/Summon_Circle
+
+As cinco qualidades são decisão do Apex, não a classificação de Genshin. Testes automatizados cobrem chances, garantias, prioridade, reinícios, lotes atômicos, histórico e saves. Build e sintaxe verificados. Inspeção visual local bloqueada pelo navegador sem acesso ao servidor local; testes com jogadores pendentes.
