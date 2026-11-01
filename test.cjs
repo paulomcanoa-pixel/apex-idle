@@ -39,3 +39,4 @@ assert(A.validate({...A.initial(),summonPity:{epic:9,legendary:49,mythic:99},sum
 let seed=42;const rng=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
 g=fresh();for(let i=0;i<1000;i++){A.summon(g,rng);assert(A.validate(g));approx(A.summonRates(g).reduce((n,r)=>n+r.chance,0),100)}
 console.log('OK: desejo dobra chance, taxas dinâmicas, garantias 10/200, sem garantia mítica, reset mítico, pontos/loja, lotes, saves antigos e créditos de teste.');
+
