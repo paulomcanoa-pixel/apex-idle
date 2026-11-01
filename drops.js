@@ -22,7 +22,7 @@ ctx.fillStyle=paint;
 ctx.beginPath();ctx.moveTo(-6,-98);ctx.lineTo(6,-98);ctx.lineTo(12,-34);ctx.lineTo(30,12);ctx.lineTo(28,66);ctx.lineTo(15,90);ctx.lineTo(-15,90);ctx.lineTo(-28,66);ctx.lineTo(-30,12);ctx.lineTo(-12,-34);ctx.closePath();ctx.fill();
 ctx.fillStyle=color;ctx.fillRect(-48,-86,96,10);ctx.fillRect(-53,-75,106,6);ctx.fillRect(-48,79,96,13);ctx.fillRect(-42,94,84,6);
 ctx.fillStyle='#0b1623';ctx.beginPath();ctx.ellipse(0,4,11,22,0,0,Math.PI*2);ctx.fill();
-ctx.strokeStyle='#c6dce6';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,-1,15,25,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(0,-25);ctx.lineTo(0,0);ctx.stroke();
+ctx.strokeStyle='#c6dce6';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,-1,15,25,0,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(0,-25);ctx.lineTo(0,0);ctx.stroke();
 ctx.fillStyle='#f4e9c8';ctx.beginPath();ctx.arc(0,8,7,0,Math.PI*2);ctx.fill();
 ctx.strokeStyle='#ffffff60';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-20,38);ctx.lineTo(-18,67);ctx.moveTo(20,38);ctx.lineTo(18,67);ctx.stroke();
 ctx.restore()
