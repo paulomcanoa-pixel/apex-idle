@@ -63,3 +63,52 @@ As abas sob o nome do circuito reúnem todas as atividades; Menu contém exporta
 PvP: perfil visitante com nome público e cookie HttpOnly/Secure, fila com 2–10 pilotos reais e faixa inicial de 500 rating. Sem bots. Com dois pilotos, a largada ocorre após 45 segundos; com dez, imediatamente. A resolução demora 30 segundos, usa carro/estratégia capturados na entrada e é calculada no servidor. Atualização a cada 5 segundos enquanto o painel está aberto. Não é direção em tempo real. Cancelamento permitido apenas antes da largada. Resultados persistidos, Elo por confronto com o grid, XP, vitórias, pódios e álbum por partidas concluídas. Rankings top 100 por rating, nível, álbum, vitórias e pódios.
 O progresso online é independente do save solo e de créditos de teste. Não envia estatísticas editáveis do navegador. O GP semanal antigo continua solo/simulado. O perfil visitante não tem recuperação ou sincronização entre dispositivos; apagar cookies perde acesso ao perfil.
 Backend: Vercel Function /api/ranked e @vercel/blob 2.8.2, store privado conectado ao projeto com BLOB_READ_WRITE_TOKEN somente no servidor. Leitura sem cache e escrita condicional por ETag com repetição para evitar resultados duplicados ou perda de entradas simultâneas. Protótipo de baixo volume: documento único e limite de 2.000 perfis; exige migração para banco transacional para escala maior. O servidor avança salas nas consultas, sem depender de relógio do cliente; não há WebSocket. Teste automatizado cobre sala de dez, décimo primeiro em outra sala, duelo, saída, autenticação, recompensas únicas e filtros.
+
+
+## Operação Ascensão e conta Supabase
+
+O jogo permanece em HTML/JS/Canvas. A nova aba **Operação** acrescenta seis geradores da escuderia, trabalho manual, compras 1/10/100/Máx, upgrades ×2 em 10/25/50/100 unidades e 20 conquistas. Os créditos usam o caixa CR compartilhado. A produção nova recebe 50% por até 8 h offline; pista, farm e campeonato mantêm suas próprias regras existentes.
+
+**Ascensão:** floor(sqrt(ganho deste ciclo / 1.000.000)) Fragmentos. Cada Fragmento dá +2% à produção e ao clique. A confirmação informa que o caixa CR compartilhado e somente os geradores/upgrades desta Operação serão zerados. Carros, pilotos, Academia, farm, carreira e campeonato permanecem. Total produzido, conquistas e Fragmentos são permanentes.
+
+### Executar localmente
+
+Requer Node 22 ou superior e npm.
+
+1. Execute `npm ci`.
+2. Copie `.env.example` para `.env` e preencha apenas URL e chave pública do projeto, se quiser testar contas.
+3. Execute `npm test`, `npm run build` e `npm run dev`.
+4. Abra `http://127.0.0.1:5173`. O servidor local serve o site estático; o PvP usa as APIs da Vercel na implantação.
+
+O build copia o Supabase JS **2.118.0** do pacote instalado para `public/vendor/supabase.js`, sem dependência de CDN. O lockfile fixa as dependências. A configuração pública é gerada em `public/config.js`; nenhum valor de ambiente é commitado. Não configure service_role/secret no front-end. O build recusa essas chaves.
+
+### Configurar Supabase e Vercel
+
+1. Crie um projeto Supabase (região São Paulo, sa-east-1).
+2. Execute `supabase/schema.sql` no SQL Editor. O SQL é idempotente para a estrutura deste projeto.
+3. Authentication → Providers: Email habilitado. Em URL Configuration, Site URL = `https://apex-idle.vercel.app`; Redirect URLs = `https://apex-idle.vercel.app/**` e, para desenvolvimento, `http://127.0.0.1:5173/**` e `http://localhost:5173/**`.
+4. Project Settings → API: obtenha Project URL e a chave pública publishable. Na Vercel → Settings → Environment Variables, configure `SUPABASE_URL`, `SUPABASE_ANON_KEY` e `SUPABASE_GOOGLE_ENABLED=false` em produção/preview/desenvolvimento. Publique novamente após mudanças.
+5. Google é opcional: primeiro configure o OAuth Client no Google Cloud e o provedor no Supabase. Só então altere `SUPABASE_GOOGLE_ENABLED=true` e publique. O botão fica oculto até isso ser habilitado.
+6. Para e-mails em produção fora das limitações do serviço padrão, configure um remetente SMTP próprio no Supabase e verifique as políticas e limites do seu plano.
+
+### Conta e sincronização
+
+Convidados jogam sem cadastro. Email/senha, cadastro com confirmação, recuperação, nova senha e link mágico usam um único client Supabase. Apelidos únicos têm 3–20 caracteres (letras/números/_). Dados de apelido são renderizados com textContent.
+
+Na primeira conexão, se não houver save remoto, o local é enviado. Se existirem os dois, aparece a comparação de ganho, Fragmentos e data. A retomada do mesmo aparelho usa a última revisão conhecida; revisão remota diferente sempre pausa a escrita e pede escolha. Antes de restaurar, o local é guardado em `apex_before_cloud_restore`.
+
+Sincroniza a cada 60 s, ao ascender e por tentativa keepalive ao ocultar/fechar. O fechamento não garante entrega de rede: o save local continua sendo a cópia imediata. Offline mostra estado local e tenta novamente ao reconectar. A RPC faz comparação de revisão dentro de uma transação e bloqueio por usuário. Valores acumulados não podem regredir. Escolher um save local com totais menores pode ser recusado pelo servidor; nenhuma cópia local é apagada nessa situação.
+
+Os saves JSON ficam privados sob RLS. `player_scores` e `weekly_scores` só contêm pontuações públicas, e as views usam security_invoker. O ranking mostra top 50. Semanal: segunda-feira 00h UTC, contando apenas Fragmentos novos após a primeira sincronização. Primeiro upload importa o legado sem premiá-lo retroativamente na semana.
+
+A RPC `sync_game_save` é uma função privilegiada intencional: autenticação, usuário-alvo, revisão e monotonicidade são verificados no servidor; execução anônima e escrita direta nos saves são negadas. O advisor sinaliza sua exposição autenticada como aviso esperado ([descrição do aviso](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable)). A validação básica não comprova a legitimidade de valores produzidos por um cliente modificado.
+
+### Save e efeitos
+
+O estado mantém a versão legada do jogo e acrescenta `idle.v=1`; exportação textual usa envelope v2/base64 UTF-8. JSONs antigos continuam aceitos. Save inválido é copiado para `apex_save_backup` e a gravação fica bloqueada até uma escolha de recuperação. Uma importação guarda `apex_before_import`. Configurações incluem efeitos alto/baixo/desligado, som opcional e notação curta/científica. O novo Canvas pausa com a aba oculta e respeita prefers-reduced-motion.
+
+### Verificação
+
+`npm test` inclui economia, soma geométrica, saldo não negativo, marcos, Ascensão, teto offline, notação, migração, base64, conflito de revisões, perda/reconexão de rede, sessão obsoleta e regressão recusada. `supabase/verification.sql` executa verificações reais de RLS e RPC com dois usuários temporários dentro de transação e desfaz todos os dados de teste. Não execute em uma base onde os identificadores de teste já sejam utilizados.
+
+A entrega real de confirmação, recuperação e link mágico depende do e-mail do usuário e do remetente configurado; não se confunde com os testes de lógica. A meta de 60 fps em celular médio requer medição em dispositivo físico e não é um resultado certificado.
