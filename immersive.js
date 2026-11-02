@@ -33,6 +33,7 @@ $('testCredits').hidden=!testMode;
 $('testCredits').onclick=()=>{if(A.grantTestCredits(s)){save();render()}};
 $('wishCar').onchange=()=>{if(!summonBusy&&A.setWish(s,$('wishCar').value)){save();render()}};
 function renderSummoning(){
+if(typeof LegendsData!=='undefined')return;
 $('summonCar').disabled=summonBusy||s.money<A.summonCost;$('summonTen').disabled=summonBusy||s.money<A.summonCost*10;
 $('wishCar').disabled=summonBusy;$('wishCar').value=s.wishCar||'';
 $('testCredits').disabled=!!s.testCreditsGranted;
