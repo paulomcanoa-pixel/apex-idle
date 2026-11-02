@@ -6,3 +6,5 @@ s=fresh();C.init(s,now);const w=C.weekly(now);assert.equal(C.week(now),C.week(w.
 s=fresh();C.init(s,now);s.career.stats.gps=6;assert(C.enter(s,A,now));assert.equal(s.career.entry.division,2);const entry=s.career.entry;const r=R.start(entry.duration,{compound:entry.tyres,pitLap:2,nextTyres:entry.tyres});r.autoStrategy=true;while(!r.done)R.step(r,.1);assert(r.elapsed>0);
 assert(!C.validate({...fresh(),career:{}}));s=fresh();C.init(s,now);s.career.stats.races=-1;assert(!A.validate(s));s=fresh();C.init(s,now);s.career.materials.fake=10;assert(!A.validate(s));
 console.log('OK: contratos offline, reserva, resgate único, peças/projetos, pinturas, GP semanal/divisões, retorno offline, validação e saves antigos.');
+
+s=fresh();C.init(s,now);s.career.materials.vento=20;assert(C.build(s,A,'vento'));assert.equal(A.ownedCars(s).filter(id=>id==='vento').length,1);assert(C.canPaint(s,A,'violet'));assert(!C.build(s,A,'vento'));console.log('OK: homologação de modelo já possuído não duplica carros e desbloqueia pintura.');

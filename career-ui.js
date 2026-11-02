@@ -1,5 +1,5 @@
 // Carreira solo: contratos, GP semanal, álbum, projetos e replay local.
-const careerPanel=document.createElement('section');careerPanel.className='career-hub';menus.career.node.append(careerPanel);
+const careerPanel=document.createElement('section');careerPanel.className='career-hub';menus.career.node.append(careerPanel);menus.career.title='Carreira da escuderia';
 const careerNav=document.createElement('button');careerNav.dataset.menu='career';careerNav.innerHTML='✧<span>Carreira</span>';dock.append(careerNav);careerNav.onclick=()=>{openMenu('career');if(!dock.hidden)toggleDock()};
 let careerTab='contracts',careerCache='',contractCar='',contractOffer='test';
 Career.init(s);save();
@@ -25,13 +25,13 @@ if(!options.length)html+='<p>Invoque ou construa outro carro para enviar aos con
 html+=d.contracts.map(c=>'<article class="career-card"><h3>'+carName(c.car)+'</h3><p>'+Career.offers[c.offer].name+' · '+(c.end>Date.now()?'Disponível em '+dateLabel(c.end):'Recompensa pronta')+'</p><button data-claim="'+c.car+'" '+(c.end>Date.now()?'disabled':'')+'>Recolher '+fmt(Career.offers[c.offer].credits)+' CR + '+Career.offers[c.offer].parts+' peças</button></article>').join('');
 }
 if(careerTab==='projects'){
-html+='<h2>Engenharia com destino certo</h2><p>Escolha um projeto. Cada corrida completa de cinco voltas rende 3 peças do projeto, ou 5 por vitória. Treino livre não rende peças. Contratos rendem peças do carro enviado; o Aurora usa o projeto escolhido.</p><label>Projeto ativo<select id="projectTarget">'+Career.ids.map(id=>'<option value="'+id+'" '+(d.target===id?'selected':'')+'>'+carName(id)+'</option>').join('')+'</select></label><div class="career-grid">';
-html+=Career.ids.map(id=>{const cost=Career.projects[id],have=d.materials[id]||0,owned=A.ownedCars(s).includes(id);return '<article class="career-card"><h3>'+carName(id)+'</h3><p>'+have+' / '+cost+' peças · '+fmt(cost*20)+' CR</p><progress max="'+cost+'" value="'+Math.min(cost,have)+'"></progress><button data-build="'+id+'" '+(owned||have<cost||s.money<cost*20?'disabled':'')+'>'+(owned?'Já está na garagem':'Construir carro')+'</button></article>'}).join('')+'</div>';
+html+='<h2>Engenharia com destino certo</h2><p>Escolha um projeto. Cada corrida completa de cinco voltas rende 3 peças do projeto, ou 5 por vitória. Treino livre não rende peças. Se já possui o modelo, homologue o projeto para completar a meta de engenharia. Contratos rendem peças do carro enviado; o Aurora usa o projeto escolhido.</p><label>Projeto ativo<select id="projectTarget">'+Career.ids.map(id=>'<option value="'+id+'" '+(d.target===id?'selected':'')+'>'+carName(id)+'</option>').join('')+'</select></label><div class="career-grid">';
+html+=Career.ids.map(id=>{const cost=Career.projects[id],have=d.materials[id]||0,owned=A.ownedCars(s).includes(id),complete=d.completed.includes(id);return '<article class="career-card"><h3>'+carName(id)+'</h3><p>'+have+' / '+cost+' peças · '+fmt(cost*20)+' CR</p><progress max="'+cost+'" value="'+Math.min(cost,have)+'"></progress><button data-build="'+id+'" '+(complete||have<cost||s.money<cost*20?'disabled':'')+'>'+(complete?'Projeto concluído':owned?'Homologar projeto':'Construir carro')+'</button></article>'}).join('')+'</div>';
 }
 if(careerTab==='album'){
 html+='<h2>Seu álbum e suas pinturas</h2><p>'+A.ownedCars(s).length+' / '+A.cars.length+' modelos descobertos. Pinturas são cosméticas e não alteram o ritmo. Pause antes de aplicar.</p><div class="career-grid">';
 html+=A.cars.map(c=>'<article class="career-card" style="--career-color:'+c.color+'"><h3>'+c.name+'</h3><p>'+c.rarity+' · '+(A.ownedCars(s).includes(c.id)?'Colecionado ✓':'Ainda não descoberto')+'</p></article>').join('')+'</div><h3>Metas da coleção</h3><div class="career-grid">';
-html+=Career.paints.map(p=>{const ready=Career.canPaint(s,A,p.id),value=p.metric?Career.metric(s,A,p.metric):1;const labels={cars:'carros colecionados',races:'corridas concluídas',contracts:'contratos recolhidos',gps:'GPs semanais concluídos',built:'carros construídos'};return '<article class="career-card" style="--career-color:'+(p.color||A.equippedCar(s).color)+'"><h3>'+p.name+'</h3><p>'+(p.metric?value+'/'+p.goal+' '+labels[p.metric]:'Disponível desde o início')+'</p><button data-paint="'+p.id+'" '+(!ready||s.running||race?'disabled':'')+'>'+(d.paint===p.id?'Pintura selecionada':ready?'Aplicar pintura':'Bloqueada')+'</button></article>'}).join('')+'</div>';
+html+=Career.paints.map(p=>{const ready=Career.canPaint(s,A,p.id),value=p.metric?Career.metric(s,A,p.metric):1;const labels={cars:'carros colecionados',races:'corridas concluídas',contracts:'contratos recolhidos',gps:'GPs semanais concluídos',built:'projetos concluídos'};return '<article class="career-card" style="--career-color:'+(p.color||A.equippedCar(s).color)+'"><h3>'+p.name+'</h3><p>'+(p.metric?value+'/'+p.goal+' '+labels[p.metric]:'Disponível desde o início')+'</p><button data-paint="'+p.id+'" '+(!ready||s.running||race?'disabled':'')+'>'+(d.paint===p.id?'Pintura selecionada':ready?'Aplicar pintura':'Bloqueada')+'</button></article>'}).join('')+'</div>';
 }
 if(careerTab==='weekly'){
 const w=Career.weekly(),entry=d.entry,done=d.history.find(h=>h.week===w.week),rank=A.cars.indexOf(A.equippedCar(s));
@@ -41,7 +41,7 @@ html+='<p>Prêmios: 1º 6.000 / 2º 4.000 / 3º 2.500 / 4º 1.500 CR × nível d
 if(rank>w.rule.maxRank)html+='<p>Equipe um carro comum ou raro no menu de invocação para este regulamento.</p>';
 html+='<h3>Resultados e replay</h3>'+d.history.map((h,i)=>'<article class="career-card"><h3>P'+h.place+' · '+carName(h.car)+'</h3><p>'+h.time.toFixed(2)+' s · '+Career.rules.find(r=>r.id===h.rule).name+' · '+['Bronze','Prata','Ouro'][h.division]+'</p><button data-replay="'+i+'">Assistir replay da simulação</button></article>').join('');
 }
-if(careerTab==='stats')html+='<h2>Progresso local da escuderia</h2><p>Dados deste save, sem envio para servidor.</p><div class="career-grid">'+[['Corridas concluídas',d.stats.races],['Vitórias',d.stats.wins],['Contratos recolhidos',d.stats.contracts],['GPs semanais',d.stats.gps],['Projetos construídos',d.stats.built],['Dias ativos registrados',d.days.length]].map(([label,value])=>'<article class="career-card"><h3>'+value+'</h3><p>'+label+'</p></article>').join('')+'</div><p>Para avaliar retenção de todos os jogadores e comparar grupos, será necessário um serviço de contas e métricas. Estes números mostram apenas a sua carreira.</p>';
+if(careerTab==='stats')html+='<h2>Progresso local da escuderia</h2><p>Dados deste save, sem envio para servidor.</p><div class="career-grid">'+[['Corridas concluídas',d.stats.races],['Vitórias',d.stats.wins],['Contratos recolhidos',d.stats.contracts],['GPs semanais',d.stats.gps],['Projetos concluídos',d.stats.built],['Dias ativos registrados',d.days.length]].map(([label,value])=>'<article class="career-card"><h3>'+value+'</h3><p>'+label+'</p></article>').join('')+'</div><p>Para avaliar retenção de todos os jogadores e comparar grupos, será necessário um serviço de contas e métricas. Estes números mostram apenas a sua carreira.</p>';
 careerPanel.innerHTML=html
 }
 careerPanel.onclick=e=>{
@@ -49,7 +49,7 @@ const tab=e.target.closest('[data-career-tab]');if(tab){careerTab=tab.dataset.ca
 let ok=false,message='';const b=e.target.closest('button');if(!b||b.disabled)return;
 if(b.dataset.careerAction==='contract'){ok=Career.startContract(s,A,contractCar,contractOffer);message='Carro enviado ao contrato.'}
 if(b.dataset.claim){ok=Career.claimContract(s,b.dataset.claim);message='Contrato recolhido. Créditos e peças adicionados.'}
-if(b.dataset.build){ok=Career.build(s,A,b.dataset.build);message='Projeto concluído. Carro adicionado à garagem.'}
+if(b.dataset.build){ok=Career.build(s,A,b.dataset.build);message='Projeto concluído e homologado na carreira.'}
 if(b.dataset.paint){ok=Career.paint(s,A,b.dataset.paint);if(ok)syncGarage();message='Pintura aplicada.'}
 if(b.dataset.careerAction==='weekly'){ok=!race&&Career.enter(s,A);message='Equipe inscrita. O resultado ficará pronto em 90 segundos.'}
 if(b.dataset.replay!==undefined){showCareerReplay(Career.data(s).history[+b.dataset.replay]);return}
