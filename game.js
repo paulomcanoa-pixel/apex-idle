@@ -11,23 +11,21 @@ $('toggle').onclick=()=>{s.running=!s.running;radio(s.running?'Sinal verde. A co
 $('export').onclick=()=>{save();const blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='apex-idle-save.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
 $('import').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;if(file.size>20000)throw Error();const data=JSON.parse(await file.text());if(!A.validate(data))throw Error();if(!confirm('Substituir o progresso atual pelo save importado?'))return;s=data;s.savedAt=Date.now();boost=0;cooldown=0;save();render();radio('Progresso importado com sucesso.')}catch{radio('Arquivo inválido. Seu progresso atual foi mantido.')}finally{e.target.value=''}};
 const canvas=$('track'),ctx=canvas.getContext('2d');
-const layouts=A.circuits.map(c=>CircuitMaps.project(c));
+const layouts=A.circuits.map(c=>CircuitMaps.world(c));
 function position(t){return CircuitMaps.position(layouts[s.circuit],t)}
 function path(){ctx.beginPath();layouts[s.circuit].points.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.closePath()}
 function drawCar(t,color){const p=position(t),player=color==='#d4fc5a'||color===s.color;CarArt.draw(ctx,{x:p.x,y:p.y,a:p.a,scale:.17,id:player?A.equippedCar(s).id:'vento',color,number:player?'01':'02'})}
-let trackCache=null,trackCacheIndex=-1;
+const worldPaths=layouts.map(l=>{const p=new Path2D();l.points.forEach((v,i)=>i?p.lineTo(...v):p.moveTo(...v));p.closePath();return p});
+const bridges=layouts.map((l,index)=>{if(A.circuits[index].id!=='jp-1962')return[];const out=[],pts=l.points;for(let i=0;i<pts.length;i++)for(let j=i+3;j<pts.length-1;j++){const a=pts[i],b=pts[(i+1)%pts.length],u=pts[j],v=pts[(j+1)%pts.length],dx=b[0]-a[0],dy=b[1]-a[1],ex=v[0]-u[0],ey=v[1]-u[1],den=dx*ey-dy*ex;if(Math.abs(den)<1e-8)continue;const t=((u[0]-a[0])*ey-(u[1]-a[1])*ex)/den,q=((u[0]-a[0])*dy-(u[1]-a[1])*dx)/den;if(t>0&&t<1&&q>0&&q<1)out.push({x:a[0]+t*dx,y:a[1]+t*dy,a:Math.atan2(dy,dx)})}return out});
 function draw(){
-if(trackCacheIndex!==s.circuit){trackCacheIndex=s.circuit;trackCache=document.createElement('canvas');trackCache.width=4000;trackCache.height=2320;const g=trackCache.getContext('2d');g.scale(4,4);const c=A.circuits[s.circuit],palette={grass:['#19352b','#0d231f'],coast:['#193c3e','#10272d'],desert:['#4c4234','#292d29'],night:['#142735','#081a24']}[c.terrain],gradient=g.createRadialGradient(500,290,70,500,290,620);gradient.addColorStop(0,palette[0]);gradient.addColorStop(1,palette[1]);g.fillStyle=gradient;g.fillRect(0,0,1000,580);g.strokeStyle='#ffffff04';g.lineWidth=1;for(let x=0;x<1000;x+=32){g.beginPath();g.moveTo(x,0);g.lineTo(x,580);g.stroke()}for(let y=0;y<580;y+=32){g.beginPath();g.moveTo(0,y);g.lineTo(1000,y);g.stroke()}
-const line=()=>{g.beginPath();layouts[s.circuit].points.forEach((p,i)=>i?g.lineTo(...p):g.moveTo(...p));g.closePath()};g.lineJoin='round';g.lineCap='round';
-for(const [width,color,dash] of [[64,'#07181588',[]],[56,'#6b8d7344',[]],[50,'#d9e3da',[]],[50,'#ed6b5b',[5,7]],[44,'#33444b',[]],[.6,'#a5bac044',[3,9]]]){line();g.lineWidth=width;g.strokeStyle=color;g.setLineDash(dash);g.stroke()}g.setLineDash([]);
-// Sector markers follow the geographic centerline.
-for(let sector=0;sector<3;sector++){const p=position(sector/3);g.fillStyle=['#d4fc5a','#66caff','#bd9aff'][sector];g.beginPath();g.arc(p.x,p.y,3,0,Math.PI*2);g.fill()}
-const p=position(0);g.save();g.translate(p.x,p.y);g.rotate(p.a);for(let x=0;x<2;x++)for(let y=0;y<22;y++){g.fillStyle=(x+y)%2?'#fff':'#111b22';g.fillRect(x*2-2,y*2-22,2,2)}g.restore();
-// Suzuka's crossover: redraw the overpass with a shadow at the intersection.
-if(c.id==='jp-1962'){const pts=layouts[s.circuit].points;for(let i=0;i<pts.length;i++){const a=pts[i],b=pts[(i+1)%pts.length];for(let j=i+3;j<pts.length-1;j++){if(i===0&&j===pts.length-1)continue;const u=pts[j],v=pts[(j+1)%pts.length],dx=b[0]-a[0],dy=b[1]-a[1],ex=v[0]-u[0],ey=v[1]-u[1],den=dx*ey-dy*ex;if(Math.abs(den)<1e-8)continue;const t=((u[0]-a[0])*ey-(u[1]-a[1])*ex)/den,q=((u[0]-a[0])*dy-(u[1]-a[1])*dx)/den;if(t>0&&t<1&&q>0&&q<1){const x=a[0]+t*dx,y=a[1]+t*dy,ang=Math.atan2(dy,dx);g.save();g.translate(x,y);g.rotate(ang);g.shadowBlur=6;g.shadowColor='#000';g.fillStyle='#aebdb8';g.fillRect(-28,-25,56,50);g.shadowBlur=0;g.fillStyle='#33444b';g.fillRect(-30,-22,60,44);g.restore()}}}}
-g.fillStyle='#9ab5ac88';g.font='9px Arial';g.fillText('N ↑',935,80);g.fillStyle='#ffffff16';g.font='italic bold 18px Arial';g.fillText('APEX / WORLD CIRCUITS',35,550);
-}
-ctx.drawImage(trackCache,0,0,1000,580);drawCar(s.progress*.94+.32,'#e17e60');drawCar(s.progress*1.02+.65,'#8baded');drawCar(s.progress,'#d4fc5a');
+// Draw vectors at camera resolution rather than enlarging a road painted into a small bitmap.
+const tr=ctx.getTransform(),x0=-tr.e/tr.a,y0=-tr.f/tr.d,w=canvas.width/tr.a,h=canvas.height/tr.d;
+ctx.fillStyle={grass:'#19352b',coast:'#193c3e',desert:'#4c4234',night:'#142735'}[A.circuits[s.circuit].terrain];ctx.fillRect(x0,y0,w,h);
+ctx.strokeStyle='#ffffff04';ctx.lineWidth=.4;ctx.setLineDash([]);ctx.beginPath();for(let x=Math.floor(x0/32)*32;x<x0+w;x+=32){ctx.moveTo(x,y0);ctx.lineTo(x,y0+h)}for(let y=Math.floor(y0/32)*32;y<y0+h;y+=32){ctx.moveTo(x0,y);ctx.lineTo(x0+w,y)}ctx.stroke();ctx.lineJoin='round';ctx.lineCap='round';
+for(const [width,color,dash] of [[64,'#07181555',[]],[56,'#6b8d7333',[]],[50,'#d9e3da',[]],[50,'#ed6b5b',[5,7]],[44,'#33444b',[]],[.6,'#a5bac044',[3,9]]]){ctx.lineWidth=width;ctx.strokeStyle=color;ctx.setLineDash(dash);ctx.stroke(worldPaths[s.circuit])}ctx.setLineDash([]);
+for(const p of bridges[s.circuit]){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.shadowColor='#000';ctx.shadowBlur=6;ctx.fillStyle='#aebdb8';ctx.fillRect(-30,-25,60,50);ctx.shadowBlur=0;ctx.fillStyle='#33444b';ctx.fillRect(-32,-22,64,44);ctx.restore()}
+const p=position(0);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);for(let x=0;x<2;x++)for(let y=0;y<22;y++){ctx.fillStyle=(x+y)%2?'#fff':'#111b22';ctx.fillRect(x*2-2,y*2-22,2,2)}ctx.restore();
+drawCar(s.progress*.94+.32,'#e17e60');drawCar(s.progress*1.02+.65,'#8baded');drawCar(s.progress,'#d4fc5a');
 }
 
 let last=performance.now(),paint=0;function frame(now){const dt=Math.max(0,(now-last)/1000);last=now;const boosted=Math.min(dt,boost)*.08;const laps=(typeof advanceRace==='function'?advanceRace(dt,boosted):A.advance(s,dt+boosted));boost=Math.max(0,boost-dt);cooldown=Math.max(0,cooldown-dt);if(laps)radio(`Boa passagem! +${fmt(laps*A.reward(s))} CR. Continue investindo na oficina.`);draw();if(now-paint>150){render();paint=now}requestAnimationFrame(frame)}
