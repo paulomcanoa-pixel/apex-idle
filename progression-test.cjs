@@ -7,3 +7,11 @@ const malformed=G.migrate({...old,garage:{owned:['aurora'],equipped:'jordan191'}
 s.night.seasonEarned=1500000;s.night.seenMoney=s.money;s.running=false;const car=s.garage.equipped,owned=s.garage.owned.slice();assert.equal(N.newSeason(s),1);assert.equal(s.garage.equipped,car);assert.deepEqual(s.garage.owned,owned);
 s.money=10000;const candidate=P.best(s,A,E,N);assert(candidate&&candidate.cost<=s.money&&candidate.gain>0);assert(P.effect(s,A,E,N,'car',0).seconds<N.duration(s,A));assert(P.goal(s,A).max>0);
 process.stdout.write('OK: compra sem autoequipar, seleção canônica ao vivo, prêmio/ritmo/visual derivados, reload, carro bloqueado, migração/fallback sem perda, temporada preserva garagem e recomendação econômica.\n');
+
+const D=require('./drops'),text=[],positions=[];let frame,radials=0;
+const context=new Proxy({createRadialGradient(){radials++;return{addColorStop(){}}},createLinearGradient(){return{addColorStop(){}}},fillText(t){text.push(t)},translate(x,y){positions.push([x,y])}},{get:(o,k)=>k in o?o[k]:()=>{}});
+global.matchMedia=()=>({matches:false});global.document={hidden:false};global.devicePixelRatio=1;global.ResizeObserver=class{observe(){}disconnect(){}};global.requestAnimationFrame=f=>(frame=f,1);global.cancelAnimationFrame=()=>{};
+const canvas={getContext:()=>context,getBoundingClientRect:()=>({width:500})},model={id:'lotus49',name:'Lotus 49',rarity:'Raro',color:'#70caff'};
+const stop=D.race(canvas,model,'racing');const origin=positions[0][0];assert(origin>=150&&origin<170);assert(radials>0);assert(!text.includes('?'));positions.length=0;frame(performance.now()+1450);assert(positions.some(([x])=>x>350));stop();
+text.length=0;D.race(canvas,model,'mystery')();assert(text.includes('?'));
+process.stdout.write('OK: aura acompanha o carro revelado na passagem pela chegada, sem interrogação durante a corrida.\n');
