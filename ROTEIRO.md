@@ -81,3 +81,6 @@ Apresentação persistente em Canvas após a sequência: mais raro central e mai
 
 ## Celebração inspirada em cartas de anime
 Estilo final ampliado em Canvas com entrada progressiva, raios, partículas, estrelas, bordas de qualidade, destaque central e título dourado. Referência Anime Idle observada apenas na página pública e no modo visitante; animação final específica não acessível sem cadastro. Não afirmar reprodução exata. Layout automatizado validado e alterações paralelas de garagem preservadas.
+
+## Revisão de frequência e unificação de arte
+Chance mítica fixa de 1/700 (antes do desejo), crescimento removido. Loja 100/300/800/4000/15000 e repetidos com metade do preço. Pontos e saves preservados. Carro da animação corre com o mesmo desenho Canvas das cartas; fases mistério/corrida/revelação e cancelamento mantidos. Testes de economia e disposição atualizados.

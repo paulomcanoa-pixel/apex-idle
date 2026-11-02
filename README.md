@@ -43,3 +43,8 @@ Ao concluir ou pular as revelações, uma janela central permanece aberta mostra
 
 ## Estilo da celebração final
 Referência visual: https://anime-idle.com/play/ (01/11/2026). A página pública e o modo visitante foram inspecionados; a animação final de invocação não ficou acessível, pois o visitante pede cadastro antes dessa parte. A adaptação usa a linguagem visual observável das cartas e da interface: fundo escuro violeta, título dourado, bordas de raridade, estrelas e botão destacado. Entrada escalonada, raios/partículas e brilho suave do destaque foram criados originalmente para o Apex em Canvas, sem copiar código ou assets do Anime Idle. A geometria e as regras de raridade foram preservadas.
+
+## Revisão de balanceamento e arte — regras vigentes
+Mítico agora tem chance fixa de 1/700 por tentativa (100/700 por cento), sem crescimento por ausência nem garantia. Desejo mítico dobra para 1/350; escolher outro desejo redistribui as demais taxas como antes. Garantias épico 10 e lendário 200 continuam. Comum ajustado para 49,357142857% para manter o pool em 100%. Os contadores antigos permanecem no save, mas o contador mítico não aumenta mais a chance.
+Loja: comum 100, raro 300, épico 800, lendário 4.000, mítico 15.000 pontos. Repetidos rendem exatamente metade: 50/150/400/2.000/7.500. Pontos existentes são preservados. Valores e regras anteriores registrados neste documento são históricos e foram substituídos por esta revisão.
+A animação de mistério/corrida/revelação agora é desenhada em Canvas com a mesma função de desenho de F1 usada nas cartas finais. A pista, linha quadriculada e interrogação também são Canvas; fases trocam apenas posição, rotação, escala e pintura. Loops são encerrados ao avançar ou fechar.

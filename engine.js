@@ -15,15 +15,15 @@ function advance(s,seconds,mult=1){if(!s.running)return 0;const total=s.progress
 
 const cars=[
 {id:'aurora',name:'Aurora F1-01',rarity:'Inicial',chance:0,bonus:0,color:'#d4fc5a'},
-{id:'vento',name:'Vento F1-02',rarity:'Comum',chance:49.4,bonus:.03,color:'#a8b3bd'},
+{id:'vento',name:'Vento F1-02',rarity:'Comum',chance:49.5-100/700,bonus:.03,color:'#a8b3bd'},
 {id:'scarlatto',name:'Scarlatto F1-03',rarity:'Raro',chance:35,bonus:.06,color:'#66b8ff'},
 {id:'solar',name:'Solar F1-04',rarity:'Épico',chance:15,bonus:.10,color:'#bd9aff'},
 {id:'eclipse',name:'Eclipse F1-05',rarity:'Lendário',chance:.5,bonus:.15,color:'#ffc857'},
-{id:'zenith',name:'Zenith F1-06',rarity:'Mítico',chance:.1,bonus:.22,color:'#ff7aa8'}
+{id:'zenith',name:'Zenith F1-06',rarity:'Mítico',chance:100/700,bonus:.22,color:'#ff7aa8'}
 ];
 const summonCost=200;
-const duplicatePoints={vento:5,scarlatto:15,solar:50,eclipse:200,zenith:1000};
-const shopPrices={vento:50,scarlatto:150,solar:500,eclipse:2000,zenith:10000};
+const duplicatePoints={vento:50,scarlatto:150,solar:400,eclipse:2000,zenith:7500};
+const shopPrices={vento:100,scarlatto:300,solar:800,eclipse:4000,zenith:15000};
 function ownedCars(s){return s.ownedCars===undefined?['aurora']:s.ownedCars}
 function equippedCar(s){return cars.find(c=>c.id===(s.equippedCar||'aurora'))||cars[0]}
 function validCollection(s){const owned=ownedCars(s);return Array.isArray(owned)&&owned.length>0&&owned.length<=cars.length&&new Set(owned).size===owned.length&&owned.includes('aurora')&&owned.every(id=>cars.some(c=>c.id===id))&&(s.equippedCar===undefined||owned.includes(s.equippedCar))}
@@ -31,8 +31,7 @@ const pityLimits={epic:10,legendary:200};
 function pity(s){return s.summonPity||{epic:0,legendary:0,mythic:0}}
 function points(s){return s.summonPoints||0}
 function summonRates(s){
-const misses=pity(s).mythic,extra=Math.min(24.9,misses*.01);
-let rates=cars.slice(1).map(c=>({id:c.id,chance:c.chance+(c.id==='zenith'?extra:c.id==='vento'?-extra:0)}));
+let rates=cars.slice(1).map(c=>({id:c.id,chance:c.chance}));
 const chosen=rates.find(r=>r.id===s.wishCar);
 if(chosen){const original=chosen.chance,factor=(100-2*original)/(100-original);rates=rates.map(r=>({id:r.id,chance:r.id===chosen.id?2*original:r.chance*factor}))}
 return rates

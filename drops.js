@@ -67,6 +67,26 @@ resize();paint(performance.now());
 const observer=new ResizeObserver(()=>{resize();if(reduced)paint(performance.now())});observer.observe(canvas);
 return ()=>{closed=true;cancelAnimationFrame(frame);observer.disconnect()}
 }
-root.DropShowcase={order,layout,mount};
+function race(canvas,model,phase){
+const ctx=canvas.getContext('2d');if(!ctx)return ()=>{};
+let stopped=false,frame=0,width=0;const height=300,start=performance.now(),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function resize(){width=Math.max(280,canvas.getBoundingClientRect().width);const ratio=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(width*ratio);canvas.height=height*ratio;ctx.setTransform(ratio,0,0,ratio,0,0)}
+function paint(now){
+if(stopped)return;const t=reduced?0:(now-start)/1000,finish=width*.7;
+ctx.clearRect(0,0,width,height);ctx.fillStyle='#101826';ctx.fillRect(0,0,width,height);
+ctx.fillStyle='#263542';ctx.fillRect(0,58,width,174);ctx.fillStyle='#82939c';ctx.fillRect(0,55,width,3);ctx.fillRect(0,232,width,3);
+ctx.strokeStyle='#d6e1e833';ctx.lineWidth=2;ctx.setLineDash([24,24]);ctx.beginPath();ctx.moveTo(0,145);ctx.lineTo(width,145);ctx.stroke();ctx.setLineDash([]);
+for(let col=0;col<3;col++)for(let row=0;row<14;row++){ctx.fillStyle=(col+row)%2?'#0a1018':'#eff4ee';ctx.fillRect(finish+col*12,60+row*12,12,12)}
+ctx.fillStyle='#c5d5dc';ctx.font='bold 11px Arial';ctx.textAlign='center';ctx.fillText('CHEGADA',finish+18,40);
+const reveal=phase==='revealed',x=phase==='racing'&&!reduced?-120+(width+240)*Math.min(1,t/.85):width/2;
+ctx.save();ctx.translate(x,145);ctx.rotate(Math.PI/2);if(reveal){ctx.shadowColor=model.color;ctx.shadowBlur=22}
+car(ctx,0,0,Math.min(.84,(width-60)/220),reveal?model.color:'#26303e',reduced?0:t*2);ctx.restore();
+if(phase==='mystery'){ctx.fillStyle='#fff';ctx.shadowColor='#fff';ctx.shadowBlur=18;ctx.font='bold 60px Arial';ctx.fillText('?',width/2,164);ctx.shadowBlur=0}
+if(!reduced)frame=requestAnimationFrame(paint)
+}
+resize();paint(performance.now());const observer=new ResizeObserver(()=>{resize();if(reduced)paint(performance.now())});observer.observe(canvas);
+return ()=>{stopped=true;cancelAnimationFrame(frame);observer.disconnect()}
+}
+root.DropShowcase={order,layout,mount,race,car};
 if(typeof module!=='undefined')module.exports=root.DropShowcase;
 })(typeof window!=='undefined'?window:globalThis);
