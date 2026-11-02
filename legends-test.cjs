@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),D=require('./legends-data'),L=require('./legends-model'),A=require('./engine'),C=require('./championship-model'),Career=require('./career-model');
-assert.equal(D.cars.length,20);assert.equal(D.drivers.length,20);assert.equal(new Set(D.cars.map(c=>c.id)).size,20);
+assert.equal(D.cars.filter(c=>!c.exclusive).length,20);assert.equal(D.cars.length,22);assert.equal(D.drivers.length,20);assert.equal(new Set(D.cars.map(c=>c.id)).size,22);
 for(const car of D.cars){assert(car.year>=1967&&car.year<=2024);assert(car.source.startsWith('https://'));assert.equal(Object.keys(car.stats).length,6);assert(Object.values(car.stats).every(n=>n>0&&n<=100));assert(D.drivers.some(d=>d.key===car.driver));assert.equal(typeof car.shape,'string')}
 const s=A.initial();s.money=1000000;L.init(s);C.init(s);assert(A.validate(s));assert.equal(L.rates(s).reduce((a,r)=>a+r.chance,0).toFixed(8),'100.00000000');
 const chosen=L.rates(s).find(r=>r.id==='rb19').chance;s.heritage.wish='rb19';assert.equal(L.rates(s).find(r=>r.id==='rb19').chance,chosen*2);assert(Math.abs(L.rates(s).reduce((a,r)=>a+r.chance,0)-100)<1e-10);s.heritage.wish='';
@@ -13,3 +13,4 @@ const roundtrip=JSON.parse(JSON.stringify(s));assert(A.validate(roundtrip));roun
 const weekly=A.initial();weekly.money=1e6;L.init(weekly);L.buy(weekly,'f2004');L.equip(weekly,'f2004');let time=1800000000000;while(Career.weekly(time).rule.maxRank<4)time+=604800000;assert(Career.enter(weekly,A,time));assert(Career.validate(weekly));assert(A.validate(weekly));
 const expectedColors=new Set(D.cars.map(c=>c.color+c.accent+c.shape));assert(expectedColors.size>=18);
 console.log('OK: 20 carros/20 pilotos, atributos, paletas e geometrias, taxas, desejo, garantias, repetidos/troca, compra/equipar, afinidade, campeonato, GP semanal, saves antigos e roundtrip.');
+

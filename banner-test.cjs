@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict'),D=require('./legends-data'),L=require('./legends-model'),A=require('./engine'),C=require('./championship-model');
+const make=()=>{const s=A.initial();s.money=1000000;L.init(s);C.init(s);return s};
+assert.equal(L.catalog().length,25);assert.equal(L.catalog().filter(c=>D.cars.some(v=>v.id===c.id)).length,20);assert(L.catalog().every(c=>!c.exclusive));assert.equal(L.catalog('special').filter(c=>c.exclusive).length,2);
+for(const type of ['main','special'])assert(Math.abs(L.poolRates(make(),type).reduce((n,r)=>n+r.chance,0)-100)<1e-8);
+const s=make();s.summonPity={epic:3,legendary:110,mythic:500};s.heritage.pity={epic:8,legendary:140,mythic:600};s.heritage.owned.push('f2004');L.migrate(s);assert.deepEqual(s.summonPity,{epic:8,legendary:140,mythic:600});s.summonPity.epic=1;L.migrate(s);assert.equal(s.summonPity.epic,1);assert(s.heritage.owned.includes('f2004'));assert(A.validate(s));
+for(const id of ['lotus97t','jordan191']){s.summonPoints=1000000;const before=JSON.stringify(s);assert(!L.buy(s,id));assert(!L.exchange(s,id));assert.equal(JSON.stringify(s),before);assert(!L.catalog().some(c=>c.id===id))}
+s.championship.tickets=10;const money=s.money;const p={...s.summonPity};s.heritage.specialPity={epic:9,legendary:199,mythic:3};const out=L.mainSummon(s,1,'special',()=>0);assert.equal(out[0].id,'lotus97t');assert.equal(s.money,money);assert.equal(s.championship.tickets,9);assert.deepEqual(s.summonPity,p);assert(s.heritage.owned.includes('lotus97t'));assert(A.validate(s));
+const mit=L.mainSummon(s,1,'special',()=>.999999);assert.equal(mit[0].id,'jordan191');assert(s.heritage.owned.includes('jordan191'));assert.equal(s.heritage.specialPity.mythic,0);assert(A.validate(s));
+assert(L.affinity('lotus97t','real_senna'));assert(L.affinity('jordan191','real_schumacher'));
+const main=make();main.summonPity={epic:0,legendary:0,mythic:0};L.migrate(main);const catalog=L.poolRates(main);let cumulative=0;const target=catalog.find(r=>r.id==='f2004');for(const r of catalog){if(r===target)break;cumulative+=r.chance}const hit=L.mainSummon(main,1,'main',()=>(cumulative+target.chance/2)/100);assert.equal(hit[0].id,'f2004');assert(main.heritage.owned.includes('f2004'));assert.equal(main.money,999800);assert.equal(main.championship.tickets,10);assert(A.validate(main));
+const draft=JSON.stringify(main);assert.equal(L.mainSummon(main,10,'main',()=>NaN),null);assert.equal(JSON.stringify(main),draft);assert.equal(L.mainSummon(main,1,'bad'),null);
+main.heritage.wish='mp44';assert(Math.abs(L.poolRates(main).reduce((n,r)=>n+r.chance,0)-100)<1e-8);
+const roundtrip=JSON.parse(JSON.stringify(s));assert(A.validate(roundtrip));assert(L.equip(roundtrip,'jordan191'));assert(A.validate(roundtrip));
+console.log('OK: 20 históricos no principal, 2 exclusivos fora do pool/compra/troca, fichas separadas de CR, garantias preservadas, pity independente, afinidades, resultados e save.');

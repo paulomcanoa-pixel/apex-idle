@@ -19,6 +19,8 @@ if(m.shape==='skirts')for(const side of [-1,1]){r(-30,side*W-1,40,2,m.accent);li
 for(const side of [-1,1]){p([[-23,side*8],[-9,side*(W-1)],[4,side*(W-2)],[10,side*8]],m.team==='Renault'?m.accent:m.team==='McLaren'&&m.year===1988?'#f5f2e6':m.color);line([[-25,side*(W-1)],[1,side*(W-1)],[16,side*6]],m.accent,modern?2.5:1.5);r(-9,side*9-1,12,2,'#111820');if(m.shape==='ground'){p([[-21,side*W],[-2,side*(W+2)],[16,side*8],[0,side*9]],'#111a26');line([[-20,side*(W-1)],[0,side*(W+1)],[15,side*8]],m.accent,1.2)}}
 if(m.team==='Ferrari'){r(22,-2.2,N-27,4.4,m.color);r(-37,-19,4,38,'#f4eee8');for(let i=0;i<3;i++)r(-22+i*3,-7,1,14,'#121923');p([[18,-4],[24,-3],[24,3],[18,4]],'#f0d45b')}
 if(m.id==='mp44'){p([[N,-2.5],[N-15,-6],[N-6,0],[N-15,6],[N,2.5]],'#ef4037');p([[-32,-4],[-18,-7],[-12,0],[-18,7],[-32,4]],'#ef4037')}
+if(m.team==='Jordan'){for(const side of [-1,1])p([[-24,side*7],[-10,side*W],[4,side*W],[14,side*6]],'#3c7bab');line([[18,-3],[N,-2],[N,2],[18,3]],'#e7f5e9',1)}
+if(m.shape==='turbo'){for(const side of [-1,1]){r(-31,side*10,15,3,'#c7a756');p([[2,side*W],[7,side*(W+4)],[11,side*W]],m.accent)}}
 if(m.team==='Williams'){r(18,-3,N-23,6,m.id==='fw14b'?'#f6cf3d':'#f0eee6');for(const side of [-1,1]){line([[-20,side*W],[0,side*W],[18,side*5]],m.accent,3);line([[-20,side*(W-3)],[0,side*(W-3)]],'#c9aa60',.8)}}
 if(m.team==='Renault')p([[10,-5],[N,-2.5],[N,2.5],[10,5],[17,0]],'#f5d731');
 if(m.team==='Red Bull'){p([[N-18,-4],[N,-2.5],[N,2.5],[N-18,4],[N-21,0]],'#f8d82e');for(const side of [-1,1])p([[-20,side*9],[-6,side*12],[2,side*8],[-12,side*6]],m.id==='rb9'?'#a46bc2':'#df3534')}
