@@ -76,3 +76,5 @@ body.night-mode [hidden]{display:none!important}
 .night-mode .settings-content .tactics{position:static!important;display:flex!important;width:100%!important;max-width:none!important;transform:none!important;flex-wrap:wrap;margin:15px 0}.night-mode .settings-content .tactics button{min-height:44px}
 
 .night-mode .night-masthead{top:90px;height:48px}@media(max-width:600px){.night-mode .night-masthead{top:91px;height:47px}}
+
+@media(max-width:600px){body.night-mode .game-drawer{inset:154px 10px 75px!important;width:calc(100vw - 20px)!important;max-width:none!important;height:auto!important;max-height:calc(100dvh - 229px)!important;padding:12px!important}}.night-mode .hub-banner>span{display:none}
