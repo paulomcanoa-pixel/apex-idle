@@ -87,7 +87,7 @@ ctx.fillStyle='#263542';ctx.fillRect(0,58,width,174);ctx.fillStyle='#82939c';ctx
 ctx.strokeStyle='#d6e1e833';ctx.lineWidth=2;ctx.setLineDash([24,24]);ctx.beginPath();ctx.moveTo(0,145);ctx.lineTo(width,145);ctx.stroke();ctx.setLineDash([]);
 for(let col=0;col<3;col++)for(let row=0;row<14;row++){ctx.fillStyle=(col+row)%2?'#0a1018':'#eff4ee';ctx.fillRect(finish+col*12,60+row*12,12,12)}
 ctx.fillStyle='#c5d5dc';ctx.font='bold 11px Arial';ctx.textAlign='center';ctx.fillText('CHEGADA',finish+18,40);
-const reveal=phase==='revealed',x=phase==='racing'&&!reduced?-120+(width+240)*Math.min(1,t/.85):width/2;
+const reveal=phase!=='mystery',x=phase==='racing'&&!reduced?width*.30+(width*.60)*Math.min(1,t/1.5):phase==='revealed'?width*.30:width/2;
 if(reveal)aura(ctx,x,145,Math.min(150,width*.30),74,model,t,reduced);
 ctx.save();ctx.translate(x,145);ctx.rotate(Math.PI/2);if(phase==='mystery')ctx.filter='brightness(0)';if(reveal){ctx.shadowColor=model.color;ctx.shadowBlur=22}
 car(ctx,0,0,Math.min(.84,(width-60)/220),reveal?model.color:'#26303e',reduced?0:t*2,model.id);ctx.restore();
@@ -100,3 +100,4 @@ return ()=>{stopped=true;cancelAnimationFrame(frame);observer.disconnect()}
 root.DropShowcase={order,layout,mount,race,car,aura,auraPalette};
 if(typeof module!=='undefined')module.exports=root.DropShowcase;
 })(typeof window!=='undefined'?window:globalThis);
+

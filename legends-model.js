@@ -1,4 +1,5 @@
 (function(root){
+const G=typeof GarageState!=='undefined'?GarageState:require('./garage-state.js');
 const D=typeof LegendsData!=='undefined'?LegendsData:require('./legends-data');const get=id=>D.cars.find(c=>c.id===id)||D.legacy.find(c=>c.id===id);
 function init(s){if(!s.heritage)s.heritage={v:1,owned:['lotus49'],equipped:'',wish:'',pity:{epic:0,legendary:0,mythic:0},history:[]};return s.heritage}
 function valid(s){const h=s?.heritage;if(h===undefined)return !s?.championship?.car;const integer=v=>Number.isSafeInteger(v)&&v>=0;return !!(h&&h.v===1&&(h.mainMerged===undefined||typeof h.mainMerged==='boolean')&&Array.isArray(h.owned)&&h.owned.length<=22&&new Set(h.owned).size===h.owned.length&&h.owned.every(id=>D.cars.some(c=>c.id===id))&&h.owned.includes('lotus49')&&typeof h.equipped==='string'&&(!h.equipped||h.owned.includes(h.equipped))&&typeof h.wish==='string'&&(!h.wish||get(h.wish))&&h.pity&&integer(h.pity.epic)&&h.pity.epic<10&&integer(h.pity.legendary)&&h.pity.legendary<200&&integer(h.pity.mythic)&&Array.isArray(h.history)&&h.history.length<=10&&h.history.every(v=>v&&get(v.id)&&typeof v.duplicate==='boolean'&&typeof v.guaranteed==='boolean'&&integer(v.points))&&(!h.specialPity||integer(h.specialPity.epic)&&h.specialPity.epic<10&&integer(h.specialPity.legendary)&&h.specialPity.legendary<200&&integer(h.specialPity.mythic))&&(!s.championship?.car||h.owned.includes(s.championship.car)))}
@@ -10,8 +11,8 @@ for(let i=0;i<count;i++){const roll=rng();if(!Number.isFinite(roll)||roll<0||rol
 h.history=out;Object.assign(s,draft);return out}
 function exchange(s,id){const c=get(id),h=init(s);if(!c||!D.cars.some(v=>v.id===id)||c.exclusive||h.owned.includes(id)||(s.summonPoints||0)<D.prices[c.rarity])return false;s.summonPoints-=D.prices[c.rarity];h.owned.push(id);return true}
 function buy(s,id){const c=get(id),h=init(s);if(!c||c.exclusive||h.owned.includes(id))return false;const price=[1000,5000,20000,60000,150000][c.rarity];if(s.money<price)return false;s.money-=price;h.owned.push(id);return true}
-function equip(s,id){const h=init(s);if(s.running||s.raceInProgress||s.championship?.running||id&&s.career?.entry?.car===id||id&&!h.owned.includes(id))return false;h.equipped=id;if(s.championship)s.championship.car=id;if(id)s.color=get(id).color;return true}
-function car(s){const h=s?.heritage,c=h&&get(h.equipped);return c?{...c,rarity:D.names[c.rarity],bonus:.02+c.rarity*.04,chance:0}:null}
+function equip(s,id){const h=init(s);if(id&&!h.owned.includes(id))return false;return G.equip(s,id||s.equippedCar||'aurora')}
+function car(s){const id=G.selected(s),c=D.cars.find(c=>c.id===id);return c?{...c,rarity:D.names[c.rarity],bonus:.02+c.rarity*.04,chance:0}:null}
 
 function migrate(s){const h=init(s);if(!h.mainMerged){const a=s.summonPity||{epic:0,legendary:0,mythic:0};s.summonPity={epic:Math.max(a.epic,h.pity.epic),legendary:Math.max(a.legendary,h.pity.legendary),mythic:Math.max(a.mythic,h.pity.mythic)};if(!h.wish&&s.wishCar)h.wish=s.wishCar;if(h.history.length)s.summonHistory=[...h.history,...(s.summonHistory||[])].slice(0,10);h.mainMerged=true}if(!h.specialPity)h.specialPity={epic:0,legendary:0,mythic:0};return h}
 function catalog(type='main'){const main=[...D.legacy.filter(c=>c.id!=='aurora'),...D.cars.filter(c=>!c.exclusive)];return type==='special'?[...main.filter(c=>c.rarity<3),...D.cars.filter(c=>c.exclusive)]:main}

@@ -67,12 +67,12 @@ $('cinemaStage').style.setProperty('--reveal-color',result.car.color);
 $('cinemaCaption').textContent=resultText(result);
 $('nextSummon').disabled=false;
 $('nextSummon').textContent=revealIndex===pendingReveal.length-1?'Ver todos os drops →':'Próximo carro →';
-revealTimer=setTimeout(nextSummon,1200)
+revealTimer=setTimeout(raceCurrent,650)
 }
 function raceCurrent(){
 if(!pendingReveal)return;
 $('cinemaStage').dataset.phase='racing';drawCinemaArt('racing');$('cinemaCaption').textContent='Acelerando rumo à linha de chegada…';
-revealTimer=setTimeout(revealCurrent,850)
+revealTimer=setTimeout(nextSummon,1600)
 }
 function startReveal(){
 if(!pendingReveal)return;
@@ -81,7 +81,7 @@ $('cinemaProgress').textContent='CARRO '+(revealIndex+1)+' DE '+pendingReveal.le
 $('cinemaCaption').textContent='Um F1 misterioso está chegando…';
 $('nextSummon').disabled=true;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-revealTimer=setTimeout(reduced?revealCurrent:raceCurrent,reduced?250:750)
+revealTimer=setTimeout(revealCurrent,reduced?250:750)
 }
 function nextSummon(){
 if(!pendingReveal||$('nextSummon').disabled)return;

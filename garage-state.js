@@ -1,0 +1,9 @@
+(function(root){
+const D=typeof LegendsData!=='undefined'?LegendsData:require('./legends-data');
+const known=id=>[...D.legacy,...D.cars].some(c=>c.id===id);
+function init(s){const legacy=['aurora',...(s.ownedCars||[]),...(s.heritage?.owned||[])].filter(known),old=s.garage;const owned=[...new Set([...(Array.isArray(old?.owned)?old.owned.filter(known):[]),...legacy])];const preferred=old?old.equipped:(s.heritage?.equipped||s.equippedCar||'aurora');s.garage={owned,equipped:owned.includes(preferred)?preferred:'aurora'};const id=s.garage.equipped,historic=D.cars.some(c=>c.id===id);if(s.ownedCars||owned.some(v=>v!=='aurora'&&D.legacy.some(c=>c.id===v)))s.ownedCars=owned.filter(v=>D.legacy.some(c=>c.id===v));if(s.heritage){s.heritage.owned=[...new Set([...s.heritage.owned,...owned.filter(v=>D.cars.some(c=>c.id===v))])];s.heritage.equipped=historic?id:''}if(!historic&&(s.equippedCar!==undefined||id!=='aurora'))s.equippedCar=id;if(s.championship)s.championship.car=historic?id:'';return s.garage}
+function selected(s){return init(s).equipped}
+function valid(s){const g=s?.garage;return g===undefined||!!(g&&Array.isArray(g.owned)&&g.owned.length<=28&&new Set(g.owned).size===g.owned.length&&g.owned.includes('aurora')&&g.owned.every(known)&&g.owned.includes(g.equipped))}
+function equip(s,id){const g=init(s);if(!g.owned.includes(id)||!known(id)||s.championship?.running||s.career?.entry?.car===id)return false;g.equipped=id;const historic=D.cars.some(c=>c.id===id);if(s.heritage)s.heritage.equipped=historic?id:'';if(!historic)s.equippedCar=id;if(s.championship)s.championship.car=historic?id:'';const car=[...D.legacy,...D.cars].find(c=>c.id===id);s.color=car.color;return true}
+const api={init,selected,valid,equip};root.GarageState=api;if(typeof module!=='undefined')module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);

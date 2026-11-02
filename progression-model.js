@@ -1,0 +1,7 @@
+(function(root){
+function goal(s,A){const next=A.circuits.filter(c=>c.rep>s.rep).sort((a,b)=>a.rep-b.rep)[0];if(next)return{label:'Faltam '+(next.rep-s.rep)+' pontos para '+next.name,value:s.rep,max:next.rep};const n=s.night||{};return{label:'Próximo título · '+Math.floor(n.seasonEarned||0).toLocaleString('pt-BR')+' / 1.500.000 CR',value:Math.min(1500000,n.seasonEarned||0),max:1500000}}
+function rate(s,A,E,N){return A.reward(s)/N.duration(s,A)+E.production(s.idle||{units:[0,0,0,0,0,0],upgrades:[0,0,0,0,0,0],fragments:0})}
+function effect(s,A,E,N,kind,i,count=1){const draft=JSON.parse(JSON.stringify(s)),before=rate(s,A,E,N);if(kind==='car'){draft.levels[i]+=count}else{draft.idle.units[i]+=count}return{seconds:N.duration(draft,A),reward:A.reward(draft),gain:rate(draft,A,E,N)-before}}
+function best(s,A,E,N){const choices=[];for(let i=0;i<4;i++){if(s.levels[i]<100&&s.money>=A.cost(s,i)){const out=effect(s,A,E,N,'car',i);if(out.gain>0)choices.push({kind:'car',i,cost:A.cost(s,i),...out})}}E.generators.forEach((g,i)=>{const cost=E.cost(s.idle,i,1);if(s.idle.units[i]<1000&&s.money>=cost){const out=effect(s,A,E,N,'team',i);if(out.gain>0)choices.push({kind:'team',i,cost,...out})}});return choices.sort((a,b)=>b.gain/b.cost-a.gain/a.cost)[0]||null}
+const api={goal,rate,effect,best};root.Progression=api;if(typeof module!=='undefined')module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);

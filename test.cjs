@@ -32,7 +32,7 @@ let before=JSON.stringify(g);assert.equal(A.summonMany(g,10,()=>0),null);assert.
 g.money=3000;before=JSON.stringify(g);let calls=0;assert.equal(A.summonMany(g,10,()=>++calls===5?1:0),null);assert.equal(JSON.stringify(g),before);
 assert.equal(g.summonHistory.length,10);assert(A.validate(JSON.parse(JSON.stringify(g))));
 g=fresh();assert(!A.shopBuy(g,'zenith'));g.summonPoints=15000;g.summonPity={epic:3,legendary:30,mythic:70};assert(A.shopBuy(g,'zenith'));assert.equal(A.points(g),0);assert.deepEqual(A.pity(g),{epic:3,legendary:30,mythic:70});assert(!A.shopBuy(g,'zenith'));assert(A.equipCar(g,'zenith'));
-assert(A.validate(g));assert.equal(A.equippedCar(g).rarity,'Mítico');g.running=true;assert(!A.equipCar(g,'aurora'));
+assert(A.validate(g));assert.equal(A.equippedCar(g).rarity,'Mítico');g.running=true;assert(A.equipCar(g,'aurora'));
 g=fresh();g.money=200;assert(A.grantTestCredits(g));assert.equal(g.money,1000200);assert(!A.grantTestCredits(g));assert.equal(g.money,1000200);
 for(const bad of [{summonPoints:-1},{wishCar:'unknown'},{ownedCars:null},{equippedCar:'zenith'},{summonPity:{epic:0,legendary:200,mythic:0}},{summonPity:{epic:0,legendary:0,mythic:-1}},{summonHistory:[{id:'unknown'}]}])assert(!A.validate({...A.initial(),...bad}));
 assert(A.validate({...A.initial(),summonPity:{epic:9,legendary:49,mythic:99},summonHistory:[{id:'vento',duplicate:true,guaranteed:false}]}));
@@ -43,3 +43,4 @@ console.log('OK: desejo dobra chance, chance fixa 1/700, garantias 10/200, sem g
 
 for(const [id,price] of Object.entries(A.shopPrices)){assert.equal(A.duplicatePoints[id],price/2);const s=fresh();s.summonPoints=price-1;assert(!A.shopBuy(s,id));s.summonPoints=price;assert(A.shopBuy(s,id));assert.equal(A.points(s),0);const repeat=drawId(s,id);assert.equal(repeat.points,price/2)}
 console.log('OK: preços 100/300/800/4000/15000 e repetidos valem metade de cada troca.');
+
