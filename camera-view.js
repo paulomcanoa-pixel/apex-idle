@@ -15,7 +15,7 @@ function minimap(){
 if(mapCircuit!==s.circuit){mapCircuit=s.circuit;mapBackground=document.createElement('canvas');mapBackground.width=440;mapBackground.height=260;const g=mapBackground.getContext('2d');g.lineJoin='round';g.lineCap='round';g.beginPath();layouts[s.circuit].points.forEach((p,i)=>i?g.lineTo(p[0]*.44,p[1]*260/580):g.moveTo(p[0]*.44,p[1]*260/580));g.closePath();g.strokeStyle='#07161d';g.lineWidth=12;g.stroke();g.strokeStyle='#8da8a8';g.lineWidth=4;g.stroke();const p=position(0);g.fillStyle='#f4f7eb';g.fillRect(p.x*.44-3,p.y*260/580-3,6,6)}
 mc.clearRect(0,0,440,260);mc.drawImage(mapBackground,0,0);
 const dot=(t,color,r)=>{const p=position(t);mc.beginPath();mc.arc(p.x*.44,p.y*260/580,r,0,Math.PI*2);mc.fillStyle=color;mc.fill()};
-if(typeof race!=='undefined'&&race){race.rivals.forEach(r=>dot(race.elapsed/r.pace,r.color,4))}else{dot(s.progress*.94+.32,'#e17e60',4);dot(s.progress*1.02+.65,'#8baded',4)}
+if(typeof TrafficView!=='undefined'){TrafficView.racers().filter(c=>c.id!=='player').forEach(c=>dot(c.distance,c.color,4))}else if(typeof race!=='undefined'&&race){race.rivals.forEach(r=>dot(race.elapsed/r.pace,r.color,4))}else{dot(s.progress*.94+.32,'#e17e60',4);dot(s.progress*1.02+.65,'#8baded',4)}
 dot(s.progress,'#07171e',10);dot(s.progress,s.color||'#d4fc5a',7);$('mapProgress').textContent=Math.floor(s.progress*100)+'%';$('mapLap').textContent='VOLTA '+(typeof race!=='undefined'&&race?Math.min(5,Math.floor(race.distance)+1):s.laps+1);
 }
 const worldDraw=draw;
@@ -23,7 +23,7 @@ draw=function(){
 const bounds=canvas.getBoundingClientRect(),w=bounds.width,h=bounds.height,dpr=Math.min(window.devicePixelRatio||1,2);if(!w||!h)return;
 const pw=Math.round(w*dpr),ph=Math.round(h*dpr);if(canvas.width!==pw||canvas.height!==ph){canvas.width=pw;canvas.height=ph}
 const now=performance.now(),dt=Math.min(.1,Math.max(0,(now-lastFrame)/1000));lastFrame=now;
-const p=position(s.progress),ahead=position(s.progress+.008),tx=follow?p.x*.8+ahead.x*.2:500,ty=follow?p.y*.8+ahead.y*.2:290;
+const p=typeof TrafficView!=='undefined'?TrafficView.playerPosition():position(s.progress),ahead=position(s.progress+.008),tx=follow?p.x*.8+ahead.x*.2:500,ty=follow?p.y*.8+ahead.y*.2:290;
 if(cameraX===null||lastCircuit!==s.circuit){cameraX=tx;cameraY=ty;lastCircuit=s.circuit}else{const blend=1-Math.exp(-dt*8);cameraX+=(tx-cameraX)*blend;cameraY+=(ty-cameraY)*blend}
 const scale=Math.min(w/1000,h/580)*(follow?zoom:1);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle={grass:'#142f26',coast:'#143337',desert:'#3e3b30',night:'#0d2230'}[A.circuits[s.circuit].terrain];ctx.fillRect(0,0,w,h);
 ctx.save();ctx.setTransform(dpr*scale,0,0,dpr*scale,dpr*(w*.5-cameraX*scale),dpr*(h*.52-cameraY*scale));worldDraw();ctx.restore();ctx.setTransform(1,0,0,1,0,0);minimap();
