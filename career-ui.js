@@ -9,7 +9,7 @@ r.rivals.forEach((v,i)=>v.pace=entry.duration*([.96,1.03,1.10][i]+-entry.divisio
 while(!r.done)Race.step(r,.1);
 return {time:r.elapsed,place:Race.order(r).findIndex(v=>v.player)+1}
 }
-function carName(id){return A.cars.find(c=>c.id===id)?.name||id}
+function carName(id){return A.cars.find(c=>c.id===id)?.name||Legends.get(id)?.name||id}
 function dateLabel(ms){return new Date(ms).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}
 function renderCareer(){
 const d=Career.data(s),signature=JSON.stringify([careerTab,d,s.money,A.ownedCars(s),s.equippedCar,s.running,s.circuit,!!race,Math.floor(Date.now()/10000)]);
@@ -29,12 +29,12 @@ html+='<h2>Engenharia com destino certo</h2><p>Escolha um projeto. Cada corrida 
 html+=Career.ids.map(id=>{const cost=Career.projects[id],have=d.materials[id]||0,owned=A.ownedCars(s).includes(id),complete=d.completed.includes(id);return '<article class="career-card"><h3>'+carName(id)+'</h3><p>'+have+' / '+cost+' peças · '+fmt(cost*20)+' CR</p><progress max="'+cost+'" value="'+Math.min(cost,have)+'"></progress><button data-build="'+id+'" '+(complete||have<cost||s.money<cost*20?'disabled':'')+'>'+(complete?'Projeto concluído':owned?'Homologar projeto':'Construir carro')+'</button></article>'}).join('')+'</div>';
 }
 if(careerTab==='album'){
-html+='<h2>Seu álbum e suas pinturas</h2><p>'+A.ownedCars(s).length+' / '+A.cars.length+' modelos descobertos. Pinturas são cosméticas e não alteram o ritmo. Pause antes de aplicar.</p><div class="career-grid">';
-html+=A.cars.map(c=>'<article class="career-card" style="--career-color:'+c.color+'"><h3>'+c.name+'</h3><p>'+c.rarity+' · '+(A.ownedCars(s).includes(c.id)?'Colecionado ✓':'Ainda não descoberto')+'</p></article>').join('')+'</div><h3>Metas da coleção</h3><div class="career-grid">';
+html+='<h2>Seu álbum e suas pinturas</h2><p>'+(A.ownedCars(s).length+(s.heritage?.owned.length||0))+' / '+(A.cars.length+LegendsData.cars.length)+' modelos descobertos. Pinturas são cosméticas e não alteram o ritmo. Pause antes de aplicar.</p><div class="career-grid">';
+html+=[...A.cars,...LegendsData.cars.map(c=>({...c,rarity:LegendsData.names[c.rarity]}))].map(c=>'<article class="career-card" style="--career-color:'+c.color+'"><h3>'+c.name+'</h3><p>'+c.rarity+' · '+((A.ownedCars(s).includes(c.id)||s.heritage?.owned.includes(c.id))?'Colecionado ✓':'Ainda não descoberto')+'</p></article>').join('')+'</div><h3>Metas da coleção</h3><div class="career-grid">';
 html+=Career.paints.map(p=>{const ready=Career.canPaint(s,A,p.id),value=p.metric?Career.metric(s,A,p.metric):1;const labels={cars:'carros colecionados',races:'corridas concluídas',contracts:'contratos recolhidos',gps:'GPs semanais concluídos',built:'projetos concluídos'};return '<article class="career-card" style="--career-color:'+(p.color||A.equippedCar(s).color)+'"><h3>'+p.name+'</h3><p>'+(p.metric?value+'/'+p.goal+' '+labels[p.metric]:'Disponível desde o início')+'</p><button data-paint="'+p.id+'" '+(!ready||s.running||race?'disabled':'')+'>'+(d.paint===p.id?'Pintura selecionada':ready?'Aplicar pintura':'Bloqueada')+'</button></article>'}).join('')+'</div>';
 }
 if(careerTab==='weekly'){
-const w=Career.weekly(),entry=d.entry,done=d.history.find(h=>h.week===w.week),rank=A.cars.indexOf(A.equippedCar(s));
+const w=Career.weekly(),entry=d.entry,done=d.history.find(h=>h.week===w.week),rank=Legends.get(A.equippedCar(s).id)?.rarity+1||A.cars.indexOf(A.equippedCar(s));
 html+='<h2>'+w.rule.name+'</h2><p>'+w.rule.text+'</p><p>Semana até '+dateLabel(w.ends)+' (Brasília). Divisão: '+['Bronze','Prata','Ouro'][Math.min(2,Math.floor(d.stats.gps/3))]+'. Avance de divisão a cada três GPs concluídos.</p><p class="career-notice">Competição solo contra três adversários simulados. Não é ranking online. Uma inscrição por semana. O resultado fica pronto após 90 segundos, mesmo se você fechar o jogo, e é calculado ao retornar.</p>';
 html+='<p>Circuito: '+A.circuits[s.circuit].name+' · Carro: '+A.equippedCar(s).name+' · Previsão: '+(w.rule.id==='stock'?A.circuits[s.circuit].time*1.08:A.duration(s)).toFixed(2)+' s/volta antes do desgaste. Preparação capturada na inscrição.</p>';
 html+='<p>Prêmios: 1º 6.000 / 2º 4.000 / 3º 2.500 / 4º 1.500 CR × nível da divisão, mais 20 peças do projeto ativo na conclusão.</p><button data-career-action="weekly" '+(entry||done||s.running||race||rank>w.rule.maxRank||!Career.available(s,A.equippedCar(s).id)?'disabled':'')+'>'+(entry?'Inscrito · resultado em '+dateLabel(entry.end):done?'Participação desta semana concluída':'Inscrever e deixar a equipe correr')+'</button>';
@@ -70,6 +70,6 @@ function showCareerReplay(entry){if(!entry)return;stopCareerReplay();replayState
 const canvas=$('careerReplayCanvas'),g=canvas.getContext('2d');
 function frame(now){if(!replayState)return;const dt=Math.min(.15,(now-replayLast)/1000);replayLast=now;if(!replayPaused){Race.step(replayState,dt*+$('careerReplaySpeed').value);replayElapsed=replayState.elapsed}
 g.fillStyle='#0c1824';g.fillRect(0,0,800,360);g.strokeStyle='#53636d';g.lineWidth=45;g.beginPath();g.ellipse(400,175,300,110,0,0,Math.PI*2);g.stroke();
-const racers=[{distance:replayState.distance,color:A.cars.find(c=>c.id===entry.car).color},...replayState.rivals.map(v=>({distance:Math.min(5,replayElapsed/v.pace),color:v.color}))];
+const racers=[{distance:replayState.distance,color:(A.cars.find(c=>c.id===entry.car)||Legends.get(entry.car)).color},...replayState.rivals.map(v=>({distance:Math.min(5,replayElapsed/v.pace),color:v.color}))];
 racers.forEach(v=>{const a=(v.distance%1)*Math.PI*2;CarArt.draw(g,{x:400+300*Math.cos(a),y:175+110*Math.sin(a),a:a+Math.PI/2,scale:.65,color:v.color,id:entry.car})});g.fillStyle='#fff';g.font='bold 19px Arial';g.textAlign='center';g.fillText(replayState.done?'BANDEIRADA':replayState.countdown>0?'LARGADA':'VOLTA '+Math.min(5,Math.floor(replayState.distance)+1)+' / 5',400,160);g.fillText(replayElapsed.toFixed(1)+' s',400,190);replayFrame=requestAnimationFrame(frame)}replayFrame=requestAnimationFrame(frame)}
 render();

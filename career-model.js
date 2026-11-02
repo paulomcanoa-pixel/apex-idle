@@ -1,5 +1,6 @@
 (function(root){
-const ids=['vento','scarlatto','solar','eclipse','zenith'],all=['aurora',...ids];
+const historical=typeof LegendsData!=='undefined'?LegendsData:require('./legends-data.js');
+const ids=['vento','scarlatto','solar','eclipse','zenith'],all=['aurora',...ids,...historical.cars.map(c=>c.id)];
 const projects={vento:20,scarlatto:40,solar:80,eclipse:160,zenith:320};
 const offers={test:{name:'Teste de desenvolvimento',ms:60000,credits:300,parts:2},show:{name:'Exibição do patrocinador',ms:300000,credits:1800,parts:8},endurance:{name:'Ensaio de resistência',ms:900000,credits:6000,parts:24}};
 const paints=[{id:'original',name:'Pintura original',color:null},{id:'chrome',name:'Cromo de coleção',color:'#dbe7f2',metric:'cars',goal:3},{id:'sunset',name:'Pôr do sol',color:'#ff9866',metric:'races',goal:5},{id:'aqua',name:'Patrocinador Aqua',color:'#51e0da',metric:'contracts',goal:3},{id:'gold',name:'Campeão do GP',color:'#ffd36b',metric:'gps',goal:1},{id:'violet',name:'Engenharia Violeta',color:'#ba91ff',metric:'built',goal:1}];
@@ -18,11 +19,11 @@ function startContract(s,A,car,offer,now=Date.now()){const d=init(s,now),o=offer
 function claimContract(s,car,now=Date.now()){const d=init(s,now),i=d.contracts.findIndex(c=>c.car===car&&c.end<=now);if(i<0)return false;const c=d.contracts[i],o=offers[c.offer],target=ids.includes(car)?car:d.target;d.contracts.splice(i,1);s.money+=o.credits;d.materials[target]=(d.materials[target]||0)+o.parts;d.stats.contracts++;return true}
 function setTarget(s,id){if(!ids.includes(id))return false;init(s).target=id;return true}
 function build(s,A,id){const d=init(s),cost=projects[id];if(!cost||d.completed.includes(id)||(d.materials[id]||0)<cost||s.money<cost*20)return false;d.materials[id]-=cost;s.money-=cost*20;if(!A.ownedCars(s).includes(id))s.ownedCars=[...A.ownedCars(s),id];d.stats.built++;if(!d.completed.includes(id))d.completed.push(id);return true}
-function metric(s,A,id){const d=data(s);return id==='cars'?A.ownedCars(s).length:d.stats[id]||0}
+function metric(s,A,id){const d=data(s);return id==='cars'?A.ownedCars(s).length+(s.heritage?.owned.length||0):d.stats[id]||0}
 function canPaint(s,A,id){const p=paints.find(p=>p.id===id);return p&&(!p.metric||metric(s,A,p.metric)>=p.goal)}
 function paint(s,A,id){if(s.running||!canPaint(s,A,id))return false;const p=paints.find(p=>p.id===id);init(s).paint=id;s.color=p.color||A.equippedCar(s).color;return true}
 function raceDone(s,A,info){const d=init(s);d.stats.races++;if(info.place===1)d.stats.wins++;const amount=info.place===1?5:3;d.materials[d.target]=(d.materials[d.target]||0)+amount;return {target:d.target,parts:amount}}
-function enter(s,A,now=Date.now()){const d=init(s,now),w=weekly(now),car=A.equippedCar(s),rank=A.cars.indexOf(car);if(s.running||d.entry||d.history.some(h=>h.week===w.week)||!available(s,car.id)||rank>w.rule.maxRank)return false;const division=Math.min(2,Math.floor(d.stats.gps/3)),circuit=s.circuit;
+function enter(s,A,now=Date.now()){const d=init(s,now),w=weekly(now),car=A.equippedCar(s),rank=historical.cars.find(v=>v.id===car.id)?.rarity+1||A.cars.indexOf(car);if(s.running||d.entry||d.history.some(h=>h.week===w.week)||!available(s,car.id)||rank>w.rule.maxRank)return false;const division=Math.min(2,Math.floor(d.stats.gps/3)),circuit=s.circuit;
 const duration=w.rule.id==='stock'?A.circuits[circuit].time*1.08:A.duration(s);
 d.entry={week:w.week,rule:w.rule.id,car:car.id,circuit,division,duration,tyres:w.rule.tyres,end:now+90000};return true}
 function settle(s,simulate,now=Date.now()){const d=init(s,now),entry=d.entry;if(!entry||entry.end>now)return false;const result=simulate(entry);if(!result||!Number.isFinite(result.time)||result.time<=0||![1,2,3,4].includes(result.place))return false;delete d.entry;d.history=[{...entry,time:result.time,place:result.place},...d.history].slice(0,8);d.stats.gps++;s.money+=[6000,4000,2500,1500][result.place-1]*(entry.division+1);d.materials[d.target]=(d.materials[d.target]||0)+20;return true}
