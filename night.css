@@ -74,3 +74,5 @@ body.night-mode [hidden]{display:none!important}
 .night-mode .game-wallet article{padding-block:4px}.night-mode .game-wallet strong{font-size:22px;margin-block:2px}.night-mode .game-wallet{min-height:62px}@media(max-width:600px){.night-mode .game-wallet{height:80px}.night-mode .game-wallet article{padding:2px 5px}.night-mode .game-wallet strong{font-size:17px}}
 
 .night-mode .settings-content .tactics{position:static!important;display:flex!important;width:100%!important;max-width:none!important;transform:none!important;flex-wrap:wrap;margin:15px 0}.night-mode .settings-content .tactics button{min-height:44px}
+
+.night-mode .night-masthead{top:90px;height:48px}@media(max-width:600px){.night-mode .night-masthead{top:91px;height:47px}}

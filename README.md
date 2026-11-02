@@ -117,10 +117,18 @@ A entrega real de confirmação, recuperação e link mágico depende do e-mail 
 
 ## Corrida noturna e garagem
 
-A loja inferior reúne Carro, Equipe, Circuitos, Patrocínio e Temporada. O Paddock preserva acesso a todos os sistemas anteriores. Garagem permite preparar F1 e piloto já possuídos, comparar prêmio/ritmo/afinidade e aplicar a dupla apenas com a pista pausada. A transação usa os campos existentes; não concede itens. A afinidade histórica permanece +4% no cálculo de ritmo original.
+A loja inferior reúne Carro, Equipe, Circuitos, Patrocínio e Temporada. O Paddock preserva acesso a todos os sistemas anteriores. Garagem permite preparar F1 e piloto já possuídos, comparar prêmio/ritmo/afinidade e aplicar a dupla durante a corrida principal. A transação usa os campos existentes; não concede itens. A afinidade histórica permanece +4% no cálculo de ritmo original.
 
 A invocação mantém mistério, passagem pela chegada e resumo com o mais raro no centro. Uma aura em Canvas envolve o carro revelado: cinza, azul, roxa, dourada ou rosa conforme a qualidade. Movimento reduzido conserva a cor e reduz a animação.
 
 Nova temporada é um prestígio separado da Ascensão: exige renda nova, concede floor(sqrt(renda/1500000)) títulos e +25% de renda por título. Confirmação em dois toques. Preserva coleção, pilotos, reputação, circuitos, recordes e moedas/progressão dos demais sistemas. A chave segue apex-idle-v2; novos campos night recebem padrões em saves antigos.
 
-Validação: npm test executa 21 suítes. npm run build prepara o site estático. Não há script de lint no projeto; use node --check nos arquivos JS modificados.
+Validação: npm test executa 22 suítes. npm run build prepara o site estático. Não há script de lint no projeto; use node --check nos arquivos JS modificados.
+
+
+
+## Integração do PDF — garagem ao vivo
+`garage.owned/equipped` é a seleção canônica. Migração reúne campos legados sem perder modelos; compra não equipa. A corrida deriva ritmo e prêmio do equipamento a cada passo, e a arte usa a pintura do carro. Reserva de contrato e campeonato continuam protegidos.
+A abertura é automática; o Paddock mantém todos os sistemas. Caixa, Pontos e Títulos são visíveis, com renda por segundo estimada (voltas + produção da equipe, sem prever posição/prêmio variável de chegada). A recomendação compra uma unidade/nível com maior ganho estimado de CR/s por custo, entre melhorias e geradores compráveis.
+Patrocínio e Temporada são exibidos conforme avanço. Tutorial de três passos apenas no primeiro save. Para alterar peças/acerto nos boxes, programe manutenção após a corrida em Configurações e saves; retome pelo mesmo botão.
+O banner não é reconstruído a cada crédito. Na invocação, o carro é revelado, perde a interrogação e cruza a chegada com a aura de raridade. Veja AUDITORIA-PDF.md para causas com linhas da versão anterior.

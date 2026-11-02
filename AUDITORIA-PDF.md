@@ -11,7 +11,7 @@ Preservados chave apex-idle-v2, coleções, pilotos/afinidades, gacha, oficina, 
 - engine.js:14 não incluía o bônus do carro original no prêmio por volta.
 - traffic-view.js:3 forçava a cor âmbar no jogador, em vez da pintura do carro equipado.
 - A duração do objeto race era fixada na largada em night-ui.js:45 e não atualizada ao mudar de carro.
-- summoning-hub.js:13 usava s.money no cache estrutural e :22 recriava o conteúdo; ganhos contínuos descartavam o canvas do banner, causando piscadas.
+- summoning-hub.js:13 usava s.money no cache estrutural e :20 recriava o conteúdo; ganhos contínuos descartavam o canvas do banner, causando piscadas.
 - Não foi encontrada perda deliberada do id no save: os campos antigos persistiam, mas havia fontes de seleção separadas e bloqueios de UI/modelo.
 
 ## Solução
