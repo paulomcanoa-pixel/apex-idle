@@ -4,7 +4,7 @@ assert.deepEqual(L.cars(s).map(c=>c.id),['aurora','vento','lotus49']);assert.equ
 const before=JSON.stringify(s);assert.equal(L.preview(s,'lotus49','real_clark').affinity,true);assert.equal(JSON.stringify(s),before);
 assert(!L.apply(s,'mp44','real_clark'));assert(!L.apply(s,'lotus49','real_senna'));assert.equal(JSON.stringify(s),before);
 s.running=true;assert(L.apply(s,'lotus49','real_clark'));s.running=false;s.raceInProgress=true;assert(L.apply(s,'lotus49','real_clark'));delete s.raceInProgress;s.championship.running=true;assert(L.apply(s,'lotus49','real_clark'));s.championship.running=false;
-assert(L.apply(s,'lotus49','real_clark'));assert.deepEqual(L.current(s),{car:'lotus49',driver:'real_clark'});assert.equal(s.championship.car,'lotus49');assert(A.validate(s));
+const champRef=s.championship,heritageRef=s.heritage;assert(L.apply(s,'lotus49','real_clark'));assert.equal(s.championship,champRef);assert.equal(s.heritage,heritageRef);assert.deepEqual(L.current(s),{car:'lotus49',driver:'real_clark'});assert.equal(s.championship.car,'lotus49');assert(A.validate(s));
 assert(L.apply(s,'vento','lia'));assert.deepEqual(L.current(s),{car:'vento',driver:'lia'});assert.equal(s.heritage.equipped,'');assert.equal(s.championship.car,'');assert.deepEqual(G.decode(G.encode(s)),s);
 const colors=['Comum','Raro','Épico','Lendário','Mítico'].map((rarity,i)=>{const a=D.auraPalette({rarity});assert.deepEqual(a,D.auraPalette({rarity:i}));return a.color});assert.equal(new Set(colors).size,5);
 process.stdout.write('OK: garagem transacional, apenas itens possuídos, troca durante corrida e campeonato, afinidade histórica, troca legado/histórico, save e cinco auras.\n');
