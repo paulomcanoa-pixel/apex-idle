@@ -54,3 +54,5 @@ body.night-mode .lineup-panel{width:100%;padding:0;max-height:none;overflow:visi
 @media(max-width:600px){body.night-mode .game-drawer[data-section="lineup"]{inset:154px 10px 75px!important;width:calc(100vw - 20px)!important;max-height:calc(100dvh - 229px)!important;padding:12px!important}}
 
 body.night-mode [hidden]{display:none!important}
+
+@media(max-width:600px){body.night-mode .cloud-save-indicator{bottom:76px!important;padding:5px 8px;font-size:8px}body.night-mode.race-panel-open .cloud-save-indicator{display:none}}
