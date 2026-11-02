@@ -2,7 +2,7 @@
   "name": "apex-idle",
   "version": "0.3.0",
   "private": true,
-  "scripts": { "build": "node build.cjs", "test": "node test.cjs && node race-test.cjs && node strategy-test.cjs && node tactics-test.cjs && node parts-shop-test.cjs && node drops-test.cjs && node circuits-test.cjs" }
+  "scripts": { "build": "node build.cjs", "test": "node test.cjs && node race-test.cjs && node strategy-test.cjs && node tactics-test.cjs && node parts-shop-test.cjs && node drops-test.cjs && node circuits-test.cjs && node career-test.cjs" }
 }
 
 

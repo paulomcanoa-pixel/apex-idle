@@ -1,4 +1,5 @@
 (function(root){
+const career=typeof Career!=='undefined'?Career:require('./career-model.js');
 const equipment=typeof PartsShop!=='undefined'?PartsShop:typeof require==='function'?require('./parts-shop-model.js'):{factor:()=>1,validate:()=>true};
 const circuits=(typeof CircuitMaps!=='undefined'?CircuitMaps:require('./circuits-data.js')).circuits;
 const parts=[{name:'Unidade de potência',desc:'Mais velocidade nas retas.',base:100},{name:'Aerodinâmica',desc:'Curvas rápidas, voltas mais curtas.',base:140},{name:'Engenharia de pneus',desc:'Aderência que se transforma em ritmo.',base:120},{name:'Patrocínio',desc:'Aumente os créditos de cada volta.',base:180}];
@@ -60,9 +61,9 @@ Object.assign(s,draft);return results
 }
 function shopBuy(s,id){const price=shopPrices[id];if(!price||ownedCars(s).includes(id)||points(s)<price)return false;s.summonPoints=points(s)-price;s.ownedCars=[...ownedCars(s),id];return true}
 function grantTestCredits(s){if(s.testCreditsGranted)return false;s.money+=1000000;s.testCreditsGranted=true;return true}
-function equipCar(s,id){if(s.running||!cars.some(c=>c.id===id)||!ownedCars(s).includes(id))return false;s.equippedCar=id;s.color=equippedCar(s).color;return true}
+function equipCar(s,id){if(s.running||!career.available(s,id)||!cars.some(c=>c.id===id)||!ownedCars(s).includes(id))return false;s.equippedCar=id;s.color=equippedCar(s).color;return true}
 
 const baseValidate=validate;
-function validSave(s){return equipment.validate(s)&&baseValidate(s)&&validCollection(s)&&validGacha(s)&&(s.onboarded===undefined||typeof s.onboarded==='boolean')&&(s.team===undefined||Number.isInteger(s.team)&&s.team>=0&&s.team<teams.length)&&(s.color===undefined||/^#[0-9a-f]{6}$/i.test(s.color))&&(s.setup===undefined||s.setup&&['wing','suspension'].every(k=>Number.isInteger(s.setup[k])&&s.setup[k]>=0&&s.setup[k]<=10))}
+function validSave(s){return career.validate(s)&&equipment.validate(s)&&baseValidate(s)&&validCollection(s)&&validGacha(s)&&(s.onboarded===undefined||typeof s.onboarded==='boolean')&&(s.team===undefined||Number.isInteger(s.team)&&s.team>=0&&s.team<teams.length)&&(s.color===undefined||/^#[0-9a-f]{6}$/i.test(s.color))&&(s.setup===undefined||s.setup&&['wing','suspension'].every(k=>Number.isInteger(s.setup[k])&&s.setup[k]>=0&&s.setup[k]<=10))}
 const api={summonRates,setWish,points,duplicatePoints,shopPrices,shopBuy,grantTestCredits,pity,pityLimits,summonMany,cars,summonCost,ownedCars,equippedCar,summon,equipCar,circuits,parts,teams,setup,setupPenalty,initial,validate:validSave,duration,reward,cost,buy,advance};root.Apex=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

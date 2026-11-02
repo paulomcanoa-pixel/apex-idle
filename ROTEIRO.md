@@ -84,3 +84,7 @@ Estilo final ampliado em Canvas com entrada progressiva, raios, partículas, est
 
 ## Revisão de frequência e unificação de arte
 Chance mítica fixa de 1/700 (antes do desejo), crescimento removido. Loja 100/300/800/4000/15000 e repetidos com metade do preço. Pontos e saves preservados. Carro da animação corre com o mesmo desenho Canvas das cartas; fases mistério/corrida/revelação e cancelamento mantidos. Testes de economia e disposição atualizados.
+
+## Ciclo de carreira implementado
+Contratos para reservas, projetos determinísticos por peças de corridas, álbum/metas/pinturas e GP semanal com regras rotativas, divisão local e replay. Previsões e custos são exibidos antes de agir. A inscrição semanal captura preparo e é concluída após 90 s, com recompensa uma única vez. No retorno offline o resultado é calculado a partir desse snapshot.
+Escopo solo explícito: rivais são simulados; sem mercado RMT, guildas ou multiplayer. Métricas locais de uso dos quatro sistemas e dias ativos. Para testar retenção de uma população será necessário backend/contas. Não foram publicados números de retenção como prova.
