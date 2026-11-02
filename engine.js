@@ -3,6 +3,7 @@ const missions=typeof Missions!=='undefined'?Missions:require('./missions-model.
 const career=typeof Career!=='undefined'?Career:require('./career-model.js');
 const equipment=typeof PartsShop!=='undefined'?PartsShop:typeof require==='function'?require('./parts-shop-model.js'):{factor:()=>1,validate:()=>true};
 const circuits=(typeof CircuitMaps!=='undefined'?CircuitMaps:require('./circuits-data.js')).circuits;
+const night=typeof NightLeague!=='undefined'?NightLeague:require('./night-model.js');
 const parts=[{name:'Unidade de potência',desc:'Mais velocidade nas retas.',base:100},{name:'Aerodinâmica',desc:'Curvas rápidas, voltas mais curtas.',base:140},{name:'Engenharia de pneus',desc:'Aderência que se transforma em ritmo.',base:120},{name:'Patrocínio',desc:'Aumente os créditos de cada volta.',base:180}];
 function initial(){return {version:1,money:220,laps:0,rep:0,levels:[0,0,0,0],circuit:0,progress:0,running:false,savedAt:Date.now()}}
 function validate(s){return s&&s.version===1&&Number.isFinite(s.money)&&s.money>=0&&s.money<1e100&&Number.isSafeInteger(s.laps)&&s.laps>=0&&Number.isSafeInteger(s.rep)&&s.rep>=0&&Array.isArray(s.levels)&&s.levels.length===4&&s.levels.every(n=>Number.isInteger(n)&&n>=0&&n<=100)&&Number.isInteger(s.circuit)&&s.circuit>=0&&s.circuit<circuits.length&&s.rep>=circuits[s.circuit].rep&&Number.isFinite(s.progress)&&s.progress>=0&&s.progress<1&&typeof s.running==='boolean'&&Number.isFinite(s.savedAt)&&s.savedAt>0}
@@ -10,7 +11,7 @@ const teams=[{name:'Aurora Racing',color:'#d4fc5a',style:'Identidade brasileira 
 function setup(s){return s.setup||{wing:5,suspension:5}}
 function setupPenalty(s){const p=setup(s),t=circuits[s.circuit].setup;return (Math.abs(p.wing-t.wing)+Math.abs(p.suspension-t.suspension))*.012}
 function duration(s){const development=s.levels[0]*.08+s.levels[1]*.06+s.levels[2]*.05+equippedCar(s).bonus+(equipment.factor(s)-1);return circuits[s.circuit].time*(1+setupPenalty(s)+.20/(1+development*5))/heritage.scores(s.heritage?.equipped,s.championship?.driver,setup(s).wing).pace}
-function reward(s){return Math.floor(45*(circuits[s.circuit].time/16)*circuits[s.circuit].mult*(1+s.levels[3]*.3)*heritage.scores(s.heritage?.equipped,s.championship?.driver,setup(s).wing).income)}
+function reward(s){return Math.floor(45*(circuits[s.circuit].time/16)*circuits[s.circuit].mult*(1+s.levels[3]*.3)*night.bonus(s)*heritage.scores(s.heritage?.equipped,s.championship?.driver,setup(s).wing).income)}
 function cost(s,i){return Math.ceil(parts[i].base*1.55**s.levels[i])}
 function buy(s,i){if(!Number.isInteger(i)||i<0||i>3||s.levels[i]>=100||s.money<cost(s,i))return false;s.money-=cost(s,i);s.levels[i]++;return true}
 function advance(s,seconds,mult=1){if(!s.running)return 0;const total=s.progress+Math.max(0,seconds)*mult/duration(s),laps=Math.floor(total);s.progress=total-laps;s.laps+=laps;s.rep+=laps;s.money+=laps*reward(s);return laps}
@@ -68,6 +69,7 @@ function equipCar(s,id){if(s.running||s.championship?.running||!career.available
 const farm=typeof IdleFarm!=='undefined'?IdleFarm:require('./farm-model.js');
 const championship=typeof Championship!=='undefined'?Championship:require('./championship-model.js');
 const baseValidate=validate;
-function validSave(s){return (typeof GameState!=='undefined'?GameState:require('./game/state.js')).valid(s)&&(typeof DriverAcademy!=='undefined'?DriverAcademy:require('./academy-model.js')).valid(s)&&heritage.valid(s)&&championship.valid(s)&&farm.valid(s)&&missions.validate(s)&&career.validate(s)&&equipment.validate(s)&&baseValidate(s)&&validCollection(s)&&validGacha(s)&&(s.onboarded===undefined||typeof s.onboarded==='boolean')&&(s.team===undefined||Number.isInteger(s.team)&&s.team>=0&&s.team<teams.length)&&(s.color===undefined||/^#[0-9a-f]{6}$/i.test(s.color))&&(s.setup===undefined||s.setup&&['wing','suspension'].every(k=>Number.isInteger(s.setup[k])&&s.setup[k]>=0&&s.setup[k]<=10))}
+function validSave(s){return night.valid(s)&&(typeof GameState!=='undefined'?GameState:require('./game/state.js')).valid(s)&&(typeof DriverAcademy!=='undefined'?DriverAcademy:require('./academy-model.js')).valid(s)&&heritage.valid(s)&&championship.valid(s)&&farm.valid(s)&&missions.validate(s)&&career.validate(s)&&equipment.validate(s)&&baseValidate(s)&&validCollection(s)&&validGacha(s)&&(s.onboarded===undefined||typeof s.onboarded==='boolean')&&(s.team===undefined||Number.isInteger(s.team)&&s.team>=0&&s.team<teams.length)&&(s.color===undefined||/^#[0-9a-f]{6}$/i.test(s.color))&&(s.setup===undefined||s.setup&&['wing','suspension'].every(k=>Number.isInteger(s.setup[k])&&s.setup[k]>=0&&s.setup[k]<=10))}
 const api={summonRates,setWish,points,duplicatePoints,shopPrices,shopBuy,grantTestCredits,pity,pityLimits,summonMany,cars,summonCost,ownedCars,equippedCar,summon,equipCar,circuits,parts,teams,setup,setupPenalty,initial,validate:validSave,duration,reward,cost,buy,advance};root.Apex=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
+

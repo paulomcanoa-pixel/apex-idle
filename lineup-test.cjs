@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict'),A=require('./engine'),L=require('./lineup-model'),H=require('./legends-model'),C=require('./championship-model'),D=require('./drops'),G=require('./game/save');
+const s=G.migrate(A.initial());H.init(s);C.init(s);s.ownedCars=['aurora','vento'];s.heritage.owned=['lotus49'];s.championship.roster.real_clark={stars:0,copies:0};s.running=false;
+assert.deepEqual(L.cars(s).map(c=>c.id),['aurora','vento','lotus49']);assert.equal(L.drivers(s).length,2);
+const before=JSON.stringify(s);assert.equal(L.preview(s,'lotus49','real_clark').affinity,true);assert.equal(JSON.stringify(s),before);
+assert(!L.apply(s,'mp44','real_clark'));assert(!L.apply(s,'lotus49','real_senna'));assert.equal(JSON.stringify(s),before);
+s.running=true;assert(!L.apply(s,'lotus49','real_clark'));s.running=false;s.raceInProgress=true;assert(!L.apply(s,'lotus49','real_clark'));delete s.raceInProgress;s.championship.running=true;assert(!L.apply(s,'lotus49','real_clark'));s.championship.running=false;
+assert(L.apply(s,'lotus49','real_clark'));assert.deepEqual(L.current(s),{car:'lotus49',driver:'real_clark'});assert.equal(s.championship.car,'lotus49');assert(A.validate(s));
+assert(L.apply(s,'vento','lia'));assert.deepEqual(L.current(s),{car:'vento',driver:'lia'});assert.equal(s.heritage.equipped,'');assert.equal(s.championship.car,'');assert.deepEqual(G.decode(G.encode(s)),s);
+const colors=['Comum','Raro','Épico','Lendário','Mítico'].map((rarity,i)=>{const a=D.auraPalette({rarity});assert.deepEqual(a,D.auraPalette({rarity:i}));return a.color});assert.equal(new Set(colors).size,5);
+process.stdout.write('OK: garagem transacional, apenas itens possuídos, bloqueios de corrida, afinidade histórica, troca legado/histórico, save e cinco auras.\n');

@@ -1,10 +1,10 @@
-# Apex Idle — protótipo 0.1
+# Apex Idle — corrida noturna
 
 Abra `index.html` no navegador para jogar. Não precisa instalar dependências. A fonte do Google é opcional; o jogo funciona sem conexão. Para servir por HTTP, use qualquer servidor estático nesta pasta. Testes: `node test.cjs`.
 
 ## Esta etapa
 
-Corrida automática 2D, quatro melhorias, três circuitos, ERS, reputação, persistência local, importação/exportação de save e ganhos offline limitados a oito horas. Inicie a corrida para habilitar a produção offline. Pausar interrompe a produção. O ERS dobra o ritmo por cinco segundos e recarrega em trinta segundos; não persiste ao fechar. Circuitos usam a mesma geometria nesta versão, com cores e multiplicadores distintos. Rivais são visuais, sem classificação competitiva.
+O jogo existente evoluiu para corridas noturnas em Canvas, com cinco luzes, seis voltas e nove rivais fictícios. Os 24 circuitos, coleções, gacha, Academia, farm, campeonatos, ranked e conta Supabase continuam integrados. ERS: +8% de ritmo por cinco segundos e recarga de trinta segundos. Veja `AUDITORIA-NOTURNA.md` para a auditoria e as decisões de compatibilidade.
 
 ## Direção do projeto
 
@@ -17,13 +17,13 @@ Próximas etapas: 1) validar o ritmo e diferenciar pistas; 2) pilotos, pneus, bo
 Protótipo solo; sem backend, pagamentos ou multiplayer. Saves locais podem ser editados e não servem para ranking online confiável. O armazenamento depende do navegador e da origem; exporte antes de trocar de navegador ou publicar. Ainda não publicado e não cadastrado no TopIdle. Sem marcas, equipes ou pilotos oficiais.
 
 ## Invocação de F1 — regras atuais
-Menu → Invocação F1. ×1 custa 200 CR, ×10 custa 2.000 CR. Base sem desejo nem progresso: comum 49,4%, raro 35%, épico 15%, lendário 0,5%, mítico 0,1%. Um modelo por qualidade. Saves antigos mantêm a coleção.
+Menu → Invocação F1. ×1 custa 200 CR, ×10 custa 2.000 CR. Base sem desejo nem progresso: comum 49,357142857%, raro 35%, épico 15%, lendário 0,5%, mítico 1/700 (aproximadamente 0,142857%). Os 20 históricos integram o banner principal; dois exclusivos usam fichas no banner especial. Saves antigos mantêm a coleção.
 
-Escolha um modelo na lista de desejos: sua chance atual dobra exatamente antes das garantias; as outras são reduzidas proporcionalmente para somar 100%. As chances dinâmicas são exibidas. A chance base mítica cresce +0,01 ponto percentual por invocação sem mítico, até 25% antes do desejo. Receber mítico por invocação reinicia esse aumento; com desejo mítico, o reinício aparece como 0,2%. Não há garantia mítica.
+Escolha um modelo na lista de desejos: sua chance atual dobra exatamente antes das garantias; as outras são reduzidas proporcionalmente para somar 100%. As chances dinâmicas são exibidas. A chance mítica é fixa em 1/700 antes do desejo e das garantias. O contador sem mítico é preservado como histórico; não aumenta a taxa e não há garantia mítica.
 
 Garantias: épico ou superior em até dez tentativas, lendário ou superior em até duzentas. Receber a qualidade ou superior reinicia o contador correspondente. Mítico não é forçado em nenhuma tentativa. Lotes seguem as mesmas regras dos sorteios individuais. Contadores e histórico são persistidos.
 
-Repetidos não devolvem créditos: rendem 5/15/50/200/1.000 pontos para comum/raro/épico/lendário/mítico. A loja troca 50/150/500/2.000/10.000 pontos pelo respectivo modelo ainda bloqueado. Compras não alteram contadores e não equipam automaticamente. Reembolsos antigos já recebidos permanecem no saldo.
+Repetidos não devolvem créditos: rendem 50/150/400/2.000/7.500 pontos para comum/raro/épico/lendário/mítico. A loja troca 100/300/800/4.000/15.000 pontos pelo respectivo modelo ainda bloqueado. Compras não alteram contadores e não equipam automaticamente. Reembolsos antigos já recebidos permanecem no saldo.
 
 Revelação central em diálogo: primeiro um monoposto vetorial original escuro com interrogação; depois o carro cruza uma linha de chegada quadriculada; por fim, cada carro ganha a cor de raridade e nome. Lotes são revelados um a um, com avanço automático, Próximo carro e Revelar todos. Escape encerra com resumo completo. Respeita movimento reduzido. Saldo/resultados são salvos antes da animação; cliques extras são bloqueados durante a revelação. Fechar o menu encerra a animação sem perder o resultado.
 
@@ -67,7 +67,7 @@ Backend: Vercel Function /api/ranked e @vercel/blob 2.8.2, store privado conecta
 
 ## Operação Ascensão e conta Supabase
 
-O jogo permanece em HTML/JS/Canvas. A nova aba **Operação** acrescenta seis geradores da escuderia, trabalho manual, compras 1/10/100/Máx, upgrades ×2 em 10/25/50/100 unidades e 20 conquistas. Os créditos usam o caixa CR compartilhado. A produção nova recebe 50% por até 8 h offline; pista, farm e campeonato mantêm suas próprias regras existentes.
+O jogo permanece em HTML/JS/Canvas. A nova aba **Operação** acrescenta seis geradores da escuderia, trabalho manual, compras 1/10/100/Máx, upgrades ×2 em 10/25/50/100 unidades e 20 conquistas. Os créditos usam o caixa CR compartilhado. A produção nova recebe 80% por até 8 h offline; pista, farm e campeonato mantêm suas próprias regras existentes.
 
 **Ascensão:** floor(sqrt(ganho deste ciclo / 1.000.000)) Fragmentos. Cada Fragmento dá +2% à produção e ao clique. A confirmação informa que o caixa CR compartilhado e somente os geradores/upgrades desta Operação serão zerados. Carros, pilotos, Academia, farm, carreira e campeonato permanecem. Total produzido, conquistas e Fragmentos são permanentes.
 
@@ -112,3 +112,15 @@ O estado mantém a versão legada do jogo e acrescenta `idle.v=1`; exportação 
 `npm test` inclui economia, soma geométrica, saldo não negativo, marcos, Ascensão, teto offline, notação, migração, base64, conflito de revisões, perda/reconexão de rede, sessão obsoleta e regressão recusada. `supabase/verification.sql` executa verificações reais de RLS e RPC com dois usuários temporários dentro de transação e desfaz todos os dados de teste. Não execute em uma base onde os identificadores de teste já sejam utilizados.
 
 A entrega real de confirmação, recuperação e link mágico depende do e-mail do usuário e do remetente configurado; não se confunde com os testes de lógica. A meta de 60 fps em celular médio requer medição em dispositivo físico e não é um resultado certificado.
+
+
+
+## Corrida noturna e garagem
+
+A loja inferior reúne Carro, Equipe, Circuitos, Patrocínio e Temporada. O Paddock preserva acesso a todos os sistemas anteriores. Garagem permite preparar F1 e piloto já possuídos, comparar prêmio/ritmo/afinidade e aplicar a dupla apenas com a pista pausada. A transação usa os campos existentes; não concede itens. A afinidade histórica permanece +4% no cálculo de ritmo original.
+
+A invocação mantém mistério, passagem pela chegada e resumo com o mais raro no centro. Uma aura em Canvas envolve o carro revelado: cinza, azul, roxa, dourada ou rosa conforme a qualidade. Movimento reduzido conserva a cor e reduz a animação.
+
+Nova temporada é um prestígio separado da Ascensão: exige renda nova, concede floor(sqrt(renda/1500000)) títulos e +25% de renda por título. Confirmação em dois toques. Preserva coleção, pilotos, reputação, circuitos, recordes e moedas/progressão dos demais sistemas. A chave segue apex-idle-v2; novos campos night recebem padrões em saves antigos.
+
+Validação: npm test executa 21 suítes. npm run build prepara o site estático. Não há script de lint no projeto; use node --check nos arquivos JS modificados.
