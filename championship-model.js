@@ -1,6 +1,7 @@
 (function(root){
 const legends=typeof Legends!=='undefined'?Legends:require('./legends-model.js');
 const historical=typeof LegendsData!=='undefined'?LegendsData:require('./legends-data.js');
+const academy=typeof DriverAcademy!=='undefined'?DriverAcademy:require('./academy-model.js');
 const tiers=['Júnior','Challenger','Pro','Elite','Apex','Lenda'];
 const parts=['Motor','Aerodinâmica','Chassi','Pneus','Câmbio','Resfriamento'];
 const rarity=['Comum','Raro','Épico','Lendário'],bonuses=[.04,.08,.15,.28],starNeed=[1,2,4,8,16];
@@ -29,18 +30,18 @@ function income(c,place){return Math.floor(12*5.5**c.tier*(1+.06*c.levels.reduce
 function cost(c,i){return Math.ceil(20*(1+.2*i)*1.15**c.levels[i]*7**c.tier)}
 function rivals(c){const pool=historical.drivers.filter(d=>d.id!==c.driver);return Array.from({length:19},(_,i)=>({id:i,name:pool[i].name,model:pool[i].cars[0],pace:90*1.18**c.tier*(1+i*.045)*(1+(c.round%4)*.015)}))}
 function order(c){return[{id:'you',name:'Sua escuderia',pace:pace(c)},...rivals(c)].sort((a,b)=>b.pace-a.pace)}
-function race(s,now=Date.now()){const c=init(s,now);calendars(c,now);const place=order(c).findIndex(r=>r.id==='you')+1,points=([25,18,15,12,10,8,6,4,2,1][place-1]||0),credits=income(c,place),result={season:c.season,round:c.round+1,tier:c.tier,place,points,credits};
+function race(s,now=Date.now(),academyCredit=true){const c=init(s,now);calendars(c,now);const place=order(c).findIndex(r=>r.id==='you')+1,points=([25,18,15,12,10,8,6,4,2,1][place-1]||0),credits=income(c,place),result={season:c.season,round:c.round+1,tier:c.tier,place,points,credits};
 s.money+=credits;c.earned+=credits;c.races++;c.round++;c.points+=points;c.daily.races++;c.pass.races++;c.event.races++;if(c.races%10===0)c.tickets++;
 if(c.round===24){result.seasonPoints=c.points;result.promoted=c.points>=380&&c.tier<5;result.title=c.points>=480;if(result.title){c.titles++;c.tickets+=10;c.gems+=50}if(result.promoted)c.tier++;c.season++;c.round=0;c.points=0}
-c.results=[result,...c.results].slice(0,24);return result}
+if(academyCredit)academy.record(s,result);c.results=[result,...c.results].slice(0,24);return result}
 function settle(s,now=Date.now()){const c=init(s,now),ms=Math.min(28800000,Math.max(0,now-c.at));calendars(c,now);let count=0;if(c.running){c.offline+=ms;count=Math.floor(c.offline/900000);c.offline%=900000;for(let i=0;i<count;i++)race(s,now)}c.at=Math.max(c.at,now);return count}
 function tick(s,dt,now=Date.now()){const c=init(s,now);calendars(c,now);if(!c.running){c.at=Math.max(c.at,now);return 0}c.live+=Math.max(0,Math.min(120,dt));let n=0;while(c.live>=30){c.live-=30;race(s,now);n++}c.at=Math.max(c.at,now);return n}
 function buy(s,i,count=1){const c=init(s);if(!Number.isInteger(i)||i<0||i>5||![1,10,200].includes(count))return 0;let n=0;while(n<count&&c.levels[i]<200){const price=cost(c,i);if(s.money<price)break;s.money-=price;c.levels[i]++;c.daily.upgrades++;n++}return n}
 function pLeg(n){return n>=80?1:n>=60?Math.min(1,.01+(n-59)*.045):.01}
-function featured(c,now=Date.now()){return month(now)%2?'nico':'iris'}
+function featured(c,now=Date.now()){return month(now)%2?'tomas':'iris'}
 function pull(s,banner,count=1,rng=Math.random,now=Date.now()){const c=init(s,now);if(!['standard','featured'].includes(banner)||![1,10].includes(count)||c.tickets<count)return null;const draft=JSON.parse(JSON.stringify(c)),out=[];calendars(draft,now);const P=draft.pity[banner],f=featured(c,now);
 for(let i=0;i<count;i++){const a=rng(),b=rng(),z=rng();if([a,b,z].some(v=>!Number.isFinite(v)||v<0||v>=1))return null;P.leg++;P.epic++;let rank=a<pLeg(P.leg)?3:P.epic>=10?2:b<.09?2:b<.6966666667?0:1;
-let pool=roster.filter(r=>r.rarity===rank),r;if(rank===3&&banner==='featured'){if(P.guaranteed||b<.6){r=roster.find(r=>r.id===f);P.guaranteed=false}else{pool=pool.filter(v=>v.id!==f);r=pool[Math.floor(z*pool.length)];P.guaranteed=true}}else r=pool[Math.floor(z*pool.length)];
+let pool=roster.filter(r=>r.role==='engineer'&&r.rarity===rank),r;if(rank===3&&banner==='featured'){if(P.guaranteed||b<.6){r=roster.find(r=>r.id===f);P.guaranteed=false}else{pool=pool.filter(v=>v.id!==f);r=pool[Math.floor(z*pool.length)];P.guaranteed=true}}else r=pool[Math.floor(z*pool.length)];
 if(rank===3)P.leg=0;if(rank>=2)P.epic=0;let duplicate=!!draft.roster[r.id];if(duplicate)draft.roster[r.id].copies=Math.min(100000,draft.roster[r.id].copies+1);else draft.roster[r.id]={stars:0,copies:0};out.push({id:r.id,duplicate});draft.tickets--;draft.daily.pulls++}
 draft.lastDrop=out;s.championship=draft;return out}
 function star(s,id){const c=init(s),v=c.roster[id];if(!v||v.stars>=5||v.copies<starNeed[v.stars])return false;v.copies-=starNeed[v.stars];v.stars++;return true}
@@ -49,7 +50,7 @@ const dailyMissions=[{id:'race',name:'Complete 3 corridas',metric:'races',goal:3
 function claim(s,id,now=Date.now()){const c=init(s,now);calendars(c,now);if(id==='login'){if(c.daily.bonus)return false;c.daily.bonus=true;c.tickets+=5;return true}if(id==='daily'){const pts=dailyMissions.filter(m=>c.daily.claimed.includes(m.id)).reduce((n,m)=>n+m.points,0);if(pts<100||c.daily.chest)return false;c.daily.chest=true;c.tickets+=3;c.gems+=20;return true}if(id==='event'){if(c.event.races<24||c.event.claimed)return false;c.event.claimed=true;c.tickets+=5;c.gems+=100;return true}if(id.startsWith('pass:')){const n=Number(id.slice(5));if(!Number.isInteger(n)||n<1||n>10||c.pass.races<n*10||c.pass.claimed.includes(n))return false;c.pass.claimed.push(n);c.gems+=25;c.tickets+=2;return true}const m=dailyMissions.find(m=>m.id===id);if(!m||c.daily[m.metric]<m.goal||c.daily.claimed.includes(id))return false;c.daily.claimed.push(id);s.money+=100*5.5**c.tier;return true}
 function prestigeGain(c){return Math.max(0,Math.floor(3*(Math.log10(c.earned+1)-3)))}
 function prestige(s,now=Date.now()){const c=init(s,now),n=prestigeGain(c);if(!n)return 0;c.rep+=n;c.earned=0;c.levels=[0,0,0,0,0,0];c.live=0;c.offline=0;c.at=now;s.money=0;return n}
-function timeSkip(s,now=Date.now()){const c=init(s,now);if(c.gems<100)return false;c.gems-=100;for(let i=0;i<24;i++)race(s,now);return true}
-function direct(s,id){const c=init(s),r=roster.find(r=>r.id===id);if(!r||c.roster[id])return false;const price=[50,150,600,2400][r.rarity];if(c.gems<price)return false;c.gems-=price;c.roster[id]={stars:0,copies:0};return true}
+function timeSkip(s,now=Date.now()){const c=init(s,now);if(c.gems<100)return false;c.gems-=100;for(let i=0;i<24;i++)race(s,now,false);return true}
+function direct(s,id){const c=init(s),r=roster.find(r=>r.id===id);if(!r||r.role==='driver'||c.roster[id])return false;const price=[50,150,600,2400][r.rarity];if(c.gems<price)return false;c.gems-=price;c.roster[id]={stars:0,copies:0};return true}
 const api={direct,tiers,parts,roster,rarity,starNeed,fresh,init,valid,bonus,pace,income,cost,rivals,order,race,settle,tick,buy,pLeg,featured,pull,star,equip,dailyMissions,claim,prestigeGain,prestige,timeSkip};root.Championship=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
