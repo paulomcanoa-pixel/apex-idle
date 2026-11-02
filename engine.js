@@ -64,7 +64,8 @@ function shopBuy(s,id){const price=shopPrices[id];if(!price||ownedCars(s).includ
 function grantTestCredits(s){if(s.testCreditsGranted)return false;s.money+=1000000;s.testCreditsGranted=true;return true}
 function equipCar(s,id){if(s.running||!career.available(s,id)||!cars.some(c=>c.id===id)||!ownedCars(s).includes(id))return false;s.equippedCar=id;s.color=equippedCar(s).color;return true}
 
+const farm=typeof IdleFarm!=='undefined'?IdleFarm:require('./farm-model.js');
 const baseValidate=validate;
-function validSave(s){return missions.validate(s)&&career.validate(s)&&equipment.validate(s)&&baseValidate(s)&&validCollection(s)&&validGacha(s)&&(s.onboarded===undefined||typeof s.onboarded==='boolean')&&(s.team===undefined||Number.isInteger(s.team)&&s.team>=0&&s.team<teams.length)&&(s.color===undefined||/^#[0-9a-f]{6}$/i.test(s.color))&&(s.setup===undefined||s.setup&&['wing','suspension'].every(k=>Number.isInteger(s.setup[k])&&s.setup[k]>=0&&s.setup[k]<=10))}
+function validSave(s){return farm.valid(s)&&missions.validate(s)&&career.validate(s)&&equipment.validate(s)&&baseValidate(s)&&validCollection(s)&&validGacha(s)&&(s.onboarded===undefined||typeof s.onboarded==='boolean')&&(s.team===undefined||Number.isInteger(s.team)&&s.team>=0&&s.team<teams.length)&&(s.color===undefined||/^#[0-9a-f]{6}$/i.test(s.color))&&(s.setup===undefined||s.setup&&['wing','suspension'].every(k=>Number.isInteger(s.setup[k])&&s.setup[k]>=0&&s.setup[k]<=10))}
 const api={summonRates,setWish,points,duplicatePoints,shopPrices,shopBuy,grantTestCredits,pity,pityLimits,summonMany,cars,summonCost,ownedCars,equippedCar,summon,equipCar,circuits,parts,teams,setup,setupPenalty,initial,validate:validSave,duration,reward,cost,buy,advance};root.Apex=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
