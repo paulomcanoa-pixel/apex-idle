@@ -21,7 +21,7 @@ function draw(){
 // Draw vectors at camera resolution rather than enlarging a road painted into a small bitmap.
 const tr=ctx.getTransform(),x0=-tr.e/tr.a,y0=-tr.f/tr.d,w=canvas.width/tr.a,h=canvas.height/tr.d;
 ctx.fillStyle={grass:'#19352b',coast:'#193c3e',desert:'#4c4234',night:'#142735'}[A.circuits[s.circuit].terrain];ctx.fillRect(x0,y0,w,h);
-ctx.strokeStyle='#ffffff04';ctx.lineWidth=.4;ctx.setLineDash([]);ctx.beginPath();for(let x=Math.floor(x0/32)*32;x<x0+w;x+=32){ctx.moveTo(x,y0);ctx.lineTo(x,y0+h)}for(let y=Math.floor(y0/32)*32;y<y0+h;y+=32){ctx.moveTo(x0,y);ctx.lineTo(x0+w,y)}ctx.stroke();ctx.lineJoin='round';ctx.lineCap='round';
+if(typeof CircuitScenery!=='undefined')CircuitScenery.draw(ctx,A.circuits[s.circuit],layouts[s.circuit],{x:x0,y:y0,w,h});ctx.lineJoin='round';ctx.lineCap='round';
 for(const [width,color,dash] of [[64,'#07181555',[]],[56,'#6b8d7333',[]],[50,'#d9e3da',[]],[50,'#ed6b5b',[5,7]],[44,'#33444b',[]],[.6,'#a5bac044',[3,9]]]){ctx.lineWidth=width;ctx.strokeStyle=color;ctx.setLineDash(dash);ctx.stroke(worldPaths[s.circuit])}ctx.setLineDash([]);
 for(const p of bridges[s.circuit]){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.shadowColor='#000';ctx.shadowBlur=6;ctx.fillStyle='#aebdb8';ctx.fillRect(-30,-25,60,50);ctx.shadowBlur=0;ctx.fillStyle='#33444b';ctx.fillRect(-32,-22,64,44);ctx.restore()}
 const p=position(0);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);for(let x=0;x<2;x++)for(let y=0;y<22;y++){ctx.fillStyle=(x+y)%2?'#fff':'#111b22';ctx.fillRect(x*2-2,y*2-22,2,2)}ctx.restore();
