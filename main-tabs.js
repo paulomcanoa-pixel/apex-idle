@@ -1,6 +1,6 @@
 // Navegação principal sob o circuito; Menu contém somente configurações.
 const mainTabs=document.createElement('nav');mainTabs.className='main-game-tabs';mainTabs.setAttribute('aria-label','Abas do jogo');
-const tabDefinitions=[['track','Pista'],['setup','Meu F1'],['farm','Farm idle'],['garage','Melhorias'],['parts','Peças'],['summon','Invocação'],['circuits','Circuitos'],['missions','Missões'],['contracts','Contratos'],['weekly','GP semanal'],['album','Álbum'],['projects','Projetos'],['stats','Progresso'],['pvp','PvP Ranked'],['rankings','Ranking']];
+const tabDefinitions=[['track','Pista'],['setup','Meu F1'],['farm','Farm idle'],['championship','Campeonato'],['garage','Melhorias'],['parts','Peças'],['summon','Invocação'],['circuits','Circuitos'],['missions','Missões'],['contracts','Contratos'],['weekly','GP semanal'],['album','Álbum'],['projects','Projetos'],['stats','Progresso'],['pvp','PvP Ranked'],['rankings','Ranking']];
 mainTabs.innerHTML=tabDefinitions.map(([id,label])=>'<button data-main-tab="'+id+'" aria-pressed="'+(id==='track')+'">'+label+'</button>').join('');
 circuitBadge.append(mainTabs);
 const priorTabsOpen=openMenu;
