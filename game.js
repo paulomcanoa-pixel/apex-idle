@@ -10,7 +10,7 @@ $('upgrades').innerHTML=A.parts.map((p,i)=>`<article class="upgrade"><div class=
 document.querySelectorAll('[data-upgrade]').forEach(b=>b.onclick=()=>{const i=+b.dataset.upgrade;if(A.buy(s,i)){radio(A.parts[i].name+' melhorada. Vamos buscar mais ritmo!');save();render()}});document.querySelectorAll('[data-circuit]').forEach(b=>b.onclick=()=>{const i=+b.dataset.circuit;if(s.rep>=A.circuits[i].rep){s.circuit=i;s.progress=0;radio('Equipe transferida para '+A.circuits[i].name+'.');save();render()}});
 $('toggle').onclick=()=>{s.running=!s.running;radio(s.running?'Sinal verde. A corrida segue automaticamente!':'Carro nos boxes. Corrida pausada.');save();render()};$('boost').onclick=()=>{if(s.running&&cooldown<=0){boost=5;cooldown=30;radio('Energia liberada! Ritmo +8% por 5 segundos.');render()}};
 $('export').onclick=()=>{save();const blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='apex-idle-save.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
-$('import').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;if(file.size>2000000)throw Error();const data=GameSave.decode(await file.text());if(!A.validate(data))throw Error();if(!confirm('Substituir o progresso atual pelo save importado?'))return;saveRecoveryPending=false;if(typeof NightView!=='undefined')NightView.beforeRestore();s=data;s.savedAt=Date.now();boost=0;cooldown=0;save();render();radio('Progresso importado com sucesso.')}catch{radio('Arquivo inválido. Seu progresso atual foi mantido.')}finally{e.target.value=''}};
+$('import').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;if(file.size>2000000)throw Error();const data=GameSave.decode(await file.text());if(!A.validate(data))throw Error();if(!await SaveConfirmation.ask('Substituir o progresso atual pelo save importado?'))return;saveRecoveryPending=false;if(typeof NightView!=='undefined')NightView.beforeRestore();s=data;s.savedAt=Date.now();boost=0;cooldown=0;save();render();radio('Progresso importado com sucesso.')}catch{radio('Arquivo inválido. Seu progresso atual foi mantido.')}finally{e.target.value=''}};
 const canvas=$('track'),ctx=canvas.getContext('2d');
 const layouts=A.circuits.map(c=>CircuitMaps.world(c));
 function position(t){return CircuitMaps.position(layouts[s.circuit],t)}
@@ -31,6 +31,8 @@ drawCar(s.progress*.94+.32,'#e17e60');drawCar(s.progress*1.02+.65,'#8baded');dra
 
 let last=performance.now(),paint=0;function frame(now){const dt=Math.max(0,(now-last)/1000);last=now;const boosted=Math.min(dt,boost)*.08;const laps=(typeof advanceRace==='function'?advanceRace(dt,boosted):A.advance(s,dt+boosted));boost=Math.max(0,boost-dt);cooldown=Math.max(0,cooldown-dt);if(laps)radio(`Boa passagem! +${fmt(laps*A.reward(s))} CR. Continue investindo na oficina.`);draw();if(now-paint>150){render();paint=now}requestAnimationFrame(frame)}
 render();requestAnimationFrame(frame);setInterval(save,10000);window.addEventListener('pagehide',save);if(!storageOk)$('saveStatus').textContent='Exporte seu save para garantir o progresso';
+
+
 
 
 

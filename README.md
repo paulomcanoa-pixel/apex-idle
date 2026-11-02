@@ -123,12 +123,17 @@ A invocação mantém mistério, passagem pela chegada e resumo com o mais raro 
 
 Nova temporada é um prestígio separado da Ascensão: exige renda nova, concede floor(sqrt(renda/1500000)) títulos e +25% de renda por título. Confirmação em dois toques. Preserva coleção, pilotos, reputação, circuitos, recordes e moedas/progressão dos demais sistemas. A chave segue apex-idle-v2; novos campos night recebem padrões em saves antigos.
 
-Validação: npm test executa 22 suítes. npm run build prepara o site estático. Não há script de lint no projeto; use node --check nos arquivos JS modificados.
+Validação: npm test executa 23 suítes. npm run build prepara o site estático. Não há script de lint no projeto; use node --check nos arquivos JS modificados.
 
 
 
 ## Integração do PDF — garagem ao vivo
-`garage.owned/equipped` é a seleção canônica. Migração reúne campos legados sem perder modelos; compra não equipa. A corrida deriva ritmo e prêmio do equipamento a cada passo, e a arte usa a pintura do carro. Reserva de contrato e campeonato continuam protegidos.
+`garage.owned/equipped` é a seleção canônica. Migração reúne campos legados sem perder modelos; compra não equipa. A corrida deriva ritmo e prêmio do equipamento a cada passo, e a arte usa a pintura do carro. Carros reservados em contratos continuam protegidos; o campeonato ativo permite trocar de F1.
 A abertura é automática; o Paddock mantém todos os sistemas. Caixa, Pontos e Títulos são visíveis, com renda por segundo estimada (voltas + produção da equipe, sem prever posição/prêmio variável de chegada). A recomendação compra uma unidade/nível com maior ganho estimado de CR/s por custo, entre melhorias e geradores compráveis.
 Patrocínio e Temporada são exibidos conforme avanço. Tutorial de três passos apenas no primeiro save. Para alterar peças/acerto nos boxes, programe manutenção após a corrida em Configurações e saves; retome pelo mesmo botão.
 O banner não é reconstruído a cada crédito. Na invocação, o carro é revelado, perde a interrogação e cruza a chegada com a aura de raridade. Veja AUDITORIA-PDF.md para causas com linhas da versão anterior.
+
+## Navegação unificada
+A versão revisada organiza tudo em cinco áreas: Pista (corrida/ERS/melhor compra/missões), Carro (garagem/acerto/melhorias/peças/coleção), Equipe (pilotos/farm/contratos/Operação/legado), Campeonato (competição/rankings/calendário/temporada) e Loja (invocação/patrocínio).
+O topo mostra apenas Caixa/renda, Pontos e Gemas. Pontos de troca e fichas ficam na Invocação; títulos ficam no Campeonato/Temporada. Prestígio do campeonato é distinto dos pontos que liberam circuitos; ambos mantêm seus dados e regras. Mais reúne configurações/saves, conta, som e ajuda.
+Equipar na garagem aplica imediatamente ao carro da pista, inclusive com o campeonato ativo. A pintura dos modelos usa a mesma arte das cartas. Importar usa confirmação em dois passos dentro do site, preservando backup e formatos anteriores.

@@ -80,3 +80,37 @@ body.night-mode [hidden]{display:none!important}
 @media(max-width:600px){body.night-mode .game-drawer{inset:154px 10px 75px!important;width:calc(100vw - 20px)!important;max-width:none!important;height:auto!important;max-height:calc(100dvh - 229px)!important;padding:12px!important}}.night-mode .hub-banner>span{display:none}
 
 .immersive #cinemaCanvas,.immersive #dropsCanvas{padding:0;filter:none}
+
+/* Navegação unificada do PDF revisado. A pista começa abaixo do cabeçalho. */
+.compact-navigation .game-wallet{grid-template-columns:repeat(3,minmax(0,1fr));top:6px;left:10px;right:10px;height:52px;min-height:52px;padding:3px}
+.compact-navigation .game-wallet article{padding:2px 8px;gap:6px}.compact-navigation .game-wallet canvas{width:24px;height:24px}.compact-navigation .game-wallet strong{font-size:21px;margin:0}.compact-navigation .game-wallet small{font-size:8px}
+.compact-navigation .night-masthead{top:62px;height:48px;left:10px;right:10px;padding:0 8px 5px;gap:15px}.compact-navigation .night-brand{font-size:25px}.compact-navigation .night-brand small{font-size:9px;margin-top:5px}.compact-navigation #nightSound{display:none}
+.compact-navigation .night-stage-rule{top:116px;left:10px;right:10px}
+body.compact-navigation .trackwrap{top:120px!important;bottom:82px!important;height:auto!important}
+body.compact-navigation #track{padding:0!important;inset:0;width:100%;height:100%}
+.compact-navigation #nightLeaderboard{top:132px}.compact-navigation .night-directory{display:none!important}.compact-navigation .idle-mobile-nav{display:none!important}
+.area-navigation{position:fixed;inset:auto 10px 8px;z-index:60;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;background:#0F1330f5;border:1px solid #2B3162;border-radius:10px;padding:4px;backdrop-filter:blur(12px)}
+.area-navigation button{position:relative;display:grid;justify-items:center;align-content:center;gap:2px;min-width:0;min-height:62px;padding:4px 2px!important;background:transparent!important;border-color:transparent!important;font-size:12px!important}
+.area-navigation canvas{position:static!important;width:19px!important;height:19px!important;padding:0!important;filter:none!important}.area-navigation small{font-size:9px;color:#9CA2D2;line-height:1.1;white-space:nowrap}.area-navigation button[aria-current=page]{color:#FFB627;border-color:#FFB62770!important;background:#FFB6270d!important}.area-navigation i{display:none;position:absolute;top:6px;right:14%;width:5px;height:5px;background:#35E6A8;border-radius:50%}.area-navigation .has-task i{display:block}
+.area-hub{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;padding:12px 0}.area-hub>section{min-width:0}.area-hub h3{font-size:18px;margin:6px 0 12px;padding-bottom:10px;border-bottom:1px solid #2B3162}.area-hub button{display:flex;width:100%;align-items:center;gap:12px;text-align:left;padding:14px 8px!important;min-height:65px;background:transparent;border:0;border-bottom:1px solid #2B3162;border-radius:0}
+.area-hub button strong{display:block;font-size:14px;font-weight:600}.area-hub small{display:block;font-size:11px;color:#9CA2D2;margin-top:4px;line-height:1.3}.entry-icon{color:#9CA2D2}.has-task>.entry-icon{color:#35E6A8}
+body.night-mode.compact-navigation .game-drawer[data-section=areaHub]{inset:125px 20px 90px auto!important;width:min(1020px,calc(100vw - 40px))!important;max-width:none!important;height:auto!important;max-height:calc(100dvh - 215px)!important;padding:18px!important}
+.area-subnav{position:sticky;top:0;display:flex;gap:6px;z-index:3;padding:7px 0;background:#0F1330}.area-subnav button{flex:1;font-size:12px;padding:8px!important;min-height:44px}
+.compact-more{display:grid;gap:8px}.compact-more button{text-align:left;padding:14px;min-height:60px}.compact-more small{display:block;color:#9CA2D2;font-size:11px;margin-top:5px}.compact-help{padding:10px;font-size:14px;line-height:1.6}.champ-resource-note,.invocation-resources{padding:12px;border-block:1px solid #2B3162;color:#9CA2D2!important;font-size:12px!important}.invocation-resources{color:#FFB627!important;font-variant-numeric:tabular-nums}
+.track-shortcuts{position:fixed;left:24px;bottom:95px;z-index:5;display:flex;gap:7px}.track-shortcuts button{min-height:44px;font-size:12px}
+.compact-navigation .night-goal{bottom:160px}.compact-navigation .night-tutorial{bottom:223px}.compact-navigation .night-shop-nav{display:none!important}
+.compact-navigation .idle-sections,.compact-navigation .champ-tabs,.compact-navigation .academy-tabs{position:static!important;display:grid!important;grid-auto-flow:column;grid-auto-columns:calc((100% - 12px)/3);grid-template-columns:none!important;overflow-x:auto;gap:6px;padding:8px 0;scroll-snap-type:x mandatory;max-width:100%}.compact-navigation .idle-sections button,.compact-navigation .champ-tabs button,.compact-navigation .academy-tabs button{min-width:0;scroll-snap-align:start;font-size:11px;min-height:44px}
+@media(max-width:600px){
+.compact-navigation .game-wallet{left:7px;right:7px;height:52px}.compact-navigation .game-wallet small{font-size:7px}.compact-navigation .game-wallet strong{font-size:18px}.compact-navigation .game-wallet article{padding:2px 4px}.compact-navigation .game-wallet #progressRps{font-size:8px}
+.compact-navigation .night-masthead{top:63px;height:46px;left:7px;right:7px}.compact-navigation .night-stage-rule{top:115px}
+.compact-navigation .night-masthead>p{display:none}.compact-navigation .night-masthead>button:last-child{margin-left:auto;min-width:60px;min-height:44px}
+.area-navigation{inset:auto 5px 4px;padding:3px;gap:0}.area-navigation button{font-size:10px!important;min-height:63px}.area-navigation small{font-size:8px}.area-navigation canvas{width:18px!important;height:18px!important}
+body.night-mode.compact-navigation .game-drawer,body.night-mode.compact-navigation .game-drawer[data-section=areaHub],body.night-mode.compact-navigation .game-drawer[data-section=lineup]{inset:123px 8px 80px!important;width:calc(100vw - 16px)!important;height:auto!important;max-height:calc(100dvh - 203px)!important;padding:12px!important}
+.area-hub{grid-template-columns:1fr;gap:16px}.area-hub>section{scroll-margin-top:62px}.area-hub button{padding:12px 4px!important}.area-subnav{top:-1px}.area-subnav button{font-size:10px}
+.track-shortcuts{left:10px;right:10px;bottom:167px;justify-content:center}.track-shortcuts button{font-size:11px!important;padding:9px!important}.compact-navigation .night-goal{bottom:221px}.compact-navigation .night-tutorial{bottom:278px}
+.compact-navigation .racecontrols{bottom:85px!important}.compact-navigation #nightLeaderboard{top:130px;width:150px}.compact-navigation .night-standing{font-size:10px}
+}
+
+.compact-navigation .cloud-save-indicator{bottom:88px!important}
+
+.car-track-label{position:fixed;top:126px;left:12px;max-width:calc(100vw - 185px);z-index:4;margin:0;padding:5px 7px;border-radius:4px;background:#0B0E24cc;color:#FFB627!important;font-size:11px;line-height:1.3}

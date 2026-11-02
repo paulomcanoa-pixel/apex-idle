@@ -17,7 +17,7 @@ Preservados chave apex-idle-v2, coleções, pilotos/afinidades, gacha, oficina, 
 ## Solução
 garage-state.js centraliza garage.owned/equipped e migra os campos legados sem perder coleção. Os campos anteriores permanecem espelhos de compatibilidade.
 Compra e invocação só adicionam propriedade. Equipar valida posse e reserva de contrato; altera o mesmo estado usado por desempenho, prêmio, arte e save.
-A corrida deriva duration a cada passo, preservando elapsed/distance. Trocas de F1/piloto são permitidas durante a corrida principal; campeonato e reserva de contratos conservam seus bloqueios.
+A corrida deriva duration a cada passo, preservando elapsed/distance. Trocas de F1/piloto são permitidas durante corrida e campeonato; carros reservados em contratos continuam protegidos.
 O banner só reconstrói por alterações estruturais e limites de compra, e pinta imediatamente; o caixa atualiza sem descartar o canvas.
 A invocação revela antes de correr, retira a interrogação e leva a aura junto até cruzar a chegada.
 Corrida automática na abertura, ERS como ação principal, objetivo contextual, tutorial 3 passos, Caixa/Pontos/Títulos e renda estimada, lojas com previsão e melhor compra por ganho de CR/s por custo.
@@ -26,6 +26,12 @@ As fórmulas e custos anteriores foram mantidos onde o documento permite; não f
 Nova temporada mantém garagem e seleção e reseta também apoios/automação de temporada. Títulos continuam exigindo renda nova, sem prestígio gratuito.
 
 ## Verificação
-npm test: 22 suítes, incluindo compra sem equipar, troca ao vivo, prêmio/ritmo derivados, exportação/reload, carro não possuído, save antigo, fallback inválido e preservação da garagem no prestígio.
+npm test: 23 suítes, incluindo compra sem equipar, troca ao vivo, prêmio/ritmo derivados, exportação/reload, carro não possuído, save antigo, fallback inválido e preservação da garagem no prestígio.
 Build estático. Não há lint configurado; checagem node --check nos JS alterados.
 Os resultados de navegador e URLs finais constam no relatório da entrega.
+
+## Revisão CODEX APEX IDLE (1)
+A auditoria adicional foi apresentada antes de alterar a navegação. s.rep libera circuitos; championship.rep é um multiplicador separado do campeonato, agora chamado Prestígio do campeonato. Caixa é CR compartilhado; pontos de troca vêm de repetidos; fichas servem à invocação exclusiva/recrutamento; gemas servem à engenharia e às provas do Campeonato.
+A barra inferior tem Pista, Carro, Equipe, Campeonato e Loja. Cada hub tem até três seções; recursos existentes ficam a dois toques. Missões são atalho da Pista. Mais tem quatro entradas raras. Topo mostra só Caixa/renda, Pontos e Gemas; a altura é reservada antes do canvas. Fichas/pontos de troca ficam na Invocação. Títulos ficam em Campeonato/Temporada.
+O bloqueio por campeonato ativo também foi removido da garagem. Seletores e botões Equipar aplicam imediatamente e invalidam o desenho da pista; a arte usa o modelo da carta, sem uma cor fixa por cima. O canvas de Campeonato/farm e a prévia da Academia também leem o equipamento atual.
+A confirmação de importação passou a dialog HTML assíncrono, com cancelar/restaurar, para não travar a interface embutida. A cópia anterior continua preservada.

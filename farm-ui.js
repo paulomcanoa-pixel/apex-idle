@@ -18,7 +18,7 @@ box(242,186,158,112,'#70d5ff','OFICINA',f.levels[1]>0);box(418,186,144,112,'#e4a
 for(let i=0;i<5;i++){g.fillStyle=f.levels[1]?'#70d5ff':'#344b5b';g.fillRect(258+i*25,234,15,35)}
 g.fillStyle=f.levels[2]?'#e4adff':'#344b5b';g.font='bold 19px Arial';g.textAlign='center';g.fillText('APEX',490,258);
 for(let i=0;i<4;i++){g.fillStyle='#8fac6c';g.beginPath();g.arc(180+i*140,466+Math.sin(i)*10,15,0,7);g.fill();g.fillStyle='#c1d78a';g.beginPath();g.arc(176+i*140,461+Math.sin(i)*10,9,0,7);g.fill()}
-const count=Math.min(5,1+Math.floor(f.levels[0]/4));for(let i=0;i<count;i++){const a=t*.6+i*Math.PI*2/count;CarArt.draw(g,{x:400+330*Math.cos(a),y:275+132*Math.sin(a),a:Math.atan2(132*Math.cos(a),-330*Math.sin(a)),scale:.55,id:A.equippedCar(s).id,color:IdleFarm.ops[i%3].color,number:String(i+1).padStart(2,'0')})}
+const count=Math.min(5,1+Math.floor(f.levels[0]/4));for(let i=0;i<count;i++){const a=t*.6+i*Math.PI*2/count;CarArt.draw(g,{x:400+330*Math.cos(a),y:275+132*Math.sin(a),a:Math.atan2(132*Math.cos(a),-330*Math.sin(a)),scale:.55,id:A.equippedCar(s).id,color:A.equippedCar(s).id==='aurora'?s.color:undefined,number:String(i+1).padStart(2,'0')})}
 g.fillStyle='#b9ee65';g.font='bold 11px Arial';g.textAlign='left';g.fillText('● PRODUÇÃO AUTOMÁTICA',28,34);g.fillStyle='#eaf4ed';g.font='bold 25px Arial';g.fillText('PADDOCK / 24H',28,67);g.fillStyle='#809eaa';g.font='12px Arial';g.fillText('PISTA DE TESTES · BOXES · PATROCINADORES',28,89);
 IdleFarm.ops.forEach((o,i)=>{g.fillStyle=f.levels[i]?o.color:'#526674';g.fillRect(235+i*116,326,106,32);g.fillStyle='#091724';g.font='bold 11px Arial';g.textAlign='center';g.fillText('+'+fmt(IdleFarm.rate(s,i))+'/min',288+i*116,346);if(f.levels[i]){const y=160-((t*(15+i*4))%42);g.globalAlpha=.25+.5*(1-(160-y)/42);g.fillStyle=o.color;g.beginPath();g.arc(308+i*103,y,9,0,7);g.fill();g.globalAlpha=1}});
 particles=particles.filter(p=>p.life>0);for(const p of particles){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=150*dt;g.globalAlpha=Math.max(0,p.life);g.fillStyle='#ffe496';g.beginPath();g.arc(p.x,p.y,5,0,7);g.fill()}g.globalAlpha=1;
@@ -27,3 +27,4 @@ const previous=render;render=function(){previous();if(drawer.open&&drawer.datase
 const oldImport=$('import').onchange;$('import').onchange=async e=>{await oldImport(e);IdleFarm.init(s);IdleFarm.settle(s);cache='';refreshFarm()};
 refreshFarm();requestAnimationFrame(drawFarm);save();
 })();
+
