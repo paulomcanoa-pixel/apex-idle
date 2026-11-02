@@ -52,3 +52,5 @@ body.night-mode .lineup-panel{width:100%;padding:0;max-height:none;overflow:visi
 .immersive .lineup-panel canvas{position:static;inset:auto;display:block;width:100%;height:auto;object-fit:contain;padding:0;filter:none}
 .lineup-panel select{display:block!important;visibility:visible}
 @media(max-width:600px){body.night-mode .game-drawer[data-section="lineup"]{inset:154px 10px 75px!important;width:calc(100vw - 20px)!important;max-height:calc(100dvh - 229px)!important;padding:12px!important}}
+
+body.night-mode [hidden]{display:none!important}
