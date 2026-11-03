@@ -1,0 +1,33 @@
+## custo (CR) e efeito de PI acumulado por ramo
+motor N1: custo 50 / total 50 / +3%PI | N5: custo 91 / total 346 / +15%PI | N10: custo 191 / total 1.1k / +38%PI | N25: custo 1.8k / total 12.5k / +117%PI | N50: custo 72.0k / total 521.8k / +293%PI
+aero N1: custo 75 / total 75 / +3%PI | N5: custo 136 / total 517 / +13%PI | N10: custo 286 / total 1.6k / +33%PI | N25: custo 2.6k / total 18.7k / +102%PI | N50: custo 108.0k / total 782.7k / +254%PI
+pneus N1: custo 110 / total 110 / +2%PI | N5: custo 200 / total 759 / +10%PI | N10: custo 419 / total 2.4k / +25%PI | N25: custo 3.9k / total 27.4k / +78%PI | N50: custo 158.4k / total 1.15M / +195%PI
+piloto N1: custo 180 / total 180 / +1%PI | N5: custo 326 / total 1.2k / +7%PI | N10: custo 685 / total 3.8k / +18%PI | N25: custo 6.3k / total 44.9k / +55%PI | N50: custo 259.2k / total 1.88M / +137%PI
+pit N1: custo 260 / total 260 / +1%PI | N5: custo 471 / total 1.8k / +5%PI | N10: custo 989 / total 5.5k / +13%PI | N25: custo 9.2k / total 64.8k / +39%PI | N50: custo 374.5k / total 2.71M / +98%PI
+patro N1: custo 120 / renda x1.10 | N5: custo 225 / renda x1.50 | N10: custo 494 / renda x2.25 | N25: custo 5.2k / renda x4.91 | N50: custo 263.2k / renda x10.77
+## pistas: n|nome|volta tela|CR/volta|PI lider|PI ultimo|REP p/ abrir|vol real
+1|Interlagos|17.6s|14|1.30|1.11|0
+2|Barcelona-Catalunya|18.9s|18|1.55|1.32|5
+3|Bahrain|22.9s|23|1.84|1.58|23
+4|Albert Park|20.0s|30|2.19|1.88|56
+5|Shanghai|23.1s|39|2.61|2.23|106
+6|Suzuka|22.7s|51|3.10|2.66|172
+7|Jeddah|22.7s|67|3.69|3.16|258
+8|Miami|22.4s|87|4.39|3.76|362
+9|Gilles-Villeneuve|18.3s|114|5.23|4.47|485
+10|Mônaco|18.2s|148|6.22|5.33|628
+11|Red Bull Ring|17.0s|193|6.69|5.72|792
+12|Silverstone|21.8s|250|7.19|6.15|977
+13|Spa-Francorchamps|26.0s|326|7.73|6.62|1184
+14|Hungaroring|19.2s|424|8.31|7.11|1411
+15|Zandvoort|17.8s|551|8.93|7.65|1661
+16|Monza|20.2s|716|9.60|8.22|1934
+17|Madrid|23.9s|931|10.32|8.83|2229
+18|Baku|25.8s|1.2k|11.10|9.50|2547
+19|Marina Bay|23.5s|1.6k|11.93|10.21|2888
+20|COTA|24.0s|2.0k|12.82|10.98|3253
+21|Hermanos Rodríguez|19.4s|2.7k|13.78|11.80|3641
+22|Las Vegas|23.3s|3.5k|14.82|12.68|4054
+23|Lusail|20.6s|4.5k|15.93|13.63|4491
+24|Yas Marina|21.4s|5.8k|17.12|14.66|4952
+lap start (pista1, PI1.0): 20.1 s; corrida 107 s

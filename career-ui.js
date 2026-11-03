@@ -1,6 +1,6 @@
 // Carreira solo: contratos, GP semanal, álbum, projetos e replay local.
 const careerPanel=document.createElement('section');careerPanel.className='career-hub';menus.career.node.append(careerPanel);menus.career.title='Carreira da escuderia';
-const careerNav=document.createElement('button');careerNav.dataset.menu='career';careerNav.innerHTML='✧<span>Carreira</span>';dock.append(careerNav);careerNav.onclick=()=>{openMenu('career');if(!dock.hidden)toggleDock()};
+const careerNav=document.createElement('button');careerNav.dataset.menu='career';ApexRender.html(careerNav,'✧<span>Carreira</span>');dock.append(careerNav);careerNav.onclick=()=>{openMenu('career');if(!dock.hidden)toggleDock()};
 let careerTab='contracts',careerCache='',contractCar='',contractOffer='test';
 Career.init(s);save();
 function simulateGP(entry){
@@ -42,7 +42,7 @@ if(rank>w.rule.maxRank)html+='<p>Equipe um carro comum ou raro no menu de invoca
 html+='<h3>Resultados e replay</h3>'+d.history.map((h,i)=>'<article class="career-card"><h3>P'+h.place+' · '+carName(h.car)+'</h3><p>'+h.time.toFixed(2)+' s · '+Career.rules.find(r=>r.id===h.rule).name+' · '+['Bronze','Prata','Ouro'][h.division]+'</p><button data-replay="'+i+'">Assistir replay da simulação</button></article>').join('');
 }
 if(careerTab==='stats')html+='<h2>Progresso local da escuderia</h2><p>Dados deste save, sem envio para servidor.</p><div class="career-grid">'+[['Corridas concluídas',d.stats.races],['Vitórias',d.stats.wins],['Contratos recolhidos',d.stats.contracts],['GPs semanais',d.stats.gps],['Projetos concluídos',d.stats.built],['Dias ativos registrados',d.days.length]].map(([label,value])=>'<article class="career-card"><h3>'+value+'</h3><p>'+label+'</p></article>').join('')+'</div><p>Para avaliar retenção de todos os jogadores e comparar grupos, será necessário um serviço de contas e métricas. Estes números mostram apenas a sua carreira.</p>';
-careerPanel.innerHTML=html
+ApexRender.html(careerPanel,html)
 }
 careerPanel.onclick=e=>{
 const tab=e.target.closest('[data-career-tab]');if(tab){careerTab=tab.dataset.careerTab;careerCache='';renderCareer();return}
@@ -62,11 +62,11 @@ const careerPrepare=prepareRace;prepareRace=function(){if(!Career.available(s,A.
 raceButton.onclick=prepareRace;$('againRace').onclick=prepareRace;
 function settleCareer(){if(Career.settle(s,simulateGP)){save();radio('GP semanal concluído! Veja resultado e replay na Carreira.');render()}}
 settleCareer();setInterval(settleCareer,1000);
-const replayDialog=document.createElement('dialog');replayDialog.className='race-result career-replay';replayDialog.innerHTML='<h2>Replay do GP semanal</h2><p id="careerReplayLabel"></p><canvas id="careerReplayCanvas" width="800" height="360" aria-label="Replay do GP simulado"></canvas><label>Velocidade<select id="careerReplaySpeed"><option value="1">1×</option><option value="4">4×</option><option value="8" selected>8×</option></select></label><button id="careerReplayPause">Pausar</button><button id="careerReplayClose">Fechar replay</button>';document.body.append(replayDialog);
+const replayDialog=document.createElement('dialog');replayDialog.className='race-result career-replay';ApexRender.html(replayDialog,'<h2>Replay do GP semanal</h2><p id="careerReplayLabel"></p><canvas id="careerReplayCanvas" width="800" height="360" aria-label="Replay do GP simulado"></canvas><label>Velocidade<select id="careerReplaySpeed"><option value="1">1×</option><option value="4">4×</option><option value="8" selected>8×</option></select></label><button id="careerReplayPause">Pausar</button><button id="careerReplayClose">Fechar replay</button>');document.body.append(replayDialog);
 let replayFrame=0,replayState=null,replayElapsed=0,replayLast=0,replayPaused=false;
 function stopCareerReplay(){cancelAnimationFrame(replayFrame);replayState=null}
-replayDialog.addEventListener('close',stopCareerReplay);$('careerReplayClose').onclick=()=>replayDialog.close();$('careerReplayPause').onclick=()=>{replayPaused=!replayPaused;$('careerReplayPause').textContent=replayPaused?'Continuar':'Pausar'};
-function showCareerReplay(entry){if(!entry)return;stopCareerReplay();replayState=Race.start(entry.duration,{compound:entry.tyres,pitLap:2,nextTyres:entry.tyres});replayState.autoStrategy=true;replayState.rivals.forEach((v,i)=>v.pace=entry.duration*([.96,1.03,1.10][i]+-entry.division*.025+((entry.week+i)%3)*.005));replayElapsed=0;replayLast=performance.now();replayPaused=false;$('careerReplayPause').textContent='Pausar';$('careerReplayLabel').textContent=carName(entry.car)+' · resultado P'+entry.place+' · '+entry.time.toFixed(2)+' s';replayDialog.showModal();
+replayDialog.addEventListener('close',stopCareerReplay);$('careerReplayClose').onclick=()=>replayDialog.close();$('careerReplayPause').onclick=()=>{replayPaused=!replayPaused;ApexRender.text($('careerReplayPause'),replayPaused?'Continuar':'Pausar')};
+function showCareerReplay(entry){if(!entry)return;stopCareerReplay();replayState=Race.start(entry.duration,{compound:entry.tyres,pitLap:2,nextTyres:entry.tyres});replayState.autoStrategy=true;replayState.rivals.forEach((v,i)=>v.pace=entry.duration*([.96,1.03,1.10][i]+-entry.division*.025+((entry.week+i)%3)*.005));replayElapsed=0;replayLast=performance.now();replayPaused=false;ApexRender.text($('careerReplayPause'),'Pausar');ApexRender.text($('careerReplayLabel'),carName(entry.car)+' · resultado P'+entry.place+' · '+entry.time.toFixed(2)+' s');replayDialog.showModal();
 const canvas=$('careerReplayCanvas'),g=canvas.getContext('2d');
 function frame(now){if(!replayState)return;const dt=Math.min(.15,(now-replayLast)/1000);replayLast=now;if(!replayPaused){Race.step(replayState,dt*+$('careerReplaySpeed').value);replayElapsed=replayState.elapsed}
 g.fillStyle='#0c1824';g.fillRect(0,0,800,360);g.strokeStyle='#53636d';g.lineWidth=45;g.beginPath();g.ellipse(400,175,300,110,0,0,Math.PI*2);g.stroke();

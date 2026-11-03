@@ -1,0 +1,67 @@
+{
+  "items": 167,
+  "duplicateIds": [],
+  "missingFields": [
+    "treino-basico:unlock",
+    "treino-intensivo:unlock"
+  ],
+  "categories": {
+    "componentes": 24,
+    "carros": 30,
+    "pilotos": 5,
+    "engenheiros": 5,
+    "treino": 2,
+    "boosts": 9,
+    "cosmeticos": 82,
+    "real": 10
+  },
+  "banners": [
+    {
+      "id": "banner-padrao",
+      "name": "Banner da Categoria",
+      "pool": "carros da categoria atual",
+      "rates": {
+        "comum": 49.357,
+        "raro": 35,
+        "epico": 15,
+        "lendario": 0.5,
+        "mitico": 0.143
+      },
+      "pity": {
+        "epico": 10,
+        "lendario": 200
+      },
+      "cost": "40 x CR_volta(maior estagio) por giro (ou 1 ficha); x10 pelo mesmo preco por giro"
+    },
+    {
+      "id": "banner-destaque",
+      "name": "Banner de Destaque (semanal)",
+      "pool": "1 carro lendario em destaque + padrao",
+      "rates": "taxa do destaque x2 (0,5 para 1,0%), demais proporcionais",
+      "pity": {
+        "lendario": 100
+      },
+      "cost": "1 ficha de destaque ou 60 gemas por giro; 1 ficha/dia gratis por missao"
+    },
+    {
+      "id": "banner-lendas",
+      "name": "Banner Lendas",
+      "pool": "carros ficticios da categoria Lendas",
+      "rates": {
+        "raro": 60,
+        "epico": 32,
+        "lendario": 7,
+        "mitico": 1
+      },
+      "pity": {
+        "lendario": 50,
+        "mitico": 150
+      },
+      "cost": "fichas apenas (ganhas jogando)",
+      "unlock": "Categoria F1"
+    }
+  ],
+  "aiLeader23": 17.123183245956128,
+  "rep23": 4952,
+  "place109": 10
+}

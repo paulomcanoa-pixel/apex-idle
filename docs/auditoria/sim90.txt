@@ -1,0 +1,19 @@
+dia|nivel escuderia|pista|categoria|titulos|temporadas|G max|CR/s
+1|17|5|Kart|0|0|5|83.8
+2|26|7|Kart|0|0|7|197.1
+3|32|9|Kart|0|0|9|693.5
+5|41|11|Kart|0|0|11|2.0K
+7|50|12|Kart|0|0|12|3.3K
+10|63|3|F4|0|0|15|527.6
+14|80|10|F4|0|0|22|42.2K
+21|101|12|Kart|4|1|24|15.9K
+28|127|7|F3|4|1|31|915.2K
+35|150|8|Kart|8|2|40|5.4K
+45|178|11|F3|8|2|40|11.3M
+60|222|1|F4|12|3|56|0.0
+75|257|12|F2|12|3|56|565.4M
+90|301|9|Lendas|12|3|69|66.0B
+eventos: d10 Categoria F4 ; d17 Nova Temporada #1 (titulos 4) ; d22 Categoria F4 ; d27 Categoria F3 ; d34 Categoria F2 ; d34 Nova Temporada #2 (titulos 8) ; d38 Categoria F4 ; d42 Categoria F3 ; d47 Categoria F2 ; d54 Categoria F1 ; d57 Nova Temporada #3 (titulos 12) ; d60 Categoria F4 ; d64 Categoria F3 ; d69 Categoria F2 ; d76 Categoria F1 ; d85 Categoria Lendas
+lacuna entre compras (min ativos): mediana 1.8 max 5.9 p95 3.8  >2x mediana: 79 de 1236
+max sessoes consecutivas sem compra: 0
+maiores lacunas: 

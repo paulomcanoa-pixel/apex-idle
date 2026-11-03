@@ -76,9 +76,10 @@ resize();paint(performance.now());
 const observer=new ResizeObserver(()=>{resize();if(reduced)paint(performance.now())});observer.observe(canvas);
 return ()=>{closed=true;cancelAnimationFrame(frame);observer.disconnect()}
 }
+function revealFrame(phase,elapsed,width,reduced=false){const p=phase==='mystery'?0:phase==='racing'||reduced?1:Math.min(1,Math.max(0,elapsed/1.05)),ease=p*p*(3-2*p);return{paint:ease,question:1-Math.min(1,p*2.3),x:width*(.5+(phase==='racing'&&!reduced?.4*Math.min(1,Math.max(0,elapsed/1.5)):0)),energy:phase==='mystery'?0:ease}}
 function race(canvas,model,phase){
 const ctx=canvas.getContext('2d');if(!ctx)return ()=>{};
-let stopped=false,frame=0,width=0;const height=300,start=performance.now(),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let stopped=false,frame=0,width=0;const height=300,start=performance.now();let phaseStart=start;const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function resize(){width=Math.max(280,canvas.getBoundingClientRect().width);const ratio=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(width*ratio);canvas.height=height*ratio;ctx.setTransform(ratio,0,0,ratio,0,0)}
 function paint(now){
 if(stopped)return;if(document.hidden){frame=requestAnimationFrame(paint);return}const t=reduced?0:(now-start)/1000,finish=width*.7;
@@ -87,17 +88,21 @@ ctx.fillStyle='#263542';ctx.fillRect(0,58,width,174);ctx.fillStyle='#82939c';ctx
 ctx.strokeStyle='#d6e1e833';ctx.lineWidth=2;ctx.setLineDash([24,24]);ctx.beginPath();ctx.moveTo(0,145);ctx.lineTo(width,145);ctx.stroke();ctx.setLineDash([]);
 for(let col=0;col<3;col++)for(let row=0;row<14;row++){ctx.fillStyle=(col+row)%2?'#0a1018':'#eff4ee';ctx.fillRect(finish+col*12,60+row*12,12,12)}
 ctx.fillStyle='#c5d5dc';ctx.font='bold 11px Arial';ctx.textAlign='center';ctx.fillText('CHEGADA',finish+18,40);
-const reveal=phase!=='mystery',x=phase==='racing'&&!reduced?width*.30+(width*.60)*Math.min(1,t/1.5):phase==='revealed'?width*.30:width/2;
-if(reveal)aura(ctx,x,145,Math.min(150,width*.30),74,model,t,reduced);
-ctx.save();ctx.translate(x,145);ctx.rotate(Math.PI/2);if(phase==='mystery')ctx.filter='brightness(0)';if(reveal){ctx.shadowColor=model.color;ctx.shadowBlur=22}
-car(ctx,0,0,Math.min(.84,(width-60)/220),reveal?model.color:'#26303e',reduced?0:t*2,model.id);ctx.restore();
-if(phase==='mystery'){ctx.fillStyle='#fff';ctx.shadowColor='#fff';ctx.shadowBlur=18;ctx.font='bold 60px Arial';ctx.fillText('?',width/2,164);ctx.shadowBlur=0}
+const elapsed=(now-phaseStart)/1000,state=revealFrame(phase,elapsed,width,reduced),x=state.x,reveal=state.paint>0,scale=Math.min(.84,(width-60)/220),color=auraPalette(model).color;
+if(reveal){ctx.save();ctx.globalAlpha=state.energy;aura(ctx,x,145,Math.min(150,width*.30),74,model,t,reduced);ctx.restore()}
+// One continuous chassis: the silhouette stays on screen while a light sweep exposes its livery.
+function chassis(dark){ctx.save();ctx.translate(x,145);ctx.rotate(Math.PI/2);if(dark)ctx.filter='brightness(.12) saturate(0)';car(ctx,0,0,scale,model.color,reduced?0:t*2,model.id);ctx.restore()}
+chassis(true);
+if(reveal){ctx.save();ctx.beginPath();ctx.rect(x-120,52,240*state.paint,186);ctx.clip();chassis(false);ctx.restore();}
+if(!reduced&&phase==='revealed'&&state.paint<1){const scan=x-120+240*state.paint;ctx.save();ctx.globalCompositeOperation='screen';const beam=ctx.createLinearGradient(scan-22,0,scan+12,0);beam.addColorStop(0,color+'00');beam.addColorStop(.7,color+'88');beam.addColorStop(1,color+'00');ctx.fillStyle=beam;ctx.fillRect(scan-22,75,34,140);ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(scan,95);ctx.lineTo(scan,195);ctx.stroke();for(let i=0;i<18;i++){const life=(elapsed*1.8+i*.173)%1;ctx.globalAlpha=(1-life)*state.energy;ctx.fillStyle=color;ctx.fillRect(scan-life*(20+i%4*10),105+i%7*13+(i%2?1:-1)*life*22,2,2)}ctx.restore()}
+if(!reduced&&phase==='racing'){ctx.save();const trail=ctx.createLinearGradient(x-160,0,x-40,0);trail.addColorStop(0,color+'00');trail.addColorStop(1,color+'77');ctx.fillStyle=trail;ctx.fillRect(x-160,128,110,5);ctx.fillRect(x-160,158,110,5);ctx.restore()}
+if(state.question>0){ctx.save();ctx.globalAlpha=state.question;ctx.translate(x,145);const shrink=reduced?1:.88+.12*state.question;ctx.scale(shrink,shrink);ctx.fillStyle='#fff';ctx.shadowColor='#fff';ctx.shadowBlur=18;ctx.font='bold 60px Arial';ctx.fillText('?',0,19);ctx.restore()}
 if(!reduced)frame=requestAnimationFrame(paint)
 }
 resize();paint(performance.now());const observer=new ResizeObserver(()=>{resize();if(reduced)paint(performance.now())});observer.observe(canvas);
-return ()=>{stopped=true;cancelAnimationFrame(frame);observer.disconnect()}
+const stop=()=>{stopped=true;cancelAnimationFrame(frame);observer.disconnect()};stop.setPhase=next=>{phase=next;phaseStart=performance.now();if(reduced)paint(phaseStart)};return stop
 }
-root.DropShowcase={order,layout,mount,race,car,aura,auraPalette};
+root.DropShowcase={order,layout,mount,race,car,aura,auraPalette,revealFrame};
 if(typeof module!=='undefined')module.exports=root.DropShowcase;
 })(typeof window!=='undefined'?window:globalThis);
 

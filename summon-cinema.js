@@ -9,8 +9,8 @@ try{summonCinema.showModal();startReveal();$('skipSummon').focus()}catch{finishS
 };
 resultCard=function(result){
 const card=document.createElement('article');card.className='summon-reveal';card.style.setProperty('--car-color',result.car.color);
-const canvas=document.createElement('canvas');canvas.width=360;canvas.height=180;canvas.setAttribute('aria-label',result.car.name+' em Canvas');const g=canvas.getContext('2d');g.fillStyle='#101b2a';g.fillRect(0,0,360,180);CarArt.draw(g,{x:180,y:85,a:-.1,scale:2.7,id:result.car.id});
-const label=document.createElement('p');label.textContent=resultText(result);card.append(canvas,label);return card;
+const canvas=document.createElement('canvas');canvas.width=360;canvas.height=180;ApexRender.attr(canvas,'aria-label',result.car.name+' em Canvas');const g=canvas.getContext('2d');g.fillStyle='#101b2a';g.fillRect(0,0,360,180);CarArt.draw(g,{x:180,y:85,a:-.1,scale:2.7,id:result.car.id});
+const label=document.createElement('p');ApexRender.text(label,resultText(result));card.append(canvas,label);return card;
 };
 closeDrops=function(){
 if(stopDrops){stopDrops();stopDrops=null}if(dropsDialog.open)dropsDialog.close();

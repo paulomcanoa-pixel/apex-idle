@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "node build.cjs",
-    "test": "node test.cjs && node race-test.cjs && node strategy-test.cjs && node tactics-test.cjs && node parts-shop-test.cjs && node drops-test.cjs && node circuits-test.cjs && node career-test.cjs && node missions-traffic-test.cjs && node track-clearance-test.cjs && node ranked-test.cjs && node scenery-test.cjs && node farm-test.cjs && node championship-test.cjs && node legends-test.cjs && node banner-test.cjs && node academy-test.cjs && node idle-test.cjs && node cloud-test.cjs && node night-test.cjs && node lineup-test.cjs && node progression-test.cjs && node navigation-test.cjs",
+    "test": "node test.cjs && node race-test.cjs && node strategy-test.cjs && node tactics-test.cjs && node parts-shop-test.cjs && node drops-test.cjs && node circuits-test.cjs && node career-test.cjs && node missions-traffic-test.cjs && node track-clearance-test.cjs && node ranked-test.cjs && node scenery-test.cjs && node farm-test.cjs && node championship-test.cjs && node legends-test.cjs && node banner-test.cjs && node academy-test.cjs && node idle-test.cjs && node cloud-test.cjs && node night-test.cjs && node lineup-test.cjs && node progression-test.cjs && node navigation-test.cjs && node --test core-test.cjs",
     "dev": "node dev-server.cjs"
   },
   "dependencies": {
@@ -18,4 +18,3 @@
     "zod": "4.6.6"
   }
 }
-

@@ -10,4 +10,3 @@ function playerPosition(){return Traffic.offset(position(race?race.distance:s.pr
 window.TrafficView={racers,playerPosition,invalidate(){stamp=0;frameCars=[]}};
 })();
 
-

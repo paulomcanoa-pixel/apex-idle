@@ -1,0 +1,4578 @@
+{
+ "version": 1,
+ "generatedAt": "2026-11-02",
+ "notes": "Todos os nomes sao ficticios (sem marca real). Preco em CR = formula sobre lapReward; example_price_at_unlock e o valor numerico na categoria Kart. Valores sao suposicoes de design (ver doc-design.md).",
+ "currencies": [
+  "cr",
+  "gemas",
+  "fichas",
+  "pts",
+  "brl"
+ ],
+ "items": [
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "comum",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-motor-club",
+   "name": "Unidade Faisca",
+   "category": "componentes",
+   "slot": "motor",
+   "tier": "Club",
+   "description": "Motor Club: +0.5% de PI; x1,6 em pistas de potencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 3
+   },
+   "example_price_at_unlock": 435,
+   "effect": {
+    "piPct": 0.005,
+    "matchType": "potencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 3
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "raro",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-motor-pro",
+   "name": "Unidade Corisco",
+   "category": "componentes",
+   "slot": "motor",
+   "tier": "Pro",
+   "description": "Motor Pro: +1.2% de PI; x1,6 em pistas de potencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 8
+   },
+   "example_price_at_unlock": 4385,
+   "effect": {
+    "piPct": 0.012,
+    "matchType": "potencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 8
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "epico",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-motor-elite",
+   "name": "Unidade Trovao",
+   "category": "componentes",
+   "slot": "motor",
+   "tier": "Elite",
+   "description": "Motor Elite: +2.0% de PI; x1,6 em pistas de potencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 20
+   },
+   "example_price_at_unlock": 846720,
+   "effect": {
+    "piPct": 0.02,
+    "matchType": "potencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "F3",
+    "stage": 1
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "lendario",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-motor-lenda",
+   "name": "Unidade Eclipse",
+   "category": "componentes",
+   "slot": "motor",
+   "tier": "Lenda",
+   "description": "Motor Lenda: +2.5% de PI; x1,6 em pistas de potencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 50
+   },
+   "example_price_at_unlock": 1014300000,
+   "effect": {
+    "piPct": 0.025,
+    "matchType": "potencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "F1",
+    "stage": 1
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "comum",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-aero-club",
+   "name": "Asa Brisa",
+   "category": "componentes",
+   "slot": "aero",
+   "tier": "Club",
+   "description": "Aerodinamica Club: +0.5% de PI; x1,6 em pistas de curvas, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 3
+   },
+   "example_price_at_unlock": 435,
+   "effect": {
+    "piPct": 0.005,
+    "matchType": "curvas",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 3
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "raro",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-aero-pro",
+   "name": "Asa Falcao",
+   "category": "componentes",
+   "slot": "aero",
+   "tier": "Pro",
+   "description": "Aerodinamica Pro: +1.2% de PI; x1,6 em pistas de curvas, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 8
+   },
+   "example_price_at_unlock": 4385,
+   "effect": {
+    "piPct": 0.012,
+    "matchType": "curvas",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 8
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "epico",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-aero-elite",
+   "name": "Asa Aurora",
+   "category": "componentes",
+   "slot": "aero",
+   "tier": "Elite",
+   "description": "Aerodinamica Elite: +2.0% de PI; x1,6 em pistas de curvas, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 20
+   },
+   "example_price_at_unlock": 846720,
+   "effect": {
+    "piPct": 0.02,
+    "matchType": "curvas",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "F3",
+    "stage": 1
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "lendario",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-aero-lenda",
+   "name": "Asa Zenite",
+   "category": "componentes",
+   "slot": "aero",
+   "tier": "Lenda",
+   "description": "Aerodinamica Lenda: +2.5% de PI; x1,6 em pistas de curvas, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 50
+   },
+   "example_price_at_unlock": 1014300000,
+   "effect": {
+    "piPct": 0.025,
+    "matchType": "curvas",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "F1",
+    "stage": 1
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "comum",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-suspensao-club",
+   "name": "Mola Terra",
+   "category": "componentes",
+   "slot": "suspensao",
+   "tier": "Club",
+   "description": "Suspensao Club: +0.5% de PI; x1,6 em pistas de curvas, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 3
+   },
+   "example_price_at_unlock": 435,
+   "effect": {
+    "piPct": 0.005,
+    "matchType": "curvas",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 3
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "raro",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-suspensao-pro",
+   "name": "Mola Dunas",
+   "category": "componentes",
+   "slot": "suspensao",
+   "tier": "Pro",
+   "description": "Suspensao Pro: +1.2% de PI; x1,6 em pistas de curvas, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 8
+   },
+   "example_price_at_unlock": 4385,
+   "effect": {
+    "piPct": 0.012,
+    "matchType": "curvas",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 8
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "epico",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-suspensao-elite",
+   "name": "Mola Prisma",
+   "category": "componentes",
+   "slot": "suspensao",
+   "tier": "Elite",
+   "description": "Suspensao Elite: +2.0% de PI; x1,6 em pistas de curvas, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 20
+   },
+   "example_price_at_unlock": 846720,
+   "effect": {
+    "piPct": 0.02,
+    "matchType": "curvas",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "F3",
+    "stage": 1
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "lendario",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-suspensao-lenda",
+   "name": "Mola Horizonte",
+   "category": "componentes",
+   "slot": "suspensao",
+   "tier": "Lenda",
+   "description": "Suspensao Lenda: +2.5% de PI; x1,6 em pistas de curvas, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 50
+   },
+   "example_price_at_unlock": 1014300000,
+   "effect": {
+    "piPct": 0.025,
+    "matchType": "curvas",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "F1",
+    "stage": 1
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "comum",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-freios-club",
+   "name": "Disco Pedra",
+   "category": "componentes",
+   "slot": "freios",
+   "tier": "Club",
+   "description": "Freios Club: +0.5% de PI; x1,6 em pistas de aderencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 3
+   },
+   "example_price_at_unlock": 435,
+   "effect": {
+    "piPct": 0.005,
+    "matchType": "aderencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 3
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "raro",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-freios-pro",
+   "name": "Disco Ferro",
+   "category": "componentes",
+   "slot": "freios",
+   "tier": "Pro",
+   "description": "Freios Pro: +1.2% de PI; x1,6 em pistas de aderencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 8
+   },
+   "example_price_at_unlock": 4385,
+   "effect": {
+    "piPct": 0.012,
+    "matchType": "aderencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 8
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "epico",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-freios-elite",
+   "name": "Disco Basalto",
+   "category": "componentes",
+   "slot": "freios",
+   "tier": "Elite",
+   "description": "Freios Elite: +2.0% de PI; x1,6 em pistas de aderencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 20
+   },
+   "example_price_at_unlock": 846720,
+   "effect": {
+    "piPct": 0.02,
+    "matchType": "aderencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "F3",
+    "stage": 1
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "lendario",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-freios-lenda",
+   "name": "Disco Meteoro",
+   "category": "componentes",
+   "slot": "freios",
+   "tier": "Lenda",
+   "description": "Freios Lenda: +2.5% de PI; x1,6 em pistas de aderencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 50
+   },
+   "example_price_at_unlock": 1014300000,
+   "effect": {
+    "piPct": 0.025,
+    "matchType": "aderencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "F1",
+    "stage": 1
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "comum",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-cambio-club",
+   "name": "Caixa Linha",
+   "category": "componentes",
+   "slot": "cambio",
+   "tier": "Club",
+   "description": "Cambio Club: +0.5% de PI; x1,6 em pistas de potencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 3
+   },
+   "example_price_at_unlock": 435,
+   "effect": {
+    "piPct": 0.005,
+    "matchType": "potencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 3
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "raro",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-cambio-pro",
+   "name": "Caixa Rio",
+   "category": "componentes",
+   "slot": "cambio",
+   "tier": "Pro",
+   "description": "Cambio Pro: +1.2% de PI; x1,6 em pistas de potencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 8
+   },
+   "example_price_at_unlock": 4385,
+   "effect": {
+    "piPct": 0.012,
+    "matchType": "potencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 8
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "epico",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-cambio-elite",
+   "name": "Caixa Delta",
+   "category": "componentes",
+   "slot": "cambio",
+   "tier": "Elite",
+   "description": "Cambio Elite: +2.0% de PI; x1,6 em pistas de potencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 20
+   },
+   "example_price_at_unlock": 846720,
+   "effect": {
+    "piPct": 0.02,
+    "matchType": "potencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "F3",
+    "stage": 1
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "lendario",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-cambio-lenda",
+   "name": "Caixa Origem",
+   "category": "componentes",
+   "slot": "cambio",
+   "tier": "Lenda",
+   "description": "Cambio Lenda: +2.5% de PI; x1,6 em pistas de potencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 50
+   },
+   "example_price_at_unlock": 1014300000,
+   "effect": {
+    "piPct": 0.025,
+    "matchType": "potencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "F1",
+    "stage": 1
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "comum",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-pneus-club",
+   "name": "Borracha Seixo",
+   "category": "componentes",
+   "slot": "pneus",
+   "tier": "Club",
+   "description": "Pneus Club: +0.5% de PI; x1,6 em pistas de aderencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 3
+   },
+   "example_price_at_unlock": 435,
+   "effect": {
+    "piPct": 0.005,
+    "matchType": "aderencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 3
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "raro",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-pneus-pro",
+   "name": "Borracha Trilha",
+   "category": "componentes",
+   "slot": "pneus",
+   "tier": "Pro",
+   "description": "Pneus Pro: +1.2% de PI; x1,6 em pistas de aderencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 8
+   },
+   "example_price_at_unlock": 4385,
+   "effect": {
+    "piPct": 0.012,
+    "matchType": "aderencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 8
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "epico",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-pneus-elite",
+   "name": "Borracha Cometa",
+   "category": "componentes",
+   "slot": "pneus",
+   "tier": "Elite",
+   "description": "Pneus Elite: +2.0% de PI; x1,6 em pistas de aderencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 20
+   },
+   "example_price_at_unlock": 846720,
+   "effect": {
+    "piPct": 0.02,
+    "matchType": "aderencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "F3",
+    "stage": 1
+   }
+  },
+  {
+   "limit": "1 por slot e categoria (fica no inventario apos Nova Temporada)",
+   "rarity": "lendario",
+   "appears": [
+    "loja/componentes"
+   ],
+   "id": "comp-pneus-lenda",
+   "name": "Borracha Rubi",
+   "category": "componentes",
+   "slot": "pneus",
+   "tier": "Lenda",
+   "description": "Pneus Lenda: +2.5% de PI; x1,6 em pistas de aderencia, x0,7 nas demais.",
+   "currency": "cr",
+   "price": {
+    "formula": "races * 6.3 * lapReward(unlockStageIdx) * cScale[category]",
+    "races": 50
+   },
+   "example_price_at_unlock": 1014300000,
+   "effect": {
+    "piPct": 0.025,
+    "matchType": "aderencia",
+    "matchMult": 1.6,
+    "otherMult": 0.7
+   },
+   "unlock": {
+    "category": "F1",
+    "stage": 1
+   }
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "comum",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-kart-comum",
+   "name": "Kestrel Alfa",
+   "category": "carros",
+   "tier": "Kart",
+   "description": "Carro comum da categoria Kart: +3% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 100
+   },
+   "effect": {
+    "piPct": 0.03
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 3
+   },
+   "rate_pct": 49.357,
+   "duplicate_pts": 50
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "raro",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-kart-raro",
+   "name": "Kestrel Beta",
+   "category": "carros",
+   "tier": "Kart",
+   "description": "Carro raro da categoria Kart: +6% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 300
+   },
+   "effect": {
+    "piPct": 0.06
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 3
+   },
+   "rate_pct": 35,
+   "duplicate_pts": 150
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "epico",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-kart-epico",
+   "name": "Kestrel Gama",
+   "category": "carros",
+   "tier": "Kart",
+   "description": "Carro epico da categoria Kart: +10% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 800
+   },
+   "effect": {
+    "piPct": 0.1
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 3
+   },
+   "rate_pct": 15,
+   "duplicate_pts": 400
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "lendario",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-kart-lendario",
+   "name": "Kestrel Delta",
+   "category": "carros",
+   "tier": "Kart",
+   "description": "Carro lendario da categoria Kart: +15% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 4000
+   },
+   "effect": {
+    "piPct": 0.15
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 3
+   },
+   "rate_pct": 0.5,
+   "duplicate_pts": 2000
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "mitico",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-kart-mitico",
+   "name": "Kestrel Omega",
+   "category": "carros",
+   "tier": "Kart",
+   "description": "Carro mitico da categoria Kart: +22% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 15000
+   },
+   "effect": {
+    "piPct": 0.22
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 3
+   },
+   "rate_pct": 0.143,
+   "duplicate_pts": 7500
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "comum",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f4-comum",
+   "name": "Falcao Alfa",
+   "category": "carros",
+   "tier": "F4",
+   "description": "Carro comum da categoria F4: +3% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 100
+   },
+   "effect": {
+    "piPct": 0.03
+   },
+   "unlock": {
+    "category": "F4",
+    "stage": 3
+   },
+   "rate_pct": 49.357,
+   "duplicate_pts": 50
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "raro",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f4-raro",
+   "name": "Falcao Beta",
+   "category": "carros",
+   "tier": "F4",
+   "description": "Carro raro da categoria F4: +6% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 300
+   },
+   "effect": {
+    "piPct": 0.06
+   },
+   "unlock": {
+    "category": "F4",
+    "stage": 3
+   },
+   "rate_pct": 35,
+   "duplicate_pts": 150
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "epico",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f4-epico",
+   "name": "Falcao Gama",
+   "category": "carros",
+   "tier": "F4",
+   "description": "Carro epico da categoria F4: +10% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 800
+   },
+   "effect": {
+    "piPct": 0.1
+   },
+   "unlock": {
+    "category": "F4",
+    "stage": 3
+   },
+   "rate_pct": 15,
+   "duplicate_pts": 400
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "lendario",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f4-lendario",
+   "name": "Falcao Delta",
+   "category": "carros",
+   "tier": "F4",
+   "description": "Carro lendario da categoria F4: +15% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 4000
+   },
+   "effect": {
+    "piPct": 0.15
+   },
+   "unlock": {
+    "category": "F4",
+    "stage": 3
+   },
+   "rate_pct": 0.5,
+   "duplicate_pts": 2000
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "mitico",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f4-mitico",
+   "name": "Falcao Omega",
+   "category": "carros",
+   "tier": "F4",
+   "description": "Carro mitico da categoria F4: +22% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 15000
+   },
+   "effect": {
+    "piPct": 0.22
+   },
+   "unlock": {
+    "category": "F4",
+    "stage": 3
+   },
+   "rate_pct": 0.143,
+   "duplicate_pts": 7500
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "comum",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f3-comum",
+   "name": "Tempest Alfa",
+   "category": "carros",
+   "tier": "F3",
+   "description": "Carro comum da categoria F3: +3% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 100
+   },
+   "effect": {
+    "piPct": 0.03
+   },
+   "unlock": {
+    "category": "F3",
+    "stage": 3
+   },
+   "rate_pct": 49.357,
+   "duplicate_pts": 50
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "raro",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f3-raro",
+   "name": "Tempest Beta",
+   "category": "carros",
+   "tier": "F3",
+   "description": "Carro raro da categoria F3: +6% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 300
+   },
+   "effect": {
+    "piPct": 0.06
+   },
+   "unlock": {
+    "category": "F3",
+    "stage": 3
+   },
+   "rate_pct": 35,
+   "duplicate_pts": 150
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "epico",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f3-epico",
+   "name": "Tempest Gama",
+   "category": "carros",
+   "tier": "F3",
+   "description": "Carro epico da categoria F3: +10% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 800
+   },
+   "effect": {
+    "piPct": 0.1
+   },
+   "unlock": {
+    "category": "F3",
+    "stage": 3
+   },
+   "rate_pct": 15,
+   "duplicate_pts": 400
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "lendario",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f3-lendario",
+   "name": "Tempest Delta",
+   "category": "carros",
+   "tier": "F3",
+   "description": "Carro lendario da categoria F3: +15% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 4000
+   },
+   "effect": {
+    "piPct": 0.15
+   },
+   "unlock": {
+    "category": "F3",
+    "stage": 3
+   },
+   "rate_pct": 0.5,
+   "duplicate_pts": 2000
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "mitico",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f3-mitico",
+   "name": "Tempest Omega",
+   "category": "carros",
+   "tier": "F3",
+   "description": "Carro mitico da categoria F3: +22% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 15000
+   },
+   "effect": {
+    "piPct": 0.22
+   },
+   "unlock": {
+    "category": "F3",
+    "stage": 3
+   },
+   "rate_pct": 0.143,
+   "duplicate_pts": 7500
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "comum",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f2-comum",
+   "name": "Meridian Alfa",
+   "category": "carros",
+   "tier": "F2",
+   "description": "Carro comum da categoria F2: +3% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 100
+   },
+   "effect": {
+    "piPct": 0.03
+   },
+   "unlock": {
+    "category": "F2",
+    "stage": 3
+   },
+   "rate_pct": 49.357,
+   "duplicate_pts": 50
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "raro",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f2-raro",
+   "name": "Meridian Beta",
+   "category": "carros",
+   "tier": "F2",
+   "description": "Carro raro da categoria F2: +6% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 300
+   },
+   "effect": {
+    "piPct": 0.06
+   },
+   "unlock": {
+    "category": "F2",
+    "stage": 3
+   },
+   "rate_pct": 35,
+   "duplicate_pts": 150
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "epico",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f2-epico",
+   "name": "Meridian Gama",
+   "category": "carros",
+   "tier": "F2",
+   "description": "Carro epico da categoria F2: +10% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 800
+   },
+   "effect": {
+    "piPct": 0.1
+   },
+   "unlock": {
+    "category": "F2",
+    "stage": 3
+   },
+   "rate_pct": 15,
+   "duplicate_pts": 400
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "lendario",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f2-lendario",
+   "name": "Meridian Delta",
+   "category": "carros",
+   "tier": "F2",
+   "description": "Carro lendario da categoria F2: +15% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 4000
+   },
+   "effect": {
+    "piPct": 0.15
+   },
+   "unlock": {
+    "category": "F2",
+    "stage": 3
+   },
+   "rate_pct": 0.5,
+   "duplicate_pts": 2000
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "mitico",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f2-mitico",
+   "name": "Meridian Omega",
+   "category": "carros",
+   "tier": "F2",
+   "description": "Carro mitico da categoria F2: +22% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 15000
+   },
+   "effect": {
+    "piPct": 0.22
+   },
+   "unlock": {
+    "category": "F2",
+    "stage": 3
+   },
+   "rate_pct": 0.143,
+   "duplicate_pts": 7500
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "comum",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f1-comum",
+   "name": "Aurora Alfa",
+   "category": "carros",
+   "tier": "F1",
+   "description": "Carro comum da categoria F1: +3% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 100
+   },
+   "effect": {
+    "piPct": 0.03
+   },
+   "unlock": {
+    "category": "F1",
+    "stage": 3
+   },
+   "rate_pct": 49.357,
+   "duplicate_pts": 50
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "raro",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f1-raro",
+   "name": "Aurora Beta",
+   "category": "carros",
+   "tier": "F1",
+   "description": "Carro raro da categoria F1: +6% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 300
+   },
+   "effect": {
+    "piPct": 0.06
+   },
+   "unlock": {
+    "category": "F1",
+    "stage": 3
+   },
+   "rate_pct": 35,
+   "duplicate_pts": 150
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "epico",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f1-epico",
+   "name": "Aurora Gama",
+   "category": "carros",
+   "tier": "F1",
+   "description": "Carro epico da categoria F1: +10% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 800
+   },
+   "effect": {
+    "piPct": 0.1
+   },
+   "unlock": {
+    "category": "F1",
+    "stage": 3
+   },
+   "rate_pct": 15,
+   "duplicate_pts": 400
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "lendario",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f1-lendario",
+   "name": "Aurora Delta",
+   "category": "carros",
+   "tier": "F1",
+   "description": "Carro lendario da categoria F1: +15% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 4000
+   },
+   "effect": {
+    "piPct": 0.15
+   },
+   "unlock": {
+    "category": "F1",
+    "stage": 3
+   },
+   "rate_pct": 0.5,
+   "duplicate_pts": 2000
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "mitico",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-f1-mitico",
+   "name": "Aurora Omega",
+   "category": "carros",
+   "tier": "F1",
+   "description": "Carro mitico da categoria F1: +22% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 15000
+   },
+   "effect": {
+    "piPct": 0.22
+   },
+   "unlock": {
+    "category": "F1",
+    "stage": 3
+   },
+   "rate_pct": 0.143,
+   "duplicate_pts": 7500
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "comum",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-lendas-comum",
+   "name": "Panteon Alfa",
+   "category": "carros",
+   "tier": "Lendas",
+   "description": "Carro comum da categoria Lendas: +3% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 100
+   },
+   "effect": {
+    "piPct": 0.03
+   },
+   "unlock": {
+    "category": "Lendas",
+    "stage": 3
+   },
+   "rate_pct": 49.357,
+   "duplicate_pts": 50
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "raro",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-lendas-raro",
+   "name": "Panteon Beta",
+   "category": "carros",
+   "tier": "Lendas",
+   "description": "Carro raro da categoria Lendas: +6% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 300
+   },
+   "effect": {
+    "piPct": 0.06
+   },
+   "unlock": {
+    "category": "Lendas",
+    "stage": 3
+   },
+   "rate_pct": 35,
+   "duplicate_pts": 150
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "epico",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-lendas-epico",
+   "name": "Panteon Gama",
+   "category": "carros",
+   "tier": "Lendas",
+   "description": "Carro epico da categoria Lendas: +10% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 800
+   },
+   "effect": {
+    "piPct": 0.1
+   },
+   "unlock": {
+    "category": "Lendas",
+    "stage": 3
+   },
+   "rate_pct": 15,
+   "duplicate_pts": 400
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "lendario",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-lendas-lendario",
+   "name": "Panteon Delta",
+   "category": "carros",
+   "tier": "Lendas",
+   "description": "Carro lendario da categoria Lendas: +15% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 4000
+   },
+   "effect": {
+    "piPct": 0.15
+   },
+   "unlock": {
+    "category": "Lendas",
+    "stage": 3
+   },
+   "rate_pct": 0.5,
+   "duplicate_pts": 2000
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "mitico",
+   "appears": [
+    "loja/invocacao",
+    "loja/troca"
+   ],
+   "id": "car-lendas-mitico",
+   "name": "Panteon Omega",
+   "category": "carros",
+   "tier": "Lendas",
+   "description": "Carro mitico da categoria Lendas: +22% de PI na categoria.",
+   "currency": "giro|pts",
+   "price": {
+    "giro": "40 * lapReward(maxStageIdx) * cScale[cat]",
+    "pts": 15000
+   },
+   "effect": {
+    "piPct": 0.22
+   },
+   "unlock": {
+    "category": "Lendas",
+    "stage": 3
+   },
+   "rate_pct": 0.143,
+   "duplicate_pts": 7500
+  },
+  {
+   "limit": "1 (copias viram estrelas: 1,2,4,8,16)",
+   "rarity": "comum",
+   "appears": [
+    "equipe/pilotos",
+    "loja/diaria"
+   ],
+   "id": "piloto-lia-monteiro",
+   "name": "Lia Monteiro",
+   "category": "pilotos",
+   "description": "piloto comum: +2% de PI; +10% do bonus por estrela (max 5).",
+   "currency": "cr",
+   "price": {
+    "formula": "5 * 6.3 * lapReward(maxStageIdx) * cScale[cat]"
+   },
+   "effect": {
+    "piPct": 0.02,
+    "starPct": 0.1,
+    "synergy": "+3% PI se o estilo do piloto bate com o perfil do carro"
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 2
+   }
+  },
+  {
+   "limit": "1 (copias viram estrelas: 1,2,4,8,16)",
+   "rarity": "raro",
+   "appears": [
+    "equipe/pilotos",
+    "loja/diaria"
+   ],
+   "id": "piloto-enzo-vale",
+   "name": "Enzo Vale",
+   "category": "pilotos",
+   "description": "piloto raro: +4% de PI; +10% do bonus por estrela (max 5).",
+   "currency": "cr",
+   "price": {
+    "formula": "25 * 6.3 * lapReward(maxStageIdx) * cScale[cat]"
+   },
+   "effect": {
+    "piPct": 0.04,
+    "starPct": 0.1,
+    "synergy": "+3% PI se o estilo do piloto bate com o perfil do carro"
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 5
+   }
+  },
+  {
+   "limit": "1 (copias viram estrelas: 1,2,4,8,16)",
+   "rarity": "epico",
+   "appears": [
+    "equipe/pilotos",
+    "loja/diaria"
+   ],
+   "id": "piloto-maya-veloz",
+   "name": "Maya Veloz",
+   "category": "pilotos",
+   "description": "piloto epico: +7.000000000000001% de PI; +10% do bonus por estrela (max 5).",
+   "currency": "cr",
+   "price": {
+    "formula": "150 * 6.3 * lapReward(maxStageIdx) * cScale[cat]"
+   },
+   "effect": {
+    "piPct": 0.07,
+    "starPct": 0.1,
+    "synergy": "+3% PI se o estilo do piloto bate com o perfil do carro"
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 8
+   }
+  },
+  {
+   "limit": "1 (copias viram estrelas: 1,2,4,8,16)",
+   "rarity": "lendario",
+   "appears": [
+    "equipe/pilotos",
+    "loja/diaria"
+   ],
+   "id": "piloto-nico-solari",
+   "name": "Nico Solari",
+   "category": "pilotos",
+   "description": "piloto lendario: +12% de PI; +10% do bonus por estrela (max 5).",
+   "currency": "cr",
+   "price": {
+    "formula": "900 * 6.3 * lapReward(maxStageIdx) * cScale[cat]"
+   },
+   "effect": {
+    "piPct": 0.12,
+    "starPct": 0.1,
+    "synergy": "+3% PI se o estilo do piloto bate com o perfil do carro"
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 11
+   }
+  },
+  {
+   "limit": "1 (copias viram estrelas: 1,2,4,8,16)",
+   "rarity": "lendario",
+   "appears": [
+    "equipe/pilotos",
+    "loja/diaria"
+   ],
+   "id": "piloto-ines-costa",
+   "name": "Ines Costa",
+   "category": "pilotos",
+   "description": "piloto lendario: +12% de PI; +10% do bonus por estrela (max 5).",
+   "currency": "cr",
+   "price": {
+    "formula": "900 * 6.3 * lapReward(maxStageIdx) * cScale[cat]"
+   },
+   "effect": {
+    "piPct": 0.12,
+    "starPct": 0.1,
+    "synergy": "+3% PI se o estilo do piloto bate com o perfil do carro"
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 11
+   }
+  },
+  {
+   "limit": "1 (copias viram estrelas: 1,2,4,8,16)",
+   "rarity": "comum",
+   "appears": [
+    "equipe/pilotos",
+    "loja/diaria"
+   ],
+   "id": "engenheiro-rui-prado",
+   "name": "Rui Prado",
+   "category": "engenheiros",
+   "description": "engenheiro comum: +2% de PI; +10% do bonus por estrela (max 5).",
+   "currency": "cr",
+   "price": {
+    "formula": "5 * 6.3 * lapReward(maxStageIdx) * cScale[cat]"
+   },
+   "effect": {
+    "piPct": 0.02,
+    "starPct": 0.1,
+    "synergy": "+3% PI se o estilo do piloto bate com o perfil do carro"
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 2
+   }
+  },
+  {
+   "limit": "1 (copias viram estrelas: 1,2,4,8,16)",
+   "rarity": "raro",
+   "appears": [
+    "equipe/pilotos",
+    "loja/diaria"
+   ],
+   "id": "engenheiro-ana-circuito",
+   "name": "Ana Circuito",
+   "category": "engenheiros",
+   "description": "engenheiro raro: +4% de PI; +10% do bonus por estrela (max 5).",
+   "currency": "cr",
+   "price": {
+    "formula": "25 * 6.3 * lapReward(maxStageIdx) * cScale[cat]"
+   },
+   "effect": {
+    "piPct": 0.04,
+    "starPct": 0.1,
+    "synergy": "+3% PI se o estilo do piloto bate com o perfil do carro"
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 5
+   }
+  },
+  {
+   "limit": "1 (copias viram estrelas: 1,2,4,8,16)",
+   "rarity": "epico",
+   "appears": [
+    "equipe/pilotos",
+    "loja/diaria"
+   ],
+   "id": "engenheiro-leo-ventura",
+   "name": "Leo Ventura",
+   "category": "engenheiros",
+   "description": "engenheiro epico: +7.000000000000001% de PI; +10% do bonus por estrela (max 5).",
+   "currency": "cr",
+   "price": {
+    "formula": "150 * 6.3 * lapReward(maxStageIdx) * cScale[cat]"
+   },
+   "effect": {
+    "piPct": 0.07,
+    "starPct": 0.1,
+    "synergy": "+3% PI se o estilo do piloto bate com o perfil do carro"
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 8
+   }
+  },
+  {
+   "limit": "1 (copias viram estrelas: 1,2,4,8,16)",
+   "rarity": "lendario",
+   "appears": [
+    "equipe/pilotos",
+    "loja/diaria"
+   ],
+   "id": "engenheiro-iris-brandao",
+   "name": "Iris Brandao",
+   "category": "engenheiros",
+   "description": "engenheiro lendario: +12% de PI; +10% do bonus por estrela (max 5).",
+   "currency": "cr",
+   "price": {
+    "formula": "900 * 6.3 * lapReward(maxStageIdx) * cScale[cat]"
+   },
+   "effect": {
+    "piPct": 0.12,
+    "starPct": 0.1,
+    "synergy": "+3% PI se o estilo do piloto bate com o perfil do carro"
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 11
+   }
+  },
+  {
+   "limit": "1 (copias viram estrelas: 1,2,4,8,16)",
+   "rarity": "lendario",
+   "appears": [
+    "equipe/pilotos",
+    "loja/diaria"
+   ],
+   "id": "engenheiro-tomas-luz",
+   "name": "Tomas Luz",
+   "category": "engenheiros",
+   "description": "engenheiro lendario: +12% de PI; +10% do bonus por estrela (max 5).",
+   "currency": "cr",
+   "price": {
+    "formula": "900 * 6.3 * lapReward(maxStageIdx) * cScale[cat]"
+   },
+   "effect": {
+    "piPct": 0.12,
+    "starPct": 0.1,
+    "synergy": "+3% PI se o estilo do piloto bate com o perfil do carro"
+   },
+   "unlock": {
+    "category": "Kart",
+    "stage": 11
+   }
+  },
+  {
+   "limit": "diario x5",
+   "rarity": "comum",
+   "appears": [
+    "equipe/pilotos"
+   ],
+   "id": "treino-basico",
+   "name": "Sessao de treino",
+   "category": "treino",
+   "description": "+100 XP de piloto; 5 min.",
+   "currency": "cr",
+   "price": {
+    "formula": "2 * 6.3 * lapReward(maxStageIdx)"
+   },
+   "effect": {
+    "pilotXp": 100
+   }
+  },
+  {
+   "limit": "diario x2",
+   "rarity": "comum",
+   "appears": [
+    "equipe/pilotos"
+   ],
+   "id": "treino-intensivo",
+   "name": "Treino intensivo",
+   "category": "treino",
+   "description": "+500 XP de piloto; 30 min de espera ou pular com 8 gemas.",
+   "currency": "cr",
+   "price": {
+    "formula": "12 * 6.3 * lapReward(maxStageIdx)"
+   },
+   "effect": {
+    "pilotXp": 500
+   }
+  },
+  {
+   "limit": "diario x3 (mais ilimitado via anuncio, recarga 4 h)",
+   "rarity": "comum",
+   "appears": [
+    "loja/boosts",
+    "loja/diaria"
+   ],
+   "id": "boost-renda-30",
+   "name": "Patrocinio em dobro (30 min)",
+   "category": "boosts",
+   "description": "CR x2 (corrida e Equipe) por 30 min",
+   "currency": "gemas",
+   "price": 20,
+   "effect": {
+    "crMult": 2,
+    "min": 30
+   },
+   "unlock": {
+    "escuderiaLevel": 10
+   }
+  },
+  {
+   "limit": "diario x2",
+   "rarity": "comum",
+   "appears": [
+    "loja/boosts",
+    "loja/diaria"
+   ],
+   "id": "boost-renda-120",
+   "name": "Patrocinio em dobro (2 h)",
+   "category": "boosts",
+   "description": "CR x2 por 2 h",
+   "currency": "gemas",
+   "price": 70,
+   "effect": {
+    "crMult": 2,
+    "min": 120
+   },
+   "unlock": {
+    "escuderiaLevel": 10
+   }
+  },
+  {
+   "limit": "diario x3",
+   "rarity": "comum",
+   "appears": [
+    "loja/boosts",
+    "loja/diaria"
+   ],
+   "id": "boost-xp-30",
+   "name": "Foco da escuderia (30 min)",
+   "category": "boosts",
+   "description": "XP de escuderia x2 por 30 min",
+   "currency": "gemas",
+   "price": 15,
+   "effect": {
+    "xpMult": 2,
+    "min": 30
+   },
+   "unlock": {
+    "escuderiaLevel": 10
+   }
+  },
+  {
+   "limit": "diario x3",
+   "rarity": "comum",
+   "appears": [
+    "loja/boosts",
+    "loja/diaria"
+   ],
+   "id": "auto-ers-60",
+   "name": "ERS automatico (1 h)",
+   "category": "boosts",
+   "description": "Aciona o ERS sozinho por 1 h",
+   "currency": "gemas",
+   "price": 10,
+   "effect": {
+    "autoErsMin": 60
+   },
+   "unlock": {
+    "escuderiaLevel": 10
+   }
+  },
+  {
+   "limit": "diario x3",
+   "rarity": "comum",
+   "appears": [
+    "loja/boosts",
+    "loja/diaria"
+   ],
+   "id": "pular-1h",
+   "name": "Pular 1 h",
+   "category": "boosts",
+   "description": "Credita 1 h de ganho offline (so CR, sem REP)",
+   "currency": "gemas",
+   "price": 15,
+   "effect": {
+    "offlineHours": 1
+   },
+   "unlock": {
+    "escuderiaLevel": 10
+   }
+  },
+  {
+   "limit": "diario x2",
+   "rarity": "comum",
+   "appears": [
+    "loja/boosts",
+    "loja/diaria"
+   ],
+   "id": "pular-4h",
+   "name": "Pular 4 h",
+   "category": "boosts",
+   "description": "4 h de ganho offline",
+   "currency": "gemas",
+   "price": 50,
+   "effect": {
+    "offlineHours": 4
+   },
+   "unlock": {
+    "escuderiaLevel": 10
+   }
+  },
+  {
+   "limit": "diario x1",
+   "rarity": "comum",
+   "appears": [
+    "loja/boosts",
+    "loja/diaria"
+   ],
+   "id": "pular-8h",
+   "name": "Pular 8 h",
+   "category": "boosts",
+   "description": "8 h de ganho offline",
+   "currency": "gemas",
+   "price": 90,
+   "effect": {
+    "offlineHours": 8
+   },
+   "unlock": {
+    "escuderiaLevel": 10
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/boosts",
+    "loja/diaria"
+   ],
+   "id": "cofre-offline",
+   "name": "Cofre de offline",
+   "category": "boosts",
+   "description": "Teto offline +4 h (permanente)",
+   "currency": "gemas",
+   "price": 300,
+   "effect": {
+    "offlineCapHours": 4
+   },
+   "unlock": {
+    "escuderiaLevel": 10
+   }
+  },
+  {
+   "limit": "semanal x1",
+   "rarity": "comum",
+   "appears": [
+    "loja/boosts",
+    "loja/diaria"
+   ],
+   "id": "seguro-retorno",
+   "name": "Seguro de retorno",
+   "category": "boosts",
+   "description": "Garante 4 h de ganho na proxima volta",
+   "currency": "gemas",
+   "price": 25,
+   "effect": {
+    "minOfflineHours": 4
+   },
+   "unlock": {
+    "escuderiaLevel": 10
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-1",
+   "name": "Pintura Aurora Boreal",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-2",
+   "name": "Pintura Cromo Polar",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-3",
+   "name": "Pintura Por do Sol",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-4",
+   "name": "Pintura Jade",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-5",
+   "name": "Pintura Magma",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-6",
+   "name": "Pintura Safira",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "passe"
+   ],
+   "id": "cos-pintura-7",
+   "name": "Pintura Neon Rosa",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "passe",
+   "price": 0,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-8",
+   "name": "Pintura Carvao",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-9",
+   "name": "Pintura Marfim",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-10",
+   "name": "Pintura Ouro Velho",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "evento"
+   ],
+   "id": "cos-pintura-11",
+   "name": "Pintura Orquidea",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "evento",
+   "price": 0,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-12",
+   "name": "Pintura Tempestade",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "conquista"
+   ],
+   "id": "cos-pintura-13",
+   "name": "Pintura Oceano",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "conquista",
+   "price": 0,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "passe"
+   ],
+   "id": "cos-pintura-14",
+   "name": "Pintura Savana",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "passe",
+   "price": 0,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-15",
+   "name": "Pintura Cobre",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-16",
+   "name": "Pintura Grafite",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-17",
+   "name": "Pintura Limao",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-18",
+   "name": "Pintura Rubi",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-19",
+   "name": "Pintura Ametista",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-20",
+   "name": "Pintura Areia",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "passe"
+   ],
+   "id": "cos-pintura-21",
+   "name": "Pintura Ciano",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "passe",
+   "price": 0,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "evento"
+   ],
+   "id": "cos-pintura-22",
+   "name": "Pintura Vinho",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "evento",
+   "price": 0,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-23",
+   "name": "Pintura Bronze",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 250,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-24",
+   "name": "Pintura Vidro",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 250,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-25",
+   "name": "Pintura Camuflagem Urbana",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 250,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "conquista"
+   ],
+   "id": "cos-pintura-26",
+   "name": "Pintura Listras Taxi",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "conquista",
+   "price": 0,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-27",
+   "name": "Pintura Xadrez",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 250,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "lendario",
+   "appears": [
+    "passe"
+   ],
+   "id": "cos-pintura-28",
+   "name": "Pintura Chama",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "passe",
+   "price": 0,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "lendario",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-29",
+   "name": "Pintura Galaxia",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 500,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "lendario",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-pintura-30",
+   "name": "Pintura Holografica",
+   "category": "cosmeticos",
+   "slot": "pintura",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 500,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-1",
+   "name": "Capacete Falcao",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-2",
+   "name": "Capacete Raio",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-3",
+   "name": "Capacete Coruja",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-4",
+   "name": "Capacete Onda",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-5",
+   "name": "Capacete Estrela",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-6",
+   "name": "Capacete Dragao",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "passe"
+   ],
+   "id": "cos-capacete-7",
+   "name": "Capacete Lobo",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "passe",
+   "price": 0,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-8",
+   "name": "Capacete Pixel",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-9",
+   "name": "Capacete Sol",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-10",
+   "name": "Capacete Lua",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "evento"
+   ],
+   "id": "cos-capacete-11",
+   "name": "Capacete Cometa",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "evento",
+   "price": 0,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-12",
+   "name": "Capacete Trevo",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "conquista"
+   ],
+   "id": "cos-capacete-13",
+   "name": "Capacete Aguia",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "conquista",
+   "price": 0,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "passe"
+   ],
+   "id": "cos-capacete-14",
+   "name": "Capacete Folha",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "passe",
+   "price": 0,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-15",
+   "name": "Capacete Coroa",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 250,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-16",
+   "name": "Capacete Escudo",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 250,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-17",
+   "name": "Capacete Chama",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 250,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-18",
+   "name": "Capacete Geometrico",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 250,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "lendario",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-19",
+   "name": "Capacete Mosaico",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 500,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "lendario",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-capacete-20",
+   "name": "Capacete Listra",
+   "category": "cosmeticos",
+   "slot": "capacete",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 500,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-rodas-1",
+   "name": "Rodas Classica",
+   "category": "cosmeticos",
+   "slot": "rodas",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-rodas-2",
+   "name": "Rodas Turbina",
+   "category": "cosmeticos",
+   "slot": "rodas",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-rodas-3",
+   "name": "Rodas Raios",
+   "category": "cosmeticos",
+   "slot": "rodas",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-rodas-4",
+   "name": "Rodas Disco",
+   "category": "cosmeticos",
+   "slot": "rodas",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-rodas-5",
+   "name": "Rodas Aro Neon",
+   "category": "cosmeticos",
+   "slot": "rodas",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-rodas-6",
+   "name": "Rodas Hexagono",
+   "category": "cosmeticos",
+   "slot": "rodas",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "passe"
+   ],
+   "id": "cos-rodas-7",
+   "name": "Rodas Flor",
+   "category": "cosmeticos",
+   "slot": "rodas",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "passe",
+   "price": 0,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-rodas-8",
+   "name": "Rodas Engrenagem",
+   "category": "cosmeticos",
+   "slot": "rodas",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 250,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-rodas-9",
+   "name": "Rodas Cristal",
+   "category": "cosmeticos",
+   "slot": "rodas",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 250,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "lendario",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-rodas-10",
+   "name": "Rodas Fogo",
+   "category": "cosmeticos",
+   "slot": "rodas",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 500,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-efeito-chegada-1",
+   "name": "Efeito de chegada Confete",
+   "category": "cosmeticos",
+   "slot": "efeito-chegada",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-efeito-chegada-2",
+   "name": "Efeito de chegada Faiscas",
+   "category": "cosmeticos",
+   "slot": "efeito-chegada",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-efeito-chegada-3",
+   "name": "Efeito de chegada Fumaca Colorida",
+   "category": "cosmeticos",
+   "slot": "efeito-chegada",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-efeito-chegada-4",
+   "name": "Efeito de chegada Raios",
+   "category": "cosmeticos",
+   "slot": "efeito-chegada",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-efeito-chegada-5",
+   "name": "Efeito de chegada Serpentina",
+   "category": "cosmeticos",
+   "slot": "efeito-chegada",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-efeito-chegada-6",
+   "name": "Efeito de chegada Fogos",
+   "category": "cosmeticos",
+   "slot": "efeito-chegada",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "passe"
+   ],
+   "id": "cos-efeito-chegada-7",
+   "name": "Efeito de chegada Neve",
+   "category": "cosmeticos",
+   "slot": "efeito-chegada",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "passe",
+   "price": 0,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-efeito-chegada-8",
+   "name": "Efeito de chegada Petalas",
+   "category": "cosmeticos",
+   "slot": "efeito-chegada",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 250,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-tema-pit-1",
+   "name": "Tema do pit Noturno",
+   "category": "cosmeticos",
+   "slot": "tema-pit",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-tema-pit-2",
+   "name": "Tema do pit Neon",
+   "category": "cosmeticos",
+   "slot": "tema-pit",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-tema-pit-3",
+   "name": "Tema do pit Retro 80",
+   "category": "cosmeticos",
+   "slot": "tema-pit",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-tema-pit-4",
+   "name": "Tema do pit Industrial",
+   "category": "cosmeticos",
+   "slot": "tema-pit",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-tema-pit-5",
+   "name": "Tema do pit Tropical",
+   "category": "cosmeticos",
+   "slot": "tema-pit",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-tema-pit-6",
+   "name": "Tema do pit Minimalista",
+   "category": "cosmeticos",
+   "slot": "tema-pit",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 250,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-emote-1",
+   "name": "Emote de podio Salto",
+   "category": "cosmeticos",
+   "slot": "emote",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-emote-2",
+   "name": "Emote de podio Trofeu ao ar",
+   "category": "cosmeticos",
+   "slot": "emote",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-emote-3",
+   "name": "Emote de podio Danca",
+   "category": "cosmeticos",
+   "slot": "emote",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-emote-4",
+   "name": "Emote de podio Saudacao",
+   "category": "cosmeticos",
+   "slot": "emote",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 40,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-emote-5",
+   "name": "Emote de podio Brinde",
+   "category": "cosmeticos",
+   "slot": "emote",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "raro",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-emote-6",
+   "name": "Emote de podio Selfie",
+   "category": "cosmeticos",
+   "slot": "emote",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 120,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "passe"
+   ],
+   "id": "cos-emote-7",
+   "name": "Emote de podio Bandeira",
+   "category": "cosmeticos",
+   "slot": "emote",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "passe",
+   "price": 0,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "epico",
+   "appears": [
+    "loja/cosmeticos",
+    "loja/diaria",
+    "loja/semanal"
+   ],
+   "id": "cos-emote-8",
+   "name": "Emote de podio Abraco",
+   "category": "cosmeticos",
+   "slot": "emote",
+   "description": "Somente visual. Nao altera PI, CR nem REP.",
+   "currency": "gemas",
+   "price": 250,
+   "effect": {
+    "cosmetic": true
+   },
+   "unlock": {
+    "escuderiaLevel": 5
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/premium"
+   ],
+   "id": "real-starter",
+   "name": "Pacote inicial (unico)",
+   "category": "real",
+   "description": "Compra com dinheiro real. Nunca altera PI, CR, REP nem PvP.",
+   "currency": "brl",
+   "price": 9.9,
+   "price_range_note": "faixa sugerida +-30% (suposicao)",
+   "effect": {
+    "gemas": 300,
+    "cosmeticos": [
+     "cos-pintura-1",
+     "cos-capacete-1"
+    ],
+    "fichas": 5,
+    "semAnunciosDias": 3
+   },
+   "unlock": {
+    "tutorialDone": true
+   }
+  },
+  {
+   "limit": "mensal renovavel",
+   "rarity": "comum",
+   "appears": [
+    "loja/premium"
+   ],
+   "id": "real-mensal",
+   "name": "Cartao Garagem (30 dias)",
+   "category": "real",
+   "description": "Compra com dinheiro real. Nunca altera PI, CR, REP nem PvP.",
+   "currency": "brl",
+   "price": 14.9,
+   "price_range_note": "faixa sugerida +-30% (suposicao)",
+   "effect": {
+    "gemasImediatas": 100,
+    "gemasPorDia": 30,
+    "offlineCapHoras": 2
+   },
+   "unlock": {
+    "tutorialDone": true
+   }
+  },
+  {
+   "limit": "unico",
+   "rarity": "comum",
+   "appears": [
+    "loja/premium"
+   ],
+   "id": "real-sem-anuncios",
+   "name": "Remover anuncios",
+   "category": "real",
+   "description": "Compra com dinheiro real. Nunca altera PI, CR, REP nem PvP.",
+   "currency": "brl",
+   "price": 19.9,
+   "price_range_note": "faixa sugerida +-30% (suposicao)",
+   "effect": {
+    "removeAds": true,
+    "boostGratisPorDia": 1
+   },
+   "unlock": {
+    "tutorialDone": true
+   }
+  },
+  {
+   "limit": "por temporada",
+   "rarity": "comum",
+   "appears": [
+    "loja/premium"
+   ],
+   "id": "real-passe-premium",
+   "name": "Passe de Temporada premium",
+   "category": "real",
+   "description": "Compra com dinheiro real. Nunca altera PI, CR, REP nem PvP.",
+   "currency": "brl",
+   "price": 19.9,
+   "price_range_note": "faixa sugerida +-30% (suposicao)",
+   "effect": {
+    "premiumTrack": true
+   },
+   "unlock": {
+    "tutorialDone": true
+   }
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "comum",
+   "appears": [
+    "loja/premium"
+   ],
+   "id": "real-gemas-1",
+   "name": "Gemas 55",
+   "category": "real",
+   "description": "Compra com dinheiro real. Nunca altera PI, CR, REP nem PvP.",
+   "currency": "brl",
+   "price": 4.9,
+   "price_range_note": "faixa sugerida +-30% (suposicao)",
+   "effect": {
+    "gemas": 55
+   },
+   "unlock": {
+    "tutorialDone": true
+   }
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "comum",
+   "appears": [
+    "loja/premium"
+   ],
+   "id": "real-gemas-2",
+   "name": "Gemas 115",
+   "category": "real",
+   "description": "Compra com dinheiro real. Nunca altera PI, CR, REP nem PvP.",
+   "currency": "brl",
+   "price": 9.9,
+   "price_range_note": "faixa sugerida +-30% (suposicao)",
+   "effect": {
+    "gemas": 115,
+    "bonusPct": 4
+   },
+   "unlock": {
+    "tutorialDone": true
+   }
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "comum",
+   "appears": [
+    "loja/premium"
+   ],
+   "id": "real-gemas-3",
+   "name": "Gemas 240",
+   "category": "real",
+   "description": "Compra com dinheiro real. Nunca altera PI, CR, REP nem PvP.",
+   "currency": "brl",
+   "price": 19.9,
+   "price_range_note": "faixa sugerida +-30% (suposicao)",
+   "effect": {
+    "gemas": 240,
+    "bonusPct": 8
+   },
+   "unlock": {
+    "tutorialDone": true
+   }
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "comum",
+   "appears": [
+    "loja/premium"
+   ],
+   "id": "real-gemas-4",
+   "name": "Gemas 500",
+   "category": "real",
+   "description": "Compra com dinheiro real. Nunca altera PI, CR, REP nem PvP.",
+   "currency": "brl",
+   "price": 39.9,
+   "price_range_note": "faixa sugerida +-30% (suposicao)",
+   "effect": {
+    "gemas": 500,
+    "bonusPct": 12
+   },
+   "unlock": {
+    "tutorialDone": true
+   }
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "comum",
+   "appears": [
+    "loja/premium"
+   ],
+   "id": "real-gemas-5",
+   "name": "Gemas 1050",
+   "category": "real",
+   "description": "Compra com dinheiro real. Nunca altera PI, CR, REP nem PvP.",
+   "currency": "brl",
+   "price": 79.9,
+   "price_range_note": "faixa sugerida +-30% (suposicao)",
+   "effect": {
+    "gemas": 1050,
+    "bonusPct": 17
+   },
+   "unlock": {
+    "tutorialDone": true
+   }
+  },
+  {
+   "limit": "ilimitado",
+   "rarity": "comum",
+   "appears": [
+    "loja/premium"
+   ],
+   "id": "real-gemas-6",
+   "name": "Gemas 2000",
+   "category": "real",
+   "description": "Compra com dinheiro real. Nunca altera PI, CR, REP nem PvP.",
+   "currency": "brl",
+   "price": 149.9,
+   "price_range_note": "faixa sugerida +-30% (suposicao)",
+   "effect": {
+    "gemas": 2000,
+    "bonusPct": 19
+   },
+   "unlock": {
+    "tutorialDone": true
+   }
+  }
+ ],
+ "banners": [
+  {
+   "id": "banner-padrao",
+   "name": "Banner da Categoria",
+   "pool": "carros da categoria atual",
+   "rates": {
+    "comum": 49.357,
+    "raro": 35,
+    "epico": 15,
+    "lendario": 0.5,
+    "mitico": 0.143
+   },
+   "pity": {
+    "epico": 10,
+    "lendario": 200
+   },
+   "cost": "40 x CR_volta(maior estagio) por giro (ou 1 ficha); x10 pelo mesmo preco por giro"
+  },
+  {
+   "id": "banner-destaque",
+   "name": "Banner de Destaque (semanal)",
+   "pool": "1 carro lendario em destaque + padrao",
+   "rates": "taxa do destaque x2 (0,5 para 1,0%), demais proporcionais",
+   "pity": {
+    "lendario": 100
+   },
+   "cost": "1 ficha de destaque ou 60 gemas por giro; 1 ficha/dia gratis por missao"
+  },
+  {
+   "id": "banner-lendas",
+   "name": "Banner Lendas",
+   "pool": "carros ficticios da categoria Lendas",
+   "rates": {
+    "raro": 60,
+    "epico": 32,
+    "lendario": 7,
+    "mitico": 1
+   },
+   "pity": {
+    "lendario": 50,
+    "mitico": 150
+   },
+   "cost": "fichas apenas (ganhas jogando)",
+   "unlock": "Categoria F1"
+  }
+ ],
+ "passe40": [
+  {
+   "level": 1,
+   "xp": 125,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 21
+   }
+  },
+  {
+   "level": 2,
+   "xp": 150,
+   "free": {
+    "crChestMinutes": 12
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 3,
+   "xp": 175,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 23
+   }
+  },
+  {
+   "level": 4,
+   "xp": 200,
+   "free": {
+    "crChestMinutes": 14
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 5,
+   "xp": 225,
+   "free": {
+    "gemas": 20
+   },
+   "premium": {
+    "cosmetic": "item comum de temporada"
+   }
+  },
+  {
+   "level": 6,
+   "xp": 250,
+   "free": {
+    "crChestMinutes": 16
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 7,
+   "xp": 275,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 27
+   }
+  },
+  {
+   "level": 8,
+   "xp": 300,
+   "free": {
+    "crChestMinutes": 18
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 9,
+   "xp": 325,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 29
+   }
+  },
+  {
+   "level": 10,
+   "xp": 350,
+   "free": {
+    "gemas": 50,
+    "fichas": 2
+   },
+   "premium": {
+    "cosmetic": "item raro exclusivo",
+    "gemas": 60
+   }
+  },
+  {
+   "level": 11,
+   "xp": 375,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 31
+   }
+  },
+  {
+   "level": 12,
+   "xp": 400,
+   "free": {
+    "crChestMinutes": 22
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 13,
+   "xp": 425,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 33
+   }
+  },
+  {
+   "level": 14,
+   "xp": 450,
+   "free": {
+    "crChestMinutes": 24
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 15,
+   "xp": 475,
+   "free": {
+    "gemas": 20
+   },
+   "premium": {
+    "cosmetic": "item comum de temporada"
+   }
+  },
+  {
+   "level": 16,
+   "xp": 500,
+   "free": {
+    "crChestMinutes": 26
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 17,
+   "xp": 525,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 37
+   }
+  },
+  {
+   "level": 18,
+   "xp": 550,
+   "free": {
+    "crChestMinutes": 28
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 19,
+   "xp": 575,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 39
+   }
+  },
+  {
+   "level": 20,
+   "xp": 600,
+   "free": {
+    "gemas": 50,
+    "fichas": 2
+   },
+   "premium": {
+    "cosmetic": "item raro exclusivo",
+    "gemas": 60
+   }
+  },
+  {
+   "level": 21,
+   "xp": 625,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 41
+   }
+  },
+  {
+   "level": 22,
+   "xp": 650,
+   "free": {
+    "crChestMinutes": 32
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 23,
+   "xp": 675,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 43
+   }
+  },
+  {
+   "level": 24,
+   "xp": 700,
+   "free": {
+    "crChestMinutes": 34
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 25,
+   "xp": 725,
+   "free": {
+    "gemas": 20
+   },
+   "premium": {
+    "cosmetic": "item comum de temporada"
+   }
+  },
+  {
+   "level": 26,
+   "xp": 750,
+   "free": {
+    "crChestMinutes": 36
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 27,
+   "xp": 775,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 47
+   }
+  },
+  {
+   "level": 28,
+   "xp": 800,
+   "free": {
+    "crChestMinutes": 38
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 29,
+   "xp": 825,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 49
+   }
+  },
+  {
+   "level": 30,
+   "xp": 850,
+   "free": {
+    "gemas": 50,
+    "fichas": 2
+   },
+   "premium": {
+    "cosmetic": "item raro exclusivo",
+    "gemas": 60
+   }
+  },
+  {
+   "level": 31,
+   "xp": 875,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 51
+   }
+  },
+  {
+   "level": 32,
+   "xp": 900,
+   "free": {
+    "crChestMinutes": 42
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 33,
+   "xp": 925,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 53
+   }
+  },
+  {
+   "level": 34,
+   "xp": 950,
+   "free": {
+    "crChestMinutes": 44
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 35,
+   "xp": 975,
+   "free": {
+    "gemas": 20
+   },
+   "premium": {
+    "cosmetic": "item comum de temporada"
+   }
+  },
+  {
+   "level": 36,
+   "xp": 1000,
+   "free": {
+    "crChestMinutes": 46
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 37,
+   "xp": 1025,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 57
+   }
+  },
+  {
+   "level": 38,
+   "xp": 1050,
+   "free": {
+    "crChestMinutes": 48
+   },
+   "premium": {
+    "gemas": 10
+   }
+  },
+  {
+   "level": 39,
+   "xp": 1075,
+   "free": {
+    "fichas": 1
+   },
+   "premium": {
+    "crChestMinutes": 59
+   }
+  },
+  {
+   "level": 40,
+   "xp": 1100,
+   "free": {
+    "gemas": 50,
+    "fichas": 2
+   },
+   "premium": {
+    "cosmetic": "pintura exclusiva da temporada + capacete"
+   }
+  }
+ ],
+ "rotating": {
+  "daily": {
+   "slots": 6,
+   "renew": "00:00 America/Fortaleza",
+   "seed": "hash(playerId + data)",
+   "reroll": {
+    "costGemas": 10,
+    "perDay": 1
+   },
+   "showOdds": true,
+   "noDuplicates": "nao oferece cosmetico ou componente ja possuido",
+   "rules": [
+    {
+     "slot": 1,
+     "type": "componente da categoria atual",
+     "off": "15-30%",
+     "pay": "cr"
+    },
+    {
+     "slot": 2,
+     "type": "boost ou ficha",
+     "pay": "cr|gemas"
+    },
+    {
+     "slot": 3,
+     "type": "treino ou pular 1 h",
+     "pay": "cr|gemas"
+    },
+    {
+     "slot": 4,
+     "type": "cosmetico (pesos: comum 60, raro 28, epico 10, lendario 2)",
+     "pay": "gemas"
+    },
+    {
+     "slot": 5,
+     "type": "copias de piloto/engenheiro (pesos: comum 55, raro 30, epico 12, lendario 3)",
+     "pay": "cr"
+    },
+    {
+     "slot": 6,
+     "type": "Oferta do dia: um dos slots 1-5 com 20% extra de desconto",
+     "pay": "cr|gemas"
+    }
+   ]
+  },
+  "weekly": {
+   "slots": 4,
+   "renew": "segunda 00:00",
+   "showOdds": true,
+   "rules": [
+    {
+     "slot": 1,
+     "type": "carro garantido >= raro da categoria atual",
+     "pay": "cr (25x o preco do giro)"
+    },
+    {
+     "slot": 2,
+     "type": "componente Elite/Lenda com 25% off",
+     "pay": "cr"
+    },
+    {
+     "slot": 3,
+     "type": "cosmetico exclusivo da semana",
+     "pay": "gemas"
+    },
+    {
+     "slot": 4,
+     "type": "bau semanal (CR de 60 min + 3 fichas)",
+     "pay": "pts"
+    }
+   ]
+  }
+ },
+ "trade": {
+  "name": "Troca de repetidos",
+  "currency": "pts",
+  "earn": {
+   "comum": 50,
+   "raro": 150,
+   "epico": 400,
+   "lendario": 2000,
+   "mitico": 7500
+  },
+  "shop": [
+   {
+    "item": "carro garantido",
+    "pts": {
+     "comum": 100,
+     "raro": 300,
+     "epico": 800,
+     "lendario": 4000,
+     "mitico": 15000
+    }
+   },
+   {
+    "item": "ficha de destaque",
+    "pts": 200,
+    "limit": "semanal x3"
+   },
+   {
+    "item": "copias de piloto lendario",
+    "pts": 600,
+    "limit": "semanal x1"
+   },
+   {
+    "item": "bau semanal",
+    "pts": 150,
+    "limit": "semanal x1"
+   }
+  ]
+ },
+ "evento": {
+  "name": "Loja de evento (GP semanal e eventos mensais)",
+  "currency": "fichas de evento",
+  "earn": "10 por corrida do evento, +20 por top 3; cerca de 250 por semana (30 min/dia)",
+  "items": [
+   {
+    "name": "Pintura do evento",
+    "cost": 400
+   },
+   {
+    "name": "Capacete do evento",
+    "cost": 300
+   },
+   {
+    "name": "Efeito de chegada do evento",
+    "cost": 250
+   },
+   {
+    "name": "Bau de CR (60 min)",
+    "cost": 50,
+    "limit": "x5"
+   },
+   {
+    "name": "Ficha de destaque",
+    "cost": 120,
+    "limit": "x2"
+   },
+   {
+    "name": "Gemas x30",
+    "cost": 100,
+    "limit": "x3"
+   }
+  ],
+  "end": "sobra converte em CR a 50% apos o fim"
+ }
+}
