@@ -11,7 +11,7 @@ const maintain=document.createElement('button');ApexRender.text(maintain,'Progra
 const endGoal=document.createElement('p');endGoal.className='result-next';$('nightResultReward').after(endGoal);
 let levelSum=s.levels.reduce((a,b)=>a+b,0),unitSum=s.idle.units.reduce((a,b)=>a+b,0),lastGuide=0,lastResult=null;
 $('boost').addEventListener('click',()=>{if(boost>0&&N.init(s).tutorial===2){N.init(s).tutorial=3;save()}});
-function refresh(){
+function refresh(){if(s.version===2)return;
 const n=N.init(s),g=P.goal(s,A);ApexRender.text($('progressGoalText'),g.label);ApexRender.prop($('progressGoalBar'),"max",g.max);ApexRender.prop($('progressGoalBar'),"value",g.value);
 ApexRender.text($('progressRps'),'≈ '+fmt(P.rate(s,A,E,N))+' CR/s');ApexRender.text($('wallet_titles'),fmt(n.titles));
 const total=s.levels.reduce((a,b)=>a+b,0),units=s.idle.units.reduce((a,b)=>a+b,0);

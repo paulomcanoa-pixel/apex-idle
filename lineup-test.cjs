@@ -8,4 +8,3 @@ const champRef=s.championship,heritageRef=s.heritage;assert(L.apply(s,'lotus49',
 assert(L.apply(s,'vento','lia'));assert.deepEqual(L.current(s),{car:'vento',driver:'lia'});assert.equal(s.heritage.equipped,'');assert.equal(s.championship.car,'');assert.deepEqual(G.decode(G.encode(s)),s);
 const colors=['Comum','Raro','Épico','Lendário','Mítico'].map((rarity,i)=>{const a=D.auraPalette({rarity});assert.deepEqual(a,D.auraPalette({rarity:i}));return a.color});assert.equal(new Set(colors).size,5);
 process.stdout.write('OK: garagem transacional, apenas itens possuídos, troca durante corrida e campeonato, afinidade histórica, troca legado/histórico, save e cinco auras.\n');
-

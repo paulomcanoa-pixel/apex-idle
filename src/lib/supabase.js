@@ -1,2 +1,3 @@
 // One client per page. Only the public project key is generated into config.js at build time.
 (function(root){const config=root.APEX_PUBLIC_CONFIG||{};let client=null;const key=config.supabaseAnonKey||'';let secret=/^(sb_secret_|service_role)/.test(key);if(key.split('.').length===3){try{secret=secret||JSON.parse(atob(key.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role==='service_role'}catch{secret=true}}if(config.supabaseUrl&&key&&!secret&&root.supabase?.createClient)client=root.supabase.createClient(config.supabaseUrl,key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});root.ApexSupabase={client,configured:!!client,googleEnabled:config.googleEnabled===true}})(window);
+

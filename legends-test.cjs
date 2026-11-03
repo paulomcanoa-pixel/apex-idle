@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),D=require('./legends-data'),L=require('./legends-model'),A=require('./engine'),C=require('./championship-model'),Career=require('./career-model');
 assert.equal(D.cars.filter(c=>!c.exclusive).length,20);assert.equal(D.cars.length,22);assert.equal(D.drivers.length,20);assert.equal(new Set(D.cars.map(c=>c.id)).size,22);
-for(const car of D.cars){assert(car.year>=1967&&car.year<=2024);assert(car.source.startsWith('https://'));assert.equal(Object.keys(car.stats).length,6);assert(Object.values(car.stats).every(n=>n>0&&n<=100));assert(D.drivers.some(d=>d.key===car.driver));assert.equal(typeof car.shape,'string')}
+for(const car of D.cars){assert(car.year>=1967&&car.year<=2024);assert.equal(car.source,'');assert.equal(Object.keys(car.stats).length,6);assert(Object.values(car.stats).every(n=>n>0&&n<=100));assert(D.drivers.some(d=>d.key===car.driver));assert.equal(typeof car.shape,'string')}
 const s=A.initial();s.money=1000000;L.init(s);C.init(s);assert(A.validate(s));assert.equal(L.rates(s).reduce((a,r)=>a+r.chance,0).toFixed(8),'100.00000000');
 const chosen=L.rates(s).find(r=>r.id==='rb19').chance;s.heritage.wish='rb19';assert.equal(L.rates(s).find(r=>r.id==='rb19').chance,chosen*2);assert(Math.abs(L.rates(s).reduce((a,r)=>a+r.chance,0)-100)<1e-10);s.heritage.wish='';
 const original=A.duration(s);assert(L.buy(s,'f2004'));assert(L.equip(s,'f2004'));assert.equal(A.equippedCar(s).id,'f2004');assert(A.duration(s)<original);assert(A.validate(s));assert.equal(s.championship.car,'f2004');

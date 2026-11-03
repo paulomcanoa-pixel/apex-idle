@@ -10,3 +10,4 @@ assert(N.buyAuto(p));assert(p.night.autoERSOwned&&p.night.autoERS);assert(!N.buy
 const old=A.initial();old.ownedCars=['aurora','solar'];old.summonPoints=2000;const migrated=G.migrate(old);assert.deepEqual(migrated.ownedCars,old.ownedCars);assert.equal(migrated.summonPoints,2000);assert.equal(migrated.money,old.money);assert.equal(migrated.night.titles,0);assert(!old.night);assert(A.validate(migrated));assert.deepEqual(G.decode(G.encode(migrated)),migrated);
 const bad=make();bad.night.titles=-1;assert(!A.validate(bad));const normal=R.start(8);assert.equal(normal.totalLaps,5);R.step(normal,100);assert.equal(normal.distance,5);
 console.log('OK: seis voltas, grade fictícia 10 carros, cinco luzes, XP/prêmio de chegada, recordes, títulos +25%, reset seletivo, automação ERS, patrocínios, lote exato e saves antigos.');
+

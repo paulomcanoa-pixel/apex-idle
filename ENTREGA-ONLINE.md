@@ -32,3 +32,4 @@ engine.js (validação), game.js (migração, backup e formatação), start.js (
 URLs de e-mail configuradas pelo usuário no Supabase. Entrega de confirmação, recuperação e link mágico em uma caixa real ainda depende de validação com o usuário; nenhum e-mail de teste foi enviado a terceiros. Google fica oculto até haver provedor OAuth configurado. Desempenho em aparelho físico de porte médio não foi certificado; o parallax usa ponteiro ou inclinação opcional, e os efeitos respeitam redução de movimento.
 
 O mecanismo de revisão protege contra sobrescrita concorrente; não transforma a economia local em simulação autoritativa de servidor. Os avisos de advisor foram reduzidos ao uso intencional da RPC autenticada privilegiada descrito no README.
+

@@ -17,3 +17,4 @@ A corrida atual tem 5 voltas, 3 rivais e 3 luzes; classificação textual pouco 
 O motor legado continua com cinco voltas por padrão para preservar simuladores/testes existentes. A experiência principal passa opções de seis voltas e grade de dez carros ao mesmo motor, mantendo desgaste, paradas e ritmos. O ritmo da nova corrida é arcade, sem alterar os dados geográficos nem as referências históricas das pistas.
 
 Circuitos sugeridos aparecem primeiro na nova loja, mantendo todos os índices e requisitos antigos para não bloquear saves. Títulos da Nova temporada dão +25% e preservam reputação/recordes/coleções. A Ascensão por Fragmentos permanece acessível. O novo save night.v=1 é opcional para saves antigos e inicializado sem perda de campos. A equipe utiliza os geradores existentes, com seus marcos e custos preservados.
+

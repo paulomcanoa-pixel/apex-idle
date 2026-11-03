@@ -1,6 +1,6 @@
 const crypto=require('node:crypto');
 const cars=['aurora','vento','scarlatto','solar','eclipse','zenith'];
-const names=['Aurora F1-01','Vento F1-02','Scarlatto F1-03','Solar F1-04','Eclipse F1-05','Zenith F1-06'];
+const names=['Aurora Apex-01','Vento Apex-02','Scarlatto Apex-03','Solar Apex-04','Eclipse Apex-05','Zenith Apex-06'];
 const unlock=[0,1,3,7,15,30];
 const hash=s=>crypto.createHash('sha256').update(s).digest('hex');
 const fail=(code,message)=>{const e=new Error(message);e.status=code;throw e};

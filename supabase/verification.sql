@@ -27,3 +27,4 @@ end $$;
 reset role;
 rollback;
 select 'PASS: own-save RLS, cross-user rejection, revision CAS, monotonic progress, weekly delta, public ranking, anon denied; fixtures rolled back' as verification;
+

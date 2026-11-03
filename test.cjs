@@ -43,4 +43,3 @@ console.log('OK: desejo dobra chance, chance fixa 1/700, garantias 10/200, sem g
 
 for(const [id,price] of Object.entries(A.shopPrices)){assert.equal(A.duplicatePoints[id],price/2);const s=fresh();s.summonPoints=price-1;assert(!A.shopBuy(s,id));s.summonPoints=price;assert(A.shopBuy(s,id));assert.equal(A.points(s),0);const repeat=drawId(s,id);assert.equal(repeat.points,price/2)}
 console.log('OK: preços 100/300/800/4000/15000 e repetidos valem metade de cada troca.');
-

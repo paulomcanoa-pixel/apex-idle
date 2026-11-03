@@ -2,10 +2,10 @@
 (function(){
 const map=document.createElement('section');map.className='race-minimap';ApexRender.attr(map,'aria-label','Minimapa do circuito');ApexRender.html(map,'<div class="minimap-heading"><span>CIRCUITO</span><b id="mapLap">01</b></div><canvas id="raceMap" width="440" height="260" aria-label="Traçado completo com posição do seu carro"></canvas><div class="map-key"><i></i> SEU CARRO <span id="mapProgress">0%</span></div>');document.body.append(map);
 const controls=document.createElement('nav');controls.className='camera-controls';ApexRender.attr(controls,'aria-label','Câmera da corrida');ApexRender.html(controls,'<button id="zoomOut" aria-label="Afastar câmera">−</button><output id="cameraZoom" aria-live="polite">5×</output><button id="zoomIn" aria-label="Aproximar câmera">+</button><button id="cameraMode" aria-pressed="true">◎ Seguir carro</button>');document.body.append(controls);
-const mini=$('raceMap'),mc=mini.getContext('2d');let zoom=5,follow=true,cameraX=null,cameraY=null,lastFrame=performance.now(),lastCircuit=-1,mapCircuit=-1,mapBackground=null;
-function updateControls(){ ApexRender.text($('cameraZoom'),(follow?zoom:1).toLocaleString('pt-BR',{maximumFractionDigits:1})+'×');ApexRender.text($('cameraMode'),follow?'◎ Seguir carro':'⌖ Pista inteira');ApexRender.attr($('cameraMode'),'aria-pressed',String(follow));ApexRender.prop($('zoomOut'),"disabled",follow&&zoom<=2.5);ApexRender.prop($('zoomIn'),"disabled",follow&&zoom>=10)}
-function changeZoom(step){follow=true;zoom=Math.max(2.5,Math.min(10,zoom+step));updateControls()}
-$('zoomOut').onclick=()=>changeZoom(-.5);$('zoomIn').onclick=()=>changeZoom(.5);$('cameraMode').onclick=()=>{follow=!follow;cameraX=null;updateControls()};
+const mini=$('raceMap'),mc=mini.getContext('2d');let zoom=s.idle?.settings.camera?.zoom||2.2,follow=s.idle?.settings.camera?.follow===true,cameraX=null,cameraY=null,lastFrame=performance.now(),lastCircuit=-1,mapCircuit=-1,mapBackground=null;
+function updateControls(){ ApexRender.text($('cameraZoom'),(follow?zoom:1).toLocaleString('pt-BR',{maximumFractionDigits:1})+'×');ApexRender.text($('cameraMode'),follow?'◎ Seguir carro':'⌖ Pista inteira');ApexRender.attr($('cameraMode'),'aria-pressed',String(follow));ApexRender.prop($('zoomOut'),"disabled",follow&&zoom<=1.5);ApexRender.prop($('zoomIn'),"disabled",follow&&zoom>=6)}
+function changeZoom(step){follow=true;zoom=Math.max(1.5,Math.min(6,zoom+step));if(s.idle){s.idle.settings.camera={zoom,follow};save()}updateControls()}
+$('zoomOut').onclick=()=>changeZoom(-.5);$('zoomIn').onclick=()=>changeZoom(.5);$('cameraMode').onclick=()=>{follow=!follow;cameraX=null;if(s.idle){s.idle.settings.camera={zoom,follow};save()}updateControls()};
 canvas.addEventListener('wheel',e=>{if(e.ctrlKey)return;e.preventDefault();changeZoom(e.deltaY<0?.5:-.5)},{passive:false});
 // Non-modal side panels leave the live race and its controls usable.
 const observeDrawer=()=>ApexRender.toggle(document.body,'race-panel-open',drawer.open);
@@ -25,8 +25,8 @@ const pw=Math.round(w*dpr),ph=Math.round(h*dpr);if(canvas.width!==pw||canvas.hei
 const now=performance.now(),dt=Math.min(.1,Math.max(0,(now-lastFrame)/1000));lastFrame=now;
 const p=typeof TrafficView!=='undefined'?TrafficView.playerPosition():position(s.progress),ahead=position(s.progress+.008/layouts[s.circuit].scale),tx=follow?p.x*.8+ahead.x*.2:500,ty=follow?p.y*.8+ahead.y*.2:290;
 if(cameraX===null||lastCircuit!==s.circuit){cameraX=tx;cameraY=ty;lastCircuit=s.circuit}else{const blend=1-Math.exp(-dt*30);cameraX+=(tx-cameraX)*blend;cameraY+=(ty-cameraY)*blend}
-const scale=Math.min(w/1000,h/580)*(follow?zoom:1/layouts[s.circuit].scale);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle={grass:'#0B0E24',coast:'#0B0E24',desert:'#0B0E24',night:'#0B0E24'}[A.circuits[s.circuit].terrain];ctx.fillRect(0,0,w,h);
-ctx.save();ctx.setTransform(dpr*scale,0,0,dpr*scale,dpr*(w*.5-cameraX*scale),dpr*(h*.52-cameraY*scale));worldDraw();ctx.restore();ctx.setTransform(1,0,0,1,0,0);minimap();
+const fitted=typeof ApexCamera!=='undefined'?ApexCamera.fitCircuit(layouts[s.circuit].points,{w:w<760?w:w-280,h:w<760?Math.max(120,h-200):h-110},.08):null;const scale=!follow&&fitted?fitted.scale:Math.min(w/1000,h/580)*(follow?zoom:1/layouts[s.circuit].scale);if(!follow&&fitted){cameraX=fitted.centerX;cameraY=fitted.centerY}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle={grass:'#0B0E24',coast:'#0B0E24',desert:'#0B0E24',night:'#0B0E24'}[A.circuits[s.circuit].terrain];ctx.fillRect(0,0,w,h);
+ctx.save();ctx.setTransform(dpr*scale,0,0,dpr*scale,dpr*((!follow&&w>=760?(w-280)*.5:w*.5)-cameraX*scale),dpr*(h*(w<760?.435:.45)-cameraY*scale));worldDraw();ctx.restore();ctx.setTransform(1,0,0,1,0,0);minimap();
 };updateControls();
 })();
 

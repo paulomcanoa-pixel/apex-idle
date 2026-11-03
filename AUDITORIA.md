@@ -21,3 +21,4 @@ A nova Operação/Ascensão usa o caixa CR compartilhado. As compras da operaç�
 O ranking semanal exige histórico por semana além da view de ranking geral do anexo. A migração SQL acrescenta uma tabela semanal com apenas métricas públicas e escrita controlada pelo mesmo processo de save. Os dados do save permanecem privados. Validação monotônica básica não prova legitimidade de pontuações calculadas no cliente.
 
 Não há variáveis Supabase nem integração Supabase na Vercel nesta auditoria. Ativar contas e validar RLS real depende de conectar um projeto Supabase. A interface de convidado continua disponível independentemente dessa conexão.
+

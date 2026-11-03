@@ -69,7 +69,7 @@ declare previous public.game_saves; saved public.game_saves; gained bigint; week
 begin
  if auth.uid() is null or auth.uid() is distinct from p_user_id then raise exception 'usuario incorreto'; end if;
  if p_expected_revision is null or p_expected_revision<0 then raise exception 'revision invalida'; end if;
- if p_save_version is distinct from 2 or p_data->>'version' is distinct from '1' or p_data#>>'{idle,v}' is distinct from '1' then raise exception 'save invalido'; end if;
+ if p_save_version is distinct from 2 or (p_data->>'version' not in ('1','2') or p_data->>'version' is null) or p_data#>>'{idle,v}' is distinct from '1' then raise exception 'save invalido'; end if;
  if octet_length(p_data::text)>2000000 then raise exception 'save muito grande'; end if;
  if (p_data#>>'{idle,totalEarned}')::double precision is distinct from p_total_earned or
     (p_data#>>'{idle,fragments}')::bigint is distinct from p_fragments or
@@ -106,3 +106,4 @@ create or replace view public.weekly_leaderboard with(security_invoker=true,secu
 revoke all on public.leaderboard,public.weekly_leaderboard from public;
 grant select on public.leaderboard,public.weekly_leaderboard to anon,authenticated;
 commit;
+

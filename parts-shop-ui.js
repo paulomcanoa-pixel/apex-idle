@@ -13,4 +13,3 @@ partsStore.querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>{storeCa
 const partsRender=render;render=function(){partsRender();renderPartsStore()};const partsOpen=openMenu;openMenu=function(id){partsOpen(id);if(id==='parts'){partsView='';renderPartsStore()}};
 const shopShortcut=document.createElement('button');shopShortcut.className='garage-shop-link';shopShortcut.textContent='▱ Escolher peças na loja';document.querySelector('.part-inspector').append(shopShortcut);shopShortcut.onclick=()=>{storeCategory={front:'aero',rear:'aero',paint:'aero',engine:'engine',tyres:'tyres',suspension:'suspension'}[selectedPart]||'engine';openMenu('parts')};
 
-

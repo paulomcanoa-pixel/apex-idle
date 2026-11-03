@@ -11,3 +11,4 @@ const achievements=[['Primeiro sinal verde',v=>v.clicks>=1],['Mãos no volante',
 function unlock(s){const v=S.init(s),out=[];achievements.forEach(([name,test],id)=>{if(!v.achievements.includes(id)&&test(v)){v.achievements.push(id);out.push({id,name})}});return out}
 const api={generators,milestones,multiplier,production,cost,maxBuy,buy,earn,click,upgradeCost,upgrade,clickCost,upgradeClick,fragments,ascend,achievements,unlock};root.GameEconomy=api;if(typeof module!=='undefined')module.exports=api})(typeof window!=='undefined'?window:globalThis);
 
+

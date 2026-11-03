@@ -12,3 +12,4 @@ let resolve;const pending={from(){return{select(){return this},eq(){return this}
 assert.equal(errorText({message:'Invalid login credentials'}),'E-mail ou senha incorretos.');assert.equal(errorText({code:'23505'}),'Este apelido já está em uso.');assert(/Confirme/.test(errorText({message:'Email not confirmed'})));
 console.log('OK: primeiro upload, conflito inicial, revisão CAS, escolha local/nuvem, rejeição monotônica, offline/reconexão, corrida entre dispositivos, sessão tardia e mensagens de autenticação.');
 })().catch(e=>{console.error(e);process.exit(1)});
+

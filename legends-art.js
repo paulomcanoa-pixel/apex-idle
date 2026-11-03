@@ -1,7 +1,7 @@
 (function(root){
 const D=LegendsData,base=CarArt.draw;
 if(!CarArt.models.some(m=>m.id==='zenith'))CarArt.models.push({id:'zenith',name:'Zenith 06',color:'#ff7aa8',accent:'#4de3c4',nose:48,width:14,wing:32,fin:5});
-function draw(ctx,o={}){const m=D.cars.find(c=>c.id===o.id);if(!m)return base(ctx,o);const {x=0,y=0,a=0,scale=1,shadow=true}=o;
+function draw(ctx,o={}){const original=D.cars.find(c=>c.id===o.id),m=original?{...original,color:o.color||original.color}:null;if(!m)return base(ctx,o);const {x=0,y=0,a=0,scale=1,shadow=true}=o;
 ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.scale(scale,scale);const N=m.nose,W=m.width,modern=m.year>=2018,grooves=m.year>=1998&&m.year<=2008;
 function p(pts,c,stroke){ctx.beginPath();pts.forEach((v,i)=>i?ctx.lineTo(v[0],v[1]):ctx.moveTo(v[0],v[1]));ctx.closePath();ctx.fillStyle=c;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=.6;ctx.stroke()}}
 function r(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x,y,w,h)}
