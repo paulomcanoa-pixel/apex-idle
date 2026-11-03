@@ -30,7 +30,7 @@ let collectionView='',summonBusy=false,revealTimer=null,pendingReveal=null,revea
 const testMode=new URLSearchParams(location.search).get('test')==='1';
 if(testMode&&A.grantTestCredits(s))save();
 ApexRender.prop($('testCredits'),"hidden",!testMode);
-$('testCredits').onclick=()=>{if(A.grantTestCredits(s)){save();render()}};
+$('testCredits').onclick=()=>{if(testMode&&A.grantTestCredits(s)){save();render()}};
 $('wishCar').onchange=()=>{if(!summonBusy&&A.setWish(s,$('wishCar').value)){save();render()}};
 function renderSummoning(){
 if(typeof LegendsData!=='undefined')return;
