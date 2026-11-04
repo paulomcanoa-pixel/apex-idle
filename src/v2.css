@@ -10,3 +10,5 @@
 .v2-standing{display:flex;gap:12px;border-bottom:1px solid #2B3162;padding:9px}.v2-standing span{margin-left:auto}.v2-power button{min-height:44px}
 
 .v2-result-art{display:block;width:100%;max-width:440px;height:auto;margin:12px auto}
+
+.v2-banner-picker button[aria-pressed="true"]{background:#FFB627;color:#0B0E24;border-color:#FFB627}
