@@ -3,3 +3,5 @@ body.immersive{--panel-width:min(430px,42vw);--race-right:0px;--race-bottom:0px}
 .race-hud:not([hidden]) ~ .race-minimap{top:auto;bottom:calc(var(--race-bottom) + 185px)}
 @media(max-width:760px){.race-hud:not([hidden]) ~ .race-minimap{top:80px;bottom:auto}.race-panel-open .race-hud{top:175px;right:12px;max-width:145px;padding:8px}.race-panel-open .race-hud #raceStandings{max-width:95px}.race-panel-open .race-hud .race-number strong{font-size:24px}}
 @media(prefers-reduced-motion:reduce){.immersive #track{transition:none}}
+
+.race-minimap #mapCamera{pointer-events:auto;display:block;width:100%;margin-top:8px;padding:6px 4px;font-size:10px;line-height:1.2;color:#d4fc5a;background:#162933;border:1px solid #a5c6be33;border-radius:7px}.race-minimap #mapCamera:focus-visible{outline:2px solid #d4fc5a;outline-offset:2px}
