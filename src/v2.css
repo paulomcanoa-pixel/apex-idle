@@ -12,3 +12,8 @@
 .v2-result-art{display:block;width:100%;max-width:440px;height:auto;margin:12px auto}
 
 .v2-banner-picker button[aria-pressed="true"]{background:#FFB627;color:#0B0E24;border-color:#FFB627}
+
+.immersive .v2-panel canvas{position:static;inset:auto;display:block;filter:none;object-fit:contain}
+.immersive .v2-panel canvas.v2-banner{width:100%;height:auto;aspect-ratio:900/220;margin:12px 0}
+.v2-banner-picker{position:static;overflow:visible}
+.v2-banner-picker button{flex:1 1 0;min-width:0;white-space:normal;padding:8px;font-size:11px}
