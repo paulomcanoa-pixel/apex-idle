@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Apex Idle: demo das caixas de loot</title>
+<link rel="stylesheet" href="loot-cinema.css">
+<style>
+:root{color-scheme:dark;--bg:#0b1014;--panel:#131b21;--line:#283139;--muted:#8e9ca6;--lime:#d4fc5a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#eaf2f6;font-family:'Hanken Grotesk',system-ui,sans-serif;line-height:1.4}
+header,main{max-width:1100px;margin:0 auto;padding:16px}
+h1{margin:0 0 4px;font-size:24px}h2{margin:28px 0 10px;font-size:18px;color:var(--lime)}
+p.muted{color:var(--muted);margin:0 0 8px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.bar label{display:flex;gap:6px;align-items:center;color:var(--muted)}
+.bar input[type=number]{width:90px;background:#0b1014;color:#eaf2f6;border:1px solid var(--line);border-radius:8px;padding:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;font-size:13px}
+.tile svg{width:100%;max-width:130px;height:auto}
+.tile button{min-height:44px;width:100%;border-radius:10px;border:1px solid var(--line);background:#0b1014;color:#eaf2f6;font:inherit;font-weight:700;cursor:pointer}
+.tile button:hover{border-color:var(--lime)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.cards .tile{padding:6px}
+table{border-collapse:collapse;width:100%;font-size:14px;display:block;overflow-x:auto}th,td{border:1px solid var(--line);padding:6px 8px;text-align:left}th{background:var(--panel)}
+.note{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Apex Idle: caixas de loot (demo local)</h1>
+  <p class="muted">Abra no navegador (duplo clique, sem servidor). Tudo é SVG/JS/CSS gerado no código. As caixas aqui são só de teste: no jogo, só se ganham jogando.</p>
+  <div class="bar">
+    <label>Semente <input id="seed" type="number" value="2026"></label>
+    <label>Renda (CR/s) <input id="income" type="number" value="25" min="0"></label>
+    <label><input id="snd" type="checkbox"> Som</label>
+    <span class="note">Dica: teste "Reduzir movimento" nas configurações do sistema e o botão Pular.</span>
+  </div>
+</header>
+<main>
+  <h2>Caixas AFK (relógio e lua) e Online (raio e bandeira quadriculada)</h2>
+  <div class="grid" id="boxes"></div>
+  <h2>Itens (cartas por raridade)</h2>
+  <p class="muted">Cada ícone aparece com a moldura das 4 raridades: comum, raro, épico, lendário.</p>
+  <div class="cards" id="items"></div>
+  <h2>Molduras</h2>
+  <div class="grid" id="frames"></div>
+  <h2>Probabilidades por carta (sempre visíveis no jogo)</h2>
+  <table id="odds"></table>
+  <p class="note" id="pity"></p>
+</main>
+<script src="loot-model.js"></script>
+<script src="loot-art.js"></script>
+<script src="loot-cinema.js"></script>
+<script>
+(function () {
+  var Loot = window.ApexLoot, Art = window.ApexLootArt, Cinema = window.ApexLootCinema;
+  var demo = { money: 0, loot: null }; Loot.init(demo, Date.now());
+  function tile(parent, svg, label, btn) {
+    var t = document.createElement('div'); t.className = 'tile';
+    var h = document.createElement('div'); h.innerHTML = svg; t.appendChild(h.firstChild);   // SVG estático do próprio código
+    var l = document.createElement('div'); l.textContent = label; t.appendChild(l);
+    if (btn) t.appendChild(btn);
+    parent.appendChild(t);
+  }
+  Art.BOXES.forEach(function (b) {
+    var btn = document.createElement('button'); btn.type = 'button'; btn.textContent = 'Abrir com animação';
+    btn.addEventListener('click', function () {
+      var seed = Number(document.getElementById('seed').value) || 1, income = Number(document.getElementById('income').value) || 0;
+      var out = Loot.rollBox(demo.loot, b.tier, Loot.createRng(seed + Math.floor(Math.random() * 1e6)), income);
+      demo.loot = out.loot; out.result.kind = b.kind;
+      Cinema.play({ kind: b.kind, result: out.result, sound: document.getElementById('snd').checked,
+        onSoundChange: function (v) { document.getElementById('snd').checked = v; } });
+    });
+    tile(document.getElementById('boxes'), Art.box(b.kind, b.tier), (b.kind === 'afk' ? 'AFK ' : 'Online ') + Art.TIER[b.tier].name, btn);
+  });
+  Art.ITEM_KEYS.forEach(function (k) {
+    ['comum', 'raro', 'epico', 'lendario'].forEach(function (r) { tile(document.getElementById('items'), Art.card(k, r), k + ' / ' + Art.RARITY[r].name); });
+  });
+  Object.keys(Art.RARITY).forEach(function (r) { tile(document.getElementById('frames'), Art.frame(r), 'Moldura ' + Art.RARITY[r].name); });
+  var tb = document.getElementById('odds'), head = document.createElement('tr');
+  ['Caixa', 'Cartas', 'Comum', 'Raro', 'Épico', 'Lendário', 'Garantia'].forEach(function (h) { var th = document.createElement('th'); th.textContent = h; head.appendChild(th); });
+  tb.appendChild(head);
+  Loot.TIERS.forEach(function (t) {
+    var o = Loot.odds(t), tr = document.createElement('tr');
+    [o.name, String(o.draws)].concat(o.rarities.map(function (x) { return x.percent + '%'; }), [o.guarantee || 'nenhuma']).forEach(function (v) { var td = document.createElement('td'); td.textContent = v; tr.appendChild(td); });
+    tb.appendChild(tr);
+  });
+  document.getElementById('pity').textContent = Loot.odds('bronze').pity;
+})();
+</script>
+</body>
+</html>
