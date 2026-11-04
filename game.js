@@ -36,7 +36,7 @@ const p=position(0);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);for(let x=
 drawCar(s.progress*.94+.32,'#e17e60');drawCar(s.progress*1.02+.65,'#8baded');drawCar(s.progress,'#d4fc5a');
 }
 
-let last=performance.now(),paint=0;function frame(now){if(!ApexAccess.canWrite()){last=now;requestAnimationFrame(frame);return}const dt=Math.max(0,(now-last)/1000);last=now;const boosted=Math.min(dt,boost)*.08;const laps=(typeof advanceRace==='function'?advanceRace(dt,boosted):A.advance(s,dt+boosted));boost=Math.max(0,boost-dt);cooldown=Math.max(0,cooldown-dt);if(laps)radio(`Boa passagem! +${fmt(laps*A.reward(s))} CR. Continue investindo na oficina.`);draw();if(now-paint>150){render();paint=now}requestAnimationFrame(frame)}
+let last=performance.now(),paint=0;function frame(now){if(!ApexAccess.canWrite()){last=now;requestAnimationFrame(frame);return}const dt=Math.max(0,(now-last)/1000);last=now;const boosted=Math.min(dt,boost)*.08;const pace=window.apexRaceSpeed??0.5;const raceDt=dt*pace,raceBoost=boosted*pace;const laps=(typeof advanceRace==='function'?advanceRace(raceDt,raceBoost):A.advance(s,raceDt+raceBoost));boost=Math.max(0,boost-dt);cooldown=Math.max(0,cooldown-dt);if(laps)radio(`Boa passagem! +${fmt(laps*A.reward(s))} CR. Continue investindo na oficina.`);draw();if(now-paint>150){render();paint=now}requestAnimationFrame(frame)}
 render();requestAnimationFrame(frame);saveManager.installAutosave(()=>s,{save});window.addEventListener('pagehide',()=>setTimeout(()=>tabLock.release(),0));window.addEventListener('pageshow',event=>{if(event.persisted)location.reload()});if(!storageOk)ApexRender.text($('saveStatus'),'Exporte seu save para garantir o progresso');
 
 
