@@ -1,0 +1,89 @@
+/* Race HUD and button polish. Sizing stays compatible with the current layout. */
+.night-mode #nightLeaderboard {
+  background: linear-gradient(155deg, #18203bef 0%, #0b1028f2 68%);
+  border-color: #9aabc145;
+  box-shadow: 0 14px 38px #02051470, inset 0 1px #ffffff14;
+}
+.night-mode .night-board-head {
+  align-items: center;
+  border-color: #b6c5dc24;
+}
+.night-mode .night-board-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: .3px;
+}
+.night-mode .night-board-head h2::before {
+  content: '';
+  width: 4px;
+  height: 22px;
+  border-radius: 4px;
+  background: linear-gradient(#ffe39a, #f0a52d);
+}
+.night-mode .night-board-head span {
+  padding: 4px 6px;
+  border: 1px solid #9aadc72b;
+  border-radius: 5px;
+  background: #ffffff08;
+  color: #c0d1e2;
+}
+.night-mode .night-standing {
+  padding-inline: 5px;
+  border-color: #b2c4d419;
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.night-mode .night-standing span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  color: #e6edf2;
+}
+.night-mode .night-standing span::before {
+  content: '';
+  flex: 0 0 3px;
+  height: 13px;
+  border-radius: 2px;
+  background: var(--driver-color, #a8b7c7);
+}
+.night-mode .night-standing[data-position='1'] b {
+  color: #ffce70;
+  font-weight: 800;
+}
+.night-mode .night-standing.is-player {
+  background: linear-gradient(90deg, #d9a94235, #d9a9420a);
+  box-shadow: inset 2px 0 #f7c568;
+}
+.night-mode .night-standing.is-player span,
+.night-mode .night-standing.is-player b { color: #ffe6a0; font-weight: 700; }
+.night-mode .night-standing small { color: #bdc9d8; }
+.night-mode .area-navigation {
+  background: linear-gradient(180deg, #19223bef, #0c1129f5);
+  border-color: #95aac441;
+  box-shadow: 0 -4px 22px #0207134d, inset 0 1px #ffffff10;
+}
+.night-mode .area-navigation button[aria-current='page'] {
+  background: linear-gradient(180deg, #ffc4661d, #ffc46608)!important;
+  border-color: #edbd6970!important;
+  box-shadow: inset 0 -2px #f7c568;
+}
+.night-mode button:not(:disabled) {
+  transition: background-color .16s ease, border-color .16s ease, box-shadow .16s ease, filter .12s ease;
+}
+@media (hover:hover) {
+  .night-mode button:not(:disabled):hover {
+    box-shadow: 0 3px 14px #02081555, inset 0 1px #ffffff20;
+    filter: brightness(1.12);
+  }
+}
+.night-mode button:not(:disabled):active {
+  filter: brightness(1.25);
+  box-shadow: inset 0 2px 8px #03071380, 0 0 0 2px #f4c36a44;
+}
+@media (prefers-reduced-motion: reduce) {
+  .night-mode button:not(:disabled) { transition: none; }
+}
