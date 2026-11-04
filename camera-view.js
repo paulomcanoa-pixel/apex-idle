@@ -1,11 +1,16 @@
 // Presentation only: the camera never changes simulation time or save data.
 (function(){
-const map=document.createElement('section');map.className='race-minimap';ApexRender.attr(map,'aria-label','Minimapa do circuito');ApexRender.html(map,'<div class="minimap-heading"><span>CIRCUITO</span><b id="mapLap">01</b></div><canvas id="raceMap" width="440" height="260" aria-label="Traçado completo com posição do seu carro"></canvas><div class="map-key"><i></i> SEU CARRO <span id="mapProgress">0%</span></div><button type="button" id="mapCamera">Ver pista inteira</button><button type="button" id="lightMode" aria-label="Alternar entre dia e noite">☀ Dia</button><button type="button" id="motionRate" aria-label="Alternar ritmo da corrida">Ritmo 0,5×</button>');document.body.append(map);
+const map=document.createElement('section');map.className='race-minimap';ApexRender.attr(map,'aria-label','Minimapa do circuito');ApexRender.html(map,'<div class="minimap-heading"><span>CIRCUITO</span><b id="mapLap">01</b></div><canvas id="raceMap" width="440" height="260" aria-label="Traçado completo com posição do seu carro"></canvas><div class="map-key"><i></i> SEU CARRO <span id="mapProgress">0%</span></div><button type="button" id="mapCamera">Ver pista inteira</button><div class="map-visual-controls"><button type="button" id="lightMode" aria-label="Alternar entre dia e noite">☀ Dia</button><button type="button" id="projectionMode" aria-label="Alternar entre visão 2,5D e superior">◈ 2,5D</button></div><button type="button" id="motionRate" aria-label="Alternar ritmo da corrida">Ritmo 0,5×</button>');document.body.append(map);
 const controls=document.createElement('nav');controls.className='camera-controls';ApexRender.attr(controls,'aria-label','Câmera da corrida');ApexRender.html(controls,'<button id="zoomOut" aria-label="Afastar câmera">−</button><output id="cameraZoom" aria-live="polite">5×</output><button id="zoomIn" aria-label="Aproximar câmera">+</button><button id="cameraMode" aria-pressed="true">◎ Seguir carro</button>');document.body.append(controls);
 try{window.apexDaylight=localStorage.getItem('apex-visual-light')!=='night'}catch{window.apexDaylight=true}
 function updateLight(){ApexRender.text($('lightMode'),window.apexDaylight?'☀ Dia':'☾ Noite');ApexRender.attr($('lightMode'),'aria-pressed',String(window.apexDaylight))}
 $('lightMode').onclick=()=>{window.apexDaylight=!window.apexDaylight;try{localStorage.setItem('apex-visual-light',window.apexDaylight?'day':'night')}catch{}updateLight()};
 updateLight();
+// A static orthographic tilt is gentler than a rotating or shaking camera.
+try{window.apexPseudo3D=localStorage.getItem('apex-visual-projection')!=='flat'}catch{window.apexPseudo3D=true}
+function updateProjection(){ApexRender.text($('projectionMode'),window.apexPseudo3D?'◈ 2,5D':'▣ 2D');ApexRender.attr($('projectionMode'),'aria-pressed',String(window.apexPseudo3D))}
+$('projectionMode').onclick=()=>{window.apexPseudo3D=!window.apexPseudo3D;try{localStorage.setItem('apex-visual-projection',window.apexPseudo3D?'depth':'flat')}catch{}updateProjection()};
+updateProjection();
 try{window.apexRaceSpeed=localStorage.getItem('apex-race-speed')==='normal'?1:0.5}catch{window.apexRaceSpeed=0.5}
 function updatePace(){ApexRender.text($('motionRate'),window.apexRaceSpeed===1?'Ritmo 1×':'Ritmo 0,5×')}
 $('motionRate').onclick=()=>{window.apexRaceSpeed=window.apexRaceSpeed===1?0.5:1;try{localStorage.setItem('apex-race-speed',window.apexRaceSpeed===1?'normal':'calm')}catch{}updatePace()};
@@ -35,11 +40,13 @@ const worldDraw=draw;
 draw=function(){
 const bounds=canvas.getBoundingClientRect(),w=bounds.width,h=bounds.height,dpr=Math.min(window.devicePixelRatio||1,2);if(!w||!h)return;
 const pw=Math.round(w*dpr),ph=Math.round(h*dpr);if(canvas.width!==pw||canvas.height!==ph){canvas.width=pw;canvas.height=ph}
-const now=performance.now(),dt=Math.min(.1,Math.max(0,(now-lastFrame)/1000));lastFrame=now;
+// Let the camera catch up after a slow frame instead of leaving the car off-screen.
+const now=performance.now(),dt=Math.min(.5,Math.max(0,(now-lastFrame)/1000));lastFrame=now;
 const p=typeof TrafficView!=='undefined'?TrafficView.playerPosition():position(s.progress),ahead=position(s.progress+.008/layouts[s.circuit].scale),tx=follow?p.x*.8+ahead.x*.2:500,ty=follow?p.y*.8+ahead.y*.2:290;
 if(cameraX===null||lastCircuit!==s.circuit){cameraX=tx;cameraY=ty;lastCircuit=s.circuit}else{const blend=1-Math.exp(-dt*8);cameraX+=(tx-cameraX)*blend;cameraY+=(ty-cameraY)*blend}
-const fitted=typeof ApexCamera!=='undefined'?ApexCamera.fitCircuit(layouts[s.circuit].points,{w:w<760?w:w-280,h:w<760?Math.max(120,h-200):h-110},.08):null;const scale=!follow&&fitted?fitted.scale:Math.min(w/1000,h/580)*(follow?zoom:1/layouts[s.circuit].scale);if(!follow&&fitted){cameraX=fitted.centerX;cameraY=fitted.centerY}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle=window.apexDaylight?'#274632':'#0B0E24';ctx.fillRect(0,0,w,h);
-ctx.save();ctx.setTransform(dpr*scale,0,0,dpr*scale,dpr*((!follow&&w>=760?(w-280)*.5:w*.5)-cameraX*scale),dpr*(h*(w<760?.435:.45)-cameraY*scale));worldDraw();ctx.restore();ctx.setTransform(1,0,0,1,0,0);minimap();
+const tilt=window.apexPseudo3D ? .78 : 1;
+const fitted=typeof ApexCamera!=='undefined'?ApexCamera.fitProjected(layouts[s.circuit].points,{w:w<760?w:w-280,h:w<760?Math.max(120,h-200):h-110},tilt,.08):null;const scale=!follow&&fitted?fitted.scale:Math.min(w/1000,h/580)*(follow?zoom:1/layouts[s.circuit].scale);if(!follow&&fitted){cameraX=fitted.centerX;cameraY=fitted.centerY}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle=window.apexDaylight?'#274632':'#0B0E24';ctx.fillRect(0,0,w,h);
+ctx.save();ctx.setTransform(dpr*scale,0,0,dpr*scale*tilt,dpr*((!follow&&w>=760?(w-280)*.5:w*.5)-cameraX*scale),dpr*(h*(w<760?.435:.45)-cameraY*scale*tilt));worldDraw();ctx.restore();ctx.setTransform(1,0,0,1,0,0);minimap();
 };updateControls();
 })();
 

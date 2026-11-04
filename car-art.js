@@ -6,10 +6,21 @@ const models=[
 {id:'solar',name:'Solar 04',color:'#ffbd57',accent:'#403159',nose:41,width:14,wing:30,fin:3},
 {id:'eclipse',name:'Eclipse 05',color:'#b498ff',accent:'#55ded8',nose:45,width:12,wing:28,fin:4}
 ];
-function draw(ctx,{x=0,y=0,a=0,scale=1,id='aurora',color,number='01',shadow=true,wing,suspension}={}){const original=models.find(v=>v.id===id)||models[0],m={...original,wing:Number.isFinite(wing)?20+wing*1.4:original.wing},paint=color||m.color;ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.scale(scale,scale);
+function draw(ctx,{x=0,y=0,a=0,scale=1,id='aurora',color,number='01',shadow=true,wing,suspension,depth=false}={}){const original=models.find(v=>v.id===id)||models[0],m={...original,wing:Number.isFinite(wing)?20+wing*1.4:original.wing},paint=color||m.color;ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.scale(scale,scale);
 function poly(points,fill,stroke){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=.65;ctx.stroke()}}
 function rect(x,y,w,h,fill){ctx.fillStyle=fill;ctx.fillRect(x,y,w,h)}
 if(shadow){ctx.fillStyle='#00000055';ctx.beginPath();ctx.ellipse(2,5,43,22,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#00000030';ctx.beginPath();ctx.ellipse(5,7,35,18,0,0,Math.PI*2);ctx.fill()}
+// Offset the lower body toward the ground, regardless of the car's heading.
+// The upper art remains at the original position, so liveries and cosmetics align.
+if(depth){
+  ctx.save();ctx.translate(Math.sin(a)*6,Math.cos(a)*6);
+  poly([[-34,-10],[-13,-m.width-4],[13,-m.width-2],[29,-7],[29,7],[13,m.width+2],[-13,m.width+4],[-34,10]],'#07131a');
+  for(const side of [-1,1])for(const axle of [-24,22]){
+    const y=side*(Number.isFinite(suspension)?18+suspension*.4:20);
+    ctx.fillStyle='#070c10';ctx.beginPath();ctx.roundRect(axle-8,y-5,15,10,2.5);ctx.fill();
+  }
+  ctx.restore();
+}
 // Carbon-fibre floor, wheels, suspension and brake ducts.
 poly([[-30,-10],[-12,-m.width-4],[12,-m.width-2],[23,-7],[25,7],[12,m.width+2],[-12,m.width+4],[-30,10]],'#10202a','#42525d');
 for(const side of [-1,1]){

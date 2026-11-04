@@ -18,7 +18,7 @@ const canvas=$('track'),ctx=canvas.getContext('2d');
 const layouts=A.circuits.map(c=>CircuitMaps.world(c));
 function position(t){return CircuitMaps.position(layouts[s.circuit],t)}
 function path(){ctx.beginPath();layouts[s.circuit].points.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.closePath()}
-function drawCar(t,color){const p=position(t),player=color==='#d4fc5a'||color===s.color;CarArt.draw(ctx,{x:p.x,y:p.y,a:p.a,scale:.17,id:player?A.equippedCar(s).id:'vento',color,number:player?'01':'02'})}
+function drawCar(t,color){const p=position(t),player=color==='#d4fc5a'||color===s.color;CarArt.draw(ctx,{x:p.x,y:p.y,a:p.a,scale:.17,id:player?A.equippedCar(s).id:'vento',color,number:player?'01':'02',depth:window.apexPseudo3D===true})}
 const worldPaths=layouts.map(l=>{const p=new Path2D();l.points.forEach((v,i)=>i?p.lineTo(...v):p.moveTo(...v));p.closePath();return p});
 const bridges=layouts.map((l,index)=>{if(A.circuits[index].id!=='jp-1962')return[];const out=[],pts=l.points;for(let i=0;i<pts.length;i++)for(let j=i+3;j<pts.length-1;j++){const a=pts[i],b=pts[(i+1)%pts.length],u=pts[j],v=pts[(j+1)%pts.length],dx=b[0]-a[0],dy=b[1]-a[1],ex=v[0]-u[0],ey=v[1]-u[1],den=dx*ey-dy*ex;if(Math.abs(den)<1e-8)continue;const t=((u[0]-a[0])*ey-(u[1]-a[1])*ex)/den,q=((u[0]-a[0])*dy-(u[1]-a[1])*dx)/den;if(t>0&&t<1&&q>0&&q<1)out.push({x:a[0]+t*dx,y:a[1]+t*dy,a:Math.atan2(dy,dx)})}return out});
 function draw(){
