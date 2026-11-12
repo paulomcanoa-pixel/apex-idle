@@ -40,7 +40,7 @@ draft.levels[i]=Math.min(100,level+1);
 const before=ApexV2.place(s),after=ApexV2.place(draft),mark=B.P.ms.find(m=>m>level);
 html+=row(B.branches[i].name,say('Nível ','Level ')+esc(level)+'/100 · '+(B.upgradeEffect(i,level)*100).toFixed(1)+'% → '+(B.upgradeEffect(i,Math.min(100,level+1))*100).toFixed(1)+'% '+(i===3?'CR':'PI')+'<br>P'+before+' → P'+after+' · '+say('Próximo marco: ','Next milestone: ')+(mark||'—'),button(t('buy')+' · '+F(V.cost(s,i))+' CR','upgrade',i,!V.unlockedBranch(s,i)||level>=100)+(!V.unlockedBranch(s,i)?'<small>'+say('Etapa 3','Stage 3')+'</small>':''))}
 }
-if(view==='garage'){const owned=[...new Set([...GarageState.init(s).owned,...q.inventory.cars])];
+if(view==='garage'){const owned=[...new Set([...GarageState.init(s).owned,...q.inventory.cars])].filter(id=>Shop.get(id)?.historical);
 html+='<h2>'+t('garage')+'</h2>'+button(say('Acerto e pintura','Setup and paint'),'legacySetup')+button(say('Planejar pneus e parada','Plan tyres and pit stop'),'strategy')+['potencia','curvas','aderencia'].map(profile=>button(say('Salvar preset ','Save preset ')+profile,'savePreset',profile)+button(say('Usar preset ','Apply preset ')+profile,'loadPreset',profile,!q.presets?.[profile])).join('');
 for(const id of owned){const item=Shop.get(id),car=item||Legends.get(id)||A.cars.find(x=>x.id===id);
 if(!car)continue;
