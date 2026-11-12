@@ -100,7 +100,7 @@ if(view==='summon'){
   html+=button(t('summon')+' ×1 · '+label,'summon',1,!ready||balance<1)+button(t('summon')+' ×10','summon',10,!ready||balance<10);
   if(featured)html+=button(t('summon')+' · 60 '+say('gemas','gems'),'gemSummon',1,!ready||c.gems-(q.paidGems||0)<60);
   if(!special&&!featured)html+=button(t('summon')+' ×1 · '+say('ficha','ticket'),'ticketSummon',1,!ready||c.tickets<1);
-  html+='<h3>'+say('Histórico','History')+'</h3><ol>'+q.history.map(h=>'<li>'+esc(Shop.get(h.id)?.name||h.id)+(h.duplicate?' · +'+esc(h.points)+' pts':' · '+say('Novo','New'))+'</li>').join('')+'</ol>';
+  html+='<h3>'+say('Histórico','History')+'</h3><ol>'+q.history.filter(h=>Shop.get(h.id)?.historical).map(h=>'<li>'+esc(Shop.get(h.id)?.name||h.id)+(h.duplicate?' · +'+esc(h.points)+' pts':' · '+say('Novo','New'))+'</li>').join('')+'</ol>';
 }
 if(['components','cosmetics','premium','automation','trade','event','dailyShop','weeklyShop'].includes(view)){html+='<h2>'+t({dailyShop:'todayOffers',weeklyShop:'weekOffers'}
 [view]||view)+'</h2>';
