@@ -44,6 +44,8 @@ Testado no navegador em origens locais separadas, preservando o save principal: 
 
 No Brave, a demonstração local abriu uma caixa Online Lendária de cinco cartas com CPU 4× mais lenta, conforme o seletor do DevTools. O PerformanceObserver registrou zero tarefas de 50 ms ou mais entre o início da abertura e o fechamento do resultado. O painel também mostrou INP local de 432 ms em uma interação de ponteiro durante a sessão. Essa métrica inclui espera e apresentação do quadro. Em um segundo teste, a emulação prefers-reduced-motion: reduce mostrou as cinco cartas diretamente no resumo.
 
+Comparação posterior no Brave, na mesma aba com desaceleração de CPU 4×, usando uma abertura Online Lendária com a mesma semente em cada versão. A API Event Timing registrou 264 → 168 ms para mostrar a caixa e 128 → 112 ms para iniciar a revelação. São amostras únicas da demonstração local, que não inclui a gravação do save. No jogo, o botão agora mostra “Abrindo…” antes de gravar a recompensa. O cinema prepara as cartas por quadro e mantém a sequência de revelação.
+
 ## Não verificado
 
 Sincronização com loot passa pelo módulo real e RPC simulado, não por gravação no banco de produção. Regressão completa de temporada/ERS/circuitos está coberta pela suíte existente, sem repetir todos esses fluxos manualmente nesta entrega.

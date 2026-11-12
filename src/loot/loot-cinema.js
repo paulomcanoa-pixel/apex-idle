@@ -125,15 +125,28 @@ function play(opts = {}) {
   boxBtn.innerHTML = Art.box(res.kind, res.tier); // SVG estático do próprio jogo
   boxBtn.prepend(el('div', 'lc-halo')); boxBtn.append(el('div', 'lc-hint', 'Toque para abrir'));
   const wrap = el('div', 'lc-cards');
-  const nodes = cards.map((c, i) => {
+  const nodes = [];
+  let prepareFrame = 0;
+  function prepareCard(c, i) {
     const card = el('div', 'lc-card'); card.style.setProperty('--rc', RC[c.rarity]); card.style.setProperty('--i', i); card.dataset.rarity = c.rarity;
     const inner = el('div', 'lc-inner'), back = el('div', 'lc-face lc-back'), front = el('div', 'lc-face lc-front'), art = el('div', 'lc-art');
     back.innerHTML = Art.box(res.kind, res.tier); art.innerHTML = Art.card(c.art, c.rarity);
     const badge = c.credits ? '+' + fmt(c.credits) + ' CR' : c.duplicate ? '+' + fmt(c.fragments) + ' frag. (repetido)' : c.fragments ? '+' + fmt(c.fragments) + ' frag.' : c.isNew ? 'NOVO' : RNAME[c.rarity];
     front.append(art, el('div', 'lc-name', c.name), el('div', 'lc-badge', badge));
     inner.append(back, front); card.append(el('div', 'lc-rays'), el('div', 'lc-aura'), inner); wrap.append(card);
-    return card;
-  });
+    nodes.push(card);
+  }
+  function prepareNext() {
+    prepareFrame = 0;
+    if (ctl.closed || nodes.length === cards.length) return;
+    prepareCard(cards[nodes.length], nodes.length);
+    if (nodes.length < cards.length) prepareFrame = root.requestAnimationFrame(prepareNext);
+  }
+  function finishPreparing() {
+    if (prepareFrame) root.cancelAnimationFrame(prepareFrame);
+    prepareFrame = 0;
+    while (nodes.length < cards.length) prepareCard(cards[nodes.length], nodes.length);
+  }
   stage.append(boxBtn, wrap);
   const summary = el('div', 'lc-summary'), counters = [];
   function row(label, value, key) { const r = el('div', 'lc-row'), v = el('b', '', '0'); r.append(el('span', '', label), v); summary.append(r); counters.push({ node: v, to: value, key }); }
@@ -145,26 +158,37 @@ function play(opts = {}) {
   summary.append(doneBtn, odds);
   ov.append(fx, flash, top, stage, summary, live);
   doc.body.append(ov); doc.body.classList.add('lc-lock');
-  const fxCtl = createFx(fx); fxCtl.size();
-  const onResize = () => fxCtl.size(); root.addEventListener('resize', onResize);
+  let fxCtl;
+  const onResize = () => fxCtl?.size(); root.addEventListener('resize', onResize);
 
   const sleep = ms => new Promise(r => { if (ctl.skipped || ms <= 0) return r(); const t = setTimeout(() => { ctl.sleepers.delete(done); r(); }, ms); const done = () => { clearTimeout(t); r(); }; ctl.sleepers.add(done); });
   const center = n => { const r = n.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
   const setPhase = p => { ov.dataset.phase = p; };
 
   function showAll() { // modo instantâneo (Pular / reduzir movimento)
+    finishPreparing();
     ov.classList.add('lc-instant');
     nodes.forEach(n => n.classList.add('lc-dealt', 'lc-flipped')); counters.forEach(c => { c.node.textContent = fmt(c.to); });
     live.textContent = cards.map((c, i) => `Carta ${i + 1}: ${c.name}, ${RNAME[c.rarity]}`).join('. ');
     setPhase('summary'); doneBtn.focus();
   }
-  function skip() { if (ctl.skipped || ctl.closed) return; ctl.skipped = true; ctl.sleepers.forEach(f => f()); if (ctl.tap) ctl.tap(); fxCtl.stop(); showAll(); }
+  function skip() { if (ctl.skipped || ctl.closed) return; ctl.skipped = true; ctl.sleepers.forEach(f => f()); if (ctl.tap) ctl.tap(); fxCtl?.stop(); showAll(); }
 
   async function ritual() {
     await new Promise(r => { ctl.tap = r; boxBtn.addEventListener('click', () => r(), { once: true }); });
     ctl.tap = null; if (ctl.skipped) return;
     if (calm) { showAll(); return; }
-    setPhase('charge'); sfx.charge(); await sleep(1100); if (ctl.skipped) return;
+    setPhase('charge');
+    // Dê ao navegador um quadro para mostrar a reação antes de preparar o áudio.
+    const charge = sleep(1100);
+    root.requestAnimationFrame(() => root.requestAnimationFrame(() => {
+      if (!ctl.skipped) sfx.charge();
+    }));
+    await charge;
+    if (ctl.skipped) return;
+    finishPreparing();
+    fxCtl = createFx(fx);
+    fxCtl.size();
     const [cx, cy] = center(stage);
     setPhase('burst'); flash.style.setProperty('--fc', RC[best]); flash.classList.add('lc-on'); sfx.boom();
     fxCtl.burst(cx, cy, RC[best], 24 + RANK[best] * 14, 420 + RANK[best] * 90, false); if (RANK[best] >= 2) fxCtl.burst(cx, cy, '#d4fc5a', 30, 520, true);
@@ -200,7 +224,8 @@ function play(opts = {}) {
   let resolve; const promise = new Promise(r => { resolve = r; });
   function close() {
     if (ctl.closed) return; ctl.closed = true; ctl.skipped = true; if(ctl.tap)ctl.tap(); ctl.sleepers.forEach(f => f());
-    fxCtl.stop(); root.removeEventListener('resize', onResize); doc.removeEventListener('keydown', onKey, true);
+    if (prepareFrame) root.cancelAnimationFrame(prepareFrame);
+    fxCtl?.stop(); root.removeEventListener('resize', onResize); doc.removeEventListener('keydown', onKey, true);
     ov.remove(); doc.body.classList.remove('lc-lock'); active = null;
     if (prevFocus && prevFocus.focus) prevFocus.focus();
     if (opts.onDone) opts.onDone(res); resolve(res);
@@ -213,7 +238,16 @@ function play(opts = {}) {
   skipBtn.addEventListener('click', skip); doneBtn.addEventListener('click', close); doc.addEventListener('keydown', onKey, true);
   soundBtn.addEventListener('click', () => { sfx.setOn(!sfx.isOn()); soundBtn.textContent = 'Som: ' + (sfx.isOn() ? 'ligado' : 'desligado'); soundBtn.setAttribute('aria-pressed', String(sfx.isOn())); if (opts.onSoundChange) opts.onSoundChange(sfx.isOn()); });
   boxBtn.focus();
-  if(calm){ctl.skipped=true;showAll()}else ritual().catch(err => { console.error('ApexLootCinema: falha na animação, mostrando o resultado direto', err); skip(); });
+  if (calm) {
+    ctl.skipped = true;
+    showAll();
+  } else {
+    // Mostre a caixa primeiro e monte uma carta por quadro durante a espera.
+    prepareFrame = root.requestAnimationFrame(() => {
+      prepareFrame = root.requestAnimationFrame(prepareNext);
+    });
+    ritual().catch(err => { console.error('ApexLootCinema: falha na animação, mostrando o resultado direto', err); skip(); });
+  }
   active = { promise, skip, close };
   return active;
 }

@@ -35,23 +35,33 @@ function refresh(){
     ApexRender.text(row.status,st.full?'Cheia · abra quando quiser':st.tier?'Tier '+Loot.TIER_NAME[st.tier]:'Em preparação');
     ApexRender.prop(row.bar,'value',st.fraction);
     ApexRender.text(row.info,kind==='afk'?(st.value/3600).toFixed(1)+' / 8 h fora':Math.floor(st.value)+' / 130 pontos');
-    ApexRender.prop(row.open,'disabled',!st.ready||!ApexAccess.canWrite());
-    ApexRender.text(row.open,st.ready?'Abrir '+Loot.TIER_NAME[st.tier]:'Continue para subir de tier');
+    ApexRender.prop(row.open,'disabled',!!openingKind||!st.ready||!ApexAccess.canWrite());
+    ApexRender.text(row.open,openingKind===kind?'Abrindo…':st.ready?'Abrir '+Loot.TIER_NAME[st.tier]:'Continue para subir de tier');
   }
   ApexRender.text(launch,'Caixas · '+ready+'/2');ApexRender.text(fragmentCount,fmt(state.fragments)+' fragmentos de caixa');
   if(s.lootError){error.textContent=s.lootError;delete s.lootError}
   if(collection.open)renderCollection();
 }
 function show(){refresh();if(!dialog.open)dialog.showModal()}
+let openingKind = null;
 function openBox(kind){
-  if(!ApexAccess.canWrite())return;
-  try{
-    const result=ApexLootTransaction.open(s,kind,{income:Ret.income(s),now:Date.now(),persist:()=>save()});
-    if(!result)return;error.textContent='';refresh();dialog.close();
-    if(resultDialog.open)resultDialog.close();
-    ApexLootCinema.play({kind,result,targets:{cr:'#wallet_money',fragments:fragmentCount},format:fmt,sound:s.loot.settings.sound,
-      onSoundChange:value=>{s.loot.settings.sound=value;save()},onLand:()=>{const target=$('wallet_money');if(target&&s.idle.settings.effects!=='off')ApexEffects.pulse(target)},onDone:()=>{refresh();launch.focus()}});
-  }catch(failure){report(failure)}
+  if(openingKind||!ApexAccess.canWrite())return;
+  const player = s;
+  openingKind = kind;
+  for(const row of cards.values()) row.open.disabled = true;
+  cards.get(kind).open.textContent = 'Abrindo…';
+  // Mostre o botão ocupado antes da rolagem e da gravação síncrona do save.
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    try{
+      if(!dialog.open||s!==player||!ApexAccess.canWrite())return;
+      const result=ApexLootTransaction.open(s,kind,{income:Ret.income(s),now:Date.now(),persist:()=>save()});
+      if(!result)return;error.textContent='';dialog.close();
+      if(resultDialog.open)resultDialog.close();
+      ApexLootCinema.play({kind,result,targets:{cr:'#wallet_money',fragments:fragmentCount},format:fmt,sound:s.loot.settings.sound,
+        onSoundChange:value=>{s.loot.settings.sound=value;save()},onLand:()=>{const target=$('wallet_money');if(target&&s.idle.settings.effects!=='off')ApexEffects.pulse(target)},onDone:()=>{refresh();launch.focus()}});
+    }catch(failure){report(failure)}
+    finally{openingKind=null;if(dialog.open)refresh();}
+  }));
 }
 const fragmentCount=make('p'),collection=make('dialog',undefined,'loot-panel');collection.setAttribute('aria-label','Itens e forja das caixas');document.body.append(collection);
 let collectionStamp='';
