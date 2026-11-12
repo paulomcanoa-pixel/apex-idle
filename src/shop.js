@@ -1,9 +1,22 @@
 (function(root){
-const V=root.ProgressionV2||require('./progression-v2'),B=V.B;let catalog=null;
+const V=root.ProgressionV2||require('./progression-v2'),B=V.B,D=root.LegendsData||require('../legends-data');
+let catalog=null,retiredCars=new Map();
 const categories=['Kart','F4','F3','F2','F1','Lendas'],rarities=['comum','raro','epico','lendario','mitico'];
-function loadCatalog(data){if(!data||!Array.isArray(data.items)||data.items.length!==167)throw Error('Catálogo deve conter 167 itens');const ids=new Set;for(const item of data.items){if(!item.id||ids.has(item.id)||!item.name||!item.category||!item.effect||item.price===undefined)throw Error('Item inválido: '+item.id);ids.add(item.id);if(typeof item.price==='number'&&(!Number.isFinite(item.price)||item.price<0))throw Error('Preço inválido: '+item.id);if(!item.unlock&&item.category!=='treino')throw Error('Desbloqueio ausente: '+item.id)}catalog=JSON.parse(JSON.stringify(data));for(const item of catalog.items)if(!item.unlock)item.unlock={category:'Kart',stage:2};return catalog}
+function loadCatalog(data){if(!data||!Array.isArray(data.items)||data.items.length!==167)throw Error('Catálogo deve conter 167 itens');const ids=new Set;for(const item of data.items){if(!item.id||ids.has(item.id)||!item.name||!item.category||!item.effect||item.price===undefined)throw Error('Item inválido: '+item.id);ids.add(item.id);if(typeof item.price==='number'&&(!Number.isFinite(item.price)||item.price<0))throw Error('Preço inválido: '+item.id);if(!item.unlock&&item.category!=='treino')throw Error('Desbloqueio ausente: '+item.id)}catalog=JSON.parse(JSON.stringify(data));for(const item of catalog.items)if(!item.unlock)item.unlock={category:'Kart',stage:2};
+  // IDs antigos continuam legíveis para saves e carros já equipados.
+  retiredCars=new Map(catalog.items.filter(item=>item.category==='carros').map(item=>[item.id,item]));
+  catalog.items=catalog.items.filter(item=>item.category!=='carros');
+  catalog.items.push(...D.cars.map(car=>({
+    ...car,category:'carros',historical:true,rarity:rarities[car.rarity],
+    currency:'pts',price:{pts:D.prices[car.rarity]},duplicate_pts:D.prices[car.rarity]/2,
+    effect:{piPct:[.03,.06,.10,.15,.22][car.rarity]},unlock:{category:'Kart',stage:3},limit:'unico'
+  })));
+  catalog.banners[0].name="Invocação principal";
+  catalog.banners[2].name="Banner exclusivo";
+  return catalog;
+}
 function init(s){const c=(root.Championship||require('../championship-model')).init(s);if(!s.shop)s.shop={inventory:{components:[],cars:[],staff:{},cosmetics:[]},equipped:{},selectedCar:'',selectedPilot:'',selectedEngineer:'',limits:{},pity:{},history:[],pts:s.summonPoints||0,featuredTickets:0,boosts:{},eventTokens:0};if(!Object.getOwnPropertyDescriptor(s,'summonPoints')?.get)Object.defineProperty(s,'summonPoints',{enumerable:true,configurable:true,get:()=>s.shop.pts,set:value=>{s.shop.pts=value}});return s.shop}
-function get(id){return catalog?.items.find(x=>x.id===id)}
+function get(id){return catalog?.items.find(x=>x.id===id)||retiredCars.get(id)}
 function day(now=Date.now()){return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Fortaleza',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(now))}
 function week(now=Date.now()){const d=new Date(day(now)+'T12:00:00Z');d.setUTCDate(d.getUTCDate()-(d.getUTCDay()+6)%7);return d.toISOString().slice(0,10)}
 function hash(text){let h=2166136261;for(const c of text)h=Math.imul(h^c.charCodeAt(0),16777619);return h>>>0}
@@ -13,10 +26,10 @@ function priceInCR(item,s){if(typeof item==='string')item=get(item);if(!item)ret
 function summonPrice(s){return 40*B.lapReward(s.catProgress?2*s.stage:s.maxCircuit)*V.scale(s)}
 function wallet(s,currency){const q=init(s);return currency==='cr'?s.money:currency==='gemas'?s.championship.gems:currency==='fichas'?s.championship.tickets:currency==='featured'?q.featuredTickets:currency==='pts'?q.pts:currency==='event'?q.eventTokens:0}
 function pay(s,currency,amount){if(currency==='cr')s.money-=amount;else if(currency==='gemas')s.championship.gems-=amount;else if(currency==='fichas')s.championship.tickets-=amount;else if(currency==='featured')s.shop.featuredTickets-=amount;else if(currency==='pts'){s.shop.pts-=amount;s.summonPoints=s.shop.pts}else if(currency==='event')s.shop.eventTokens-=amount}
-function owned(s,item){const q=init(s),key=item.id+'@'+s.cat;return item.category==='componentes'?q.inventory.components.includes(key):item.category==='cosmeticos'?q.inventory.cosmetics.includes(item.id):item.category==='carros'?q.inventory.cars.includes(item.id):false}
+function owned(s,item){const q=init(s),key=item.id+'@'+s.cat;return item.category==='componentes'?q.inventory.components.includes(key):item.category==='cosmeticos'?q.inventory.cosmetics.includes(item.id):item.category==='carros'?(q.inventory.cars.includes(item.id)||s.garage?.owned?.includes(item.id)||s.heritage?.owned?.includes(item.id)):false}
 function limitKey(item,now){return item.id+':'+(/seman/i.test(item.limit)?week(now):day(now))}
 function limit(item){const m=item.limit.match(/(?:diario|semanal)\s*x(\d+)/i);return m?+m[1]:Infinity}
-function canBuy(s,id,options={}){const item=get(id);if(!item)return{ok:false,reason:'Item desconhecido'};if(item.category==='real')return{ok:false,reason:'Em breve · pagamentos desativados'};if(!unlocked(s,item))return{ok:false,reason:'Avance na temporada para liberar'};if(owned(s,item)&&!options.duplicate)return{ok:false,reason:'Já adquirido'};const q=init(s),key=limitKey(item,options.now);if(item.category==='treino'&&!q.inventory.staff[q.selectedPilot])return{ok:false,reason:'Selecione um piloto contratado'};if(item.category==='treino'&&q.training)return{ok:false,reason:'Conclua o treino em andamento'};if(item.limit==='unico'&&q.limits['once:'+id])return{ok:false,reason:'Já adquirido'};if((q.limits[key]||0)>=limit(item))return{ok:false,reason:'Limite deste período atingido'};const currency=options.currency||(item.currency==='giro|pts'?'pts':item.currency),price=options.price??priceInCR(item,s);if(!Number.isFinite(price)||price<=0)return{ok:false,reason:'Preço inválido'};if(wallet(s,currency)<price)return{ok:false,reason:'Saldo insuficiente'};return{ok:true,item,currency,price,key}}
+function canBuy(s,id,options={}){const item=get(id);if(!item)return{ok:false,reason:'Item desconhecido'};if(retiredCars.has(id)||item.exclusive)return{ok:false,reason:item.exclusive?'Exclusivo da invocação por fichas':'Carro de coleção antiga'};if(item.category==='real')return{ok:false,reason:'Em breve · pagamentos desativados'};if(!unlocked(s,item))return{ok:false,reason:'Avance na temporada para liberar'};if(owned(s,item)&&!options.duplicate)return{ok:false,reason:'Já adquirido'};const q=init(s),key=limitKey(item,options.now);if(item.category==='treino'&&!q.inventory.staff[q.selectedPilot])return{ok:false,reason:'Selecione um piloto contratado'};if(item.category==='treino'&&q.training)return{ok:false,reason:'Conclua o treino em andamento'};if(item.limit==='unico'&&q.limits['once:'+id])return{ok:false,reason:'Já adquirido'};if((q.limits[key]||0)>=limit(item))return{ok:false,reason:'Limite deste período atingido'};const currency=options.currency||(item.currency==='giro|pts'?'pts':item.currency),price=options.price??priceInCR(item,s);if(!Number.isFinite(price)||price<=0)return{ok:false,reason:'Preço inválido'};if(wallet(s,currency)<price)return{ok:false,reason:'Saldo insuficiente'};return{ok:true,item,currency,price,key}}
 function apply(s,item,now=Date.now()){const q=init(s),e=item.effect,c=item.category;
 if(c==='componentes'){q.inventory.components.push(item.id+'@'+s.cat);q.equipped[item.slot]=item.id}
 if(c==='cosmeticos')q.inventory.cosmetics.push(item.id);
@@ -29,7 +42,23 @@ function buy(s,id,options={}){const check=canBuy(s,id,options);if(!check.ok)retu
 function componentBonus(s){const q=init(s);return Math.min(.15,Object.values(q.equipped).reduce((n,id)=>{const i=get(id);return n+(i&&q.inventory.components.includes(id+'@'+s.cat)?i.effect.piPct*(i.effect.matchType===B.trackProfile(V.index(s))?1.6:.7):0)},0))}
 function carBonus(s){const i=get(init(s).selectedCar);return i?.category==='carros'&&s.shop.inventory.cars.includes(i.id)?i.effect.piPct:0}
 function staffBonus(s){const q=init(s);return Math.min(.24,[q.selectedPilot,q.selectedEngineer].reduce((n,id)=>{const i=get(id),v=q.inventory.staff[id];return n+(i&&v?i.effect.piPct*(1+.1*v.stars):0)},0))}
-function pool(s,banner){const tier=banner==='banner-lendas'?'Lendas':categories[s.cat];return catalog.items.filter(x=>x.category==='carros'&&x.tier===tier)}
+function bannerCars(banner){
+  return catalog.items.filter(car=>car.category==='carros'&&(banner==='banner-lendas'
+    ? car.exclusive||['raro','epico'].includes(car.rarity)
+    : !car.exclusive));
+}
+function bannerRates(banner,wish){
+  const totals=banner==='banner-lendas'?[0,60,32,7,1]:banner==='banner-destaque'?[49.109,34.824,14.925,1,.142]:[49.357,35,15,.5,.143];
+  const cars=bannerCars(banner);
+  const counts=rarities.map(rarity=>cars.filter(car=>car.rarity===rarity).length);
+  const rows=cars.map(car=>{const rank=rarities.indexOf(car.rarity);return{car,rank,chance:totals[rank]/counts[rank]}});
+  const selected=banner!=='banner-lendas'&&rows.find(row=>row.car.id===wish);
+  if(selected){
+    const chance=selected.chance;
+    for(const row of rows)row.chance=row===selected?2*chance:row.chance*(100-2*chance)/(100-chance);
+  }
+  return rows;
+}
 function summon(s,banner,count=1,random=Math.random,options={}){if(!catalog||![1,10].includes(count)||!['banner-padrao','banner-destaque','banner-lendas'].includes(banner))return null;
   const q=init(s);
   if((s.catProgress?s.stage:s.maxCircuit)<3||banner==='banner-lendas'&&s.cat<4)return null;
@@ -38,25 +67,26 @@ function summon(s,banner,count=1,random=Math.random,options={}){if(!catalog||![1
   if(!['cr','gemas','fichas','featured'].includes(currency))return null;
   const available=wallet(s,currency)-(currency==='gemas'?Math.max(0,q.paidGems||0):0);
   if(!Number.isFinite(available)||available<cost*count)return null;
-  const d={...q,inventory:{...q.inventory,cars:q.inventory.cars.slice()},pity:{...q.pity}},p=d.pity[banner]={epic:0,legendary:0,mythic:0,...q.pity[banner]},results=[],cars=pool(s,banner);
-  if(!cars.length)return null;
-  for(let k=0;k<count;k++){let rates=banner==='banner-lendas'?[0,60,32,7,1]:[49.357,35,15,.5,.143];
-  if(banner==='banner-destaque')rates=[49.109,34.824,14.925,1,.142];
-  const wished=cars.find(c=>c.id===d.wish),wishRank=wished?rarities.indexOf(wished.rarity):-1;
-  if(wishRank>=0){const original=rates[wishRank],factor=(100-2*original)/(100-original);
-  rates=rates.map((v,i)=>i===wishRank?original*2:v*factor)}const sample=random();
-  if(!Number.isFinite(sample)||sample<0||sample>=1)return null;
-  const total=rates.reduce((a,b)=>a+b,0),r=sample*total;
-  let acc=0,rank=0;
-  for(;rank<4;rank++){acc+=rates[rank];
-  if(r<acc)break}const legendary=banner==='banner-lendas'?50:banner==='banner-destaque'?100:200;
-  let guaranteed=false;
-  if(p.legendary>=legendary-1&&rank<3){rank=3;
-  guaranteed=true}if(p.epic>=9&&rank<2){rank=2;
-  guaranteed=true}if(banner==='banner-lendas'&&p.mythic>=149){rank=4;
-  guaranteed=true}const car=cars.find(x=>x.rarity===rarities[rank]);
+  const d={...q,inventory:{...q.inventory,cars:q.inventory.cars.slice()},pity:{...q.pity}};
+  const p=d.pity[banner]={epic:0,legendary:0,mythic:0,...q.pity[banner]},results=[];
+  const rows=bannerRates(banner,d.wish),total=rows.reduce((sum,row)=>sum+row.chance,0);
+  if(!total)return null;
+  const legendary=banner==='banner-lendas'?50:banner==='banner-destaque'?100:200;
+  for(let k=0;k<count;k++){
+    const sample=random();
+    if(!Number.isFinite(sample)||sample<0||sample>=1)return null;
+    let roll=sample*total;
+    let {car,rank}=rows.find(row=>(roll-=row.chance)<0)||rows.at(-1);
+    const floor=p.legendary>=legendary-1?3:p.epic>=9?2:0;
+    const target=banner==='banner-lendas'&&p.mythic>=149?4:Math.max(rank,floor);
+    const guaranteed=target!==rank;
+    if(guaranteed){
+      const candidates=rows.filter(row=>row.rank===target);
+      car=candidates[Math.floor(sample*candidates.length)]?.car;
+      rank=target;
+    }
   if(!car)return null;
-  const duplicate=d.inventory.cars.includes(car.id),points=duplicate?car.duplicate_pts:0;
+  const duplicate=d.inventory.cars.includes(car.id)||owned(s,car),points=duplicate?car.duplicate_pts:0;
   if(duplicate)d.pts+=points;
   else d.inventory.cars.push(car.id);
   p.epic=rank>=2?0:p.epic+1;
@@ -71,11 +101,11 @@ function summon(s,banner,count=1,random=Math.random,options={}){if(!catalog||![1
   s.summonPoints=q.pts;
   return results}
 function weighted(items,weights,random){const ranks=rarities.filter(r=>items.some(x=>x.rarity===r)),total=ranks.reduce((n,r)=>n+(weights[r]||0),0);let roll=random()*total;const rank=ranks.find(r=>(roll-=weights[r]||0)<0)||ranks[0],pool=items.filter(x=>x.rarity===rank);return pool[Math.floor(random()*pool.length)]}
-function slots(s,period,now=Date.now()){const q=init(s),date=period==='daily'?day(now):week(now),random=rng(hash((s.meta.playerId||'local')+date+period+(q.dailyReroll?.day===date?q.dailyReroll.count:0))),groups=period==='daily'?['componentes','boosts','treino','cosmeticos','staff','offer']:['carros','componentes','cosmeticos','chest'],out=[];for(let index=0;index<groups.length;index++){const category=groups[index],key=period+date+index;if(category==='chest'){out.push({id:'weekly-chest',name:'Baú semanal · 60 min CR + 3 fichas',currency:'pts',offerKey:key,offerPrice:150,bundle:true});continue}if(category==='offer'){const base=out.filter(x=>!x.empty);const chosen=base[Math.floor(random()*base.length)];out.push(base.length?{...chosen,offerKey:key,offerPrice:chosen.offerPrice}:{id:'empty-'+index,name:'Novas ofertas ao avançar',empty:true});const last=out.at(-1);last.offerPrice=Math.ceil(last.offerPrice*.8);continue}const choices=catalog.items.filter(x=>(category==='staff'?['pilotos','engenheiros'].includes(x.category):x.category===category)&&unlocked(s,x)&&!owned(s,x)&&x.price!==0&&(category!=='carros'||x.tier===categories[s.cat]&&x.rarity!=='comum')&&(period!=='weekly'||category!=='componentes'||['Elite','Lenda'].includes(x.tier)));const item=category==='cosmeticos'||category==='staff'?weighted(choices,category==='cosmeticos'?{comum:60,raro:28,epico:10,lendario:2}:{comum:55,raro:30,epico:12,lendario:3},random):choices[Math.floor(random()*choices.length)];if(!item){out.push({id:'empty-'+index,name:'Novas ofertas ao avançar',empty:true});continue}const discount=period==='weekly'&&category==='componentes'?.25:category==='componentes'?.15+random()*.15:0;out.push({...item,offerKey:key,discount,currency:category==='carros'?'cr':item.currency,offerPrice:Math.ceil((category==='carros'?25*summonPrice(s):priceInCR(item,s))*(1-discount))})}return out}
+function slots(s,period,now=Date.now()){const q=init(s),date=period==='daily'?day(now):week(now),random=rng(hash((s.meta.playerId||'local')+date+period+(q.dailyReroll?.day===date?q.dailyReroll.count:0))),groups=period==='daily'?['componentes','boosts','treino','cosmeticos','staff','offer']:['carros','componentes','cosmeticos','chest'],out=[];for(let index=0;index<groups.length;index++){const category=groups[index],key=period+date+index;if(category==='chest'){out.push({id:'weekly-chest',name:'Baú semanal · 60 min CR + 3 fichas',currency:'pts',offerKey:key,offerPrice:150,bundle:true});continue}if(category==='offer'){const base=out.filter(x=>!x.empty);const chosen=base[Math.floor(random()*base.length)];out.push(base.length?{...chosen,offerKey:key,offerPrice:chosen.offerPrice}:{id:'empty-'+index,name:'Novas ofertas ao avançar',empty:true});const last=out.at(-1);last.offerPrice=Math.ceil(last.offerPrice*.8);continue}const choices=catalog.items.filter(x=>(category==='staff'?['pilotos','engenheiros'].includes(x.category):x.category===category)&&unlocked(s,x)&&!owned(s,x)&&x.price!==0&&(category!=='carros'||!x.exclusive&&x.rarity!=='comum')&&(period!=='weekly'||category!=='componentes'||['Elite','Lenda'].includes(x.tier)));const item=category==='cosmeticos'||category==='staff'?weighted(choices,category==='cosmeticos'?{comum:60,raro:28,epico:10,lendario:2}:{comum:55,raro:30,epico:12,lendario:3},random):choices[Math.floor(random()*choices.length)];if(!item){out.push({id:'empty-'+index,name:'Novas ofertas ao avançar',empty:true});continue}const discount=period==='weekly'&&category==='componentes'?.25:category==='componentes'?.15+random()*.15:0;out.push({...item,offerKey:key,discount,currency:category==='carros'?'cr':item.currency,offerPrice:Math.ceil((category==='carros'?25*summonPrice(s):priceInCR(item,s))*(1-discount))})}return out}
 function finishTraining(s,skip=false,now=Date.now()){const q=init(s),v=q.training;if(!v||!q.inventory.staff[v.pilot]||v.end>now&&(!skip||s.championship.gems<8))return false;if(v.end>now)s.championship.gems-=8;q.inventory.staff[v.pilot].xp+=v.xp;delete q.training;return true}
 function tradeExtra(s,type,now=Date.now()){const q=init(s),prices={featured:200,staff:600,chest:150},limits={featured:3,staff:1,chest:1},key='trade:'+week(now)+':'+type,price=prices[type];if(!price||q.pts<price||(q.limits[key]||0)>=limits[type])return false;let target;if(type==='staff'){target=catalog.items.find(x=>x.category==='pilotos'&&x.rarity==='lendario');if(!unlocked(s,target))return false}q.pts-=price;s.summonPoints=q.pts;q.limits[key]=(q.limits[key]||0)+1;if(type==='featured')q.featuredTickets++;if(type==='staff')apply(s,target,now);if(type==='chest'){s.championship.tickets+=3;s.money+=(root.ApexRetention||require('./retention')).income(s)*3600}return true}
 function buyOffer(s,offer,now=Date.now()){if(!offer||offer.empty||init(s).limits[offer.offerKey])return{ok:false,reason:'Oferta já comprada'};if(offer.bundle){if(wallet(s,'pts')<offer.offerPrice)return{ok:false,reason:'Saldo insuficiente'};pay(s,'pts',offer.offerPrice);s.money+=(root.ApexRetention||require('./retention')).income(s)*3600;s.championship.tickets+=3;s.shop.limits[offer.offerKey]=1;return{ok:true}}const result=buy(s,offer.id,{currency:offer.currency,price:offer.offerPrice,now});if(result.ok)s.shop.limits[offer.offerKey]=1;return result}
 function reroll(s,now=Date.now()){const q=init(s),d=day(now);if(q.dailyReroll?.day===d||wallet(s,'gemas')<10)return false;pay(s,'gemas',10);q.dailyReroll={day:d,count:1};return true}
-const api={finishTraining,tradeExtra,loadCatalog,init,get,day,week,hash,rng,unlocked,priceInCR,summonPrice,wallet,canBuy,buy,owned,componentBonus,carBonus,staffBonus,summon,dailyShop:(s,n)=>slots(s,'daily',n),weeklyShop:(s,n)=>slots(s,'weekly',n),buyOffer,reroll,get catalog(){return catalog},categories,rarities};root.ApexShop=api;if(typeof module!=='undefined')module.exports=api;
+const api={bannerCars,bannerRates,finishTraining,tradeExtra,loadCatalog,init,get,day,week,hash,rng,unlocked,priceInCR,summonPrice,wallet,canBuy,buy,owned,componentBonus,carBonus,staffBonus,summon,dailyShop:(s,n)=>slots(s,'daily',n),weeklyShop:(s,n)=>slots(s,'weekly',n),buyOffer,reroll,get catalog(){return catalog},categories,rarities};root.ApexShop=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
 

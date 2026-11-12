@@ -40,7 +40,7 @@ draft.levels[i]=Math.min(100,level+1);
 const before=ApexV2.place(s),after=ApexV2.place(draft),mark=B.P.ms.find(m=>m>level);
 html+=row(B.branches[i].name,say('Nível ','Level ')+esc(level)+'/100 · '+(B.upgradeEffect(i,level)*100).toFixed(1)+'% → '+(B.upgradeEffect(i,Math.min(100,level+1))*100).toFixed(1)+'% '+(i===3?'CR':'PI')+'<br>P'+before+' → P'+after+' · '+say('Próximo marco: ','Next milestone: ')+(mark||'—'),button(t('buy')+' · '+F(V.cost(s,i))+' CR','upgrade',i,!V.unlockedBranch(s,i)||level>=100)+(!V.unlockedBranch(s,i)?'<small>'+say('Etapa 3','Stage 3')+'</small>':''))}
 }
-if(view==='garage'){const owned=[...GarageState.init(s).owned,...q.inventory.cars];
+if(view==='garage'){const owned=[...new Set([...GarageState.init(s).owned,...q.inventory.cars])];
 html+='<h2>'+t('garage')+'</h2>'+button(say('Acerto e pintura','Setup and paint'),'legacySetup')+button(say('Planejar pneus e parada','Plan tyres and pit stop'),'strategy')+['potencia','curvas','aderencia'].map(profile=>button(say('Salvar preset ','Save preset ')+profile,'savePreset',profile)+button(say('Usar preset ','Apply preset ')+profile,'loadPreset',profile,!q.presets?.[profile])).join('');
 for(const id of owned){const item=Shop.get(id),car=item||Legends.get(id)||A.cars.find(x=>x.id===id);
 if(!car)continue;
@@ -48,7 +48,7 @@ const selected=A.equippedCar(s).id===id;
 html+=row(car.name,esc(item?.rarity||(typeof car.rarity==='number'?LegendsData.names[car.rarity]:car.rarity))+' · '+say('Dupla ativa: ','Active pairing: ')+esc(Shop.get(q.selectedPilot)?.name||Championship.roster.find(d=>d.id===c.driver)?.name||'Aurora'),button(selected?t('equipped'):t('equip'),'equipCar',id,selected),id)}
 html+=button(t('pilots'),'go','pilots')}
 if(view==='projects'){html+='<h2>'+t('projects')+'</h2><p>'+F(s.materials)+' '+t('materials')+'</p>';
-for(const item of Shop.catalog.items.filter(x=>x.category==='carros'&&x.tier===Shop.categories[s.cat])){const cost=[20,40,80,160,320][Shop.rarities.indexOf(item.rarity)],owned=q.inventory.cars.includes(item.id);
+for(const item of Shop.bannerCars('banner-padrao')){const cost=[20,40,80,160,320][Shop.rarities.indexOf(item.rarity)],owned=Shop.owned(s,item);
 html+=row(item.name,cost+' '+t('materials'),button(owned?t('equipped'):say('Construir','Build'),'build',item.id,owned||!checkStage(5)||s.materials<cost),item.id)}
 }
 if(view==='income'){html+='<h2>'+t('team')+'</h2><p>'+F(E.production(s.idle))+' CR/s · '+say('Uma única renda idle, com marcos de produção.','One idle income system with production milestones.')+'</p><label>'+t('buy')+' <select id="v2Batch"><option value="1">×1</option><option value="10">×10</option><option value="max">Máx</option></select></label>';
@@ -83,11 +83,25 @@ if(view==='season'){html+='<h2>'+t('season')+' '+esc(s.season.n)+'</h2><p>'+(s.c
 if(view==='achievements'){html+=(s.cat>=3?'<h3>'+say('Desafios de pista','Track challenges')+'</h3><p>'+say('Três estrelas: P1 no tempo-alvo, sem ERS, concluir na chuva. +10 gemas por estrela.','Three stars: target-time P1, no ERS, finish in rain. +10 gems each.')+'</p>'+Object.entries(r.challenges||{}
 ).map(([id,stars])=>'<p>'+esc(A.circuits[id]?.name||id)+' · '+stars.length+'/3 ★</p>').join(''):'')+(s.cat>=4?'<h3>Hall da Fama</h3><p>'+say('Vitórias por circuito: ','Circuit wins: ')+(r.hall||[]).length+'/24 · '+s.globalPeak+' '+say('etapas alcançadas','stages reached')+'</p>':'');
 html+='<h2>'+t('achievements')+'</h2><p>'+Ret.init(s).perfect.length+' '+say('corridas perfeitas','perfect races')+' · '+(s.night?.wins||0)+' '+say('vitórias','wins')+' · '+esc(s.escuderia)+' '+say('níveis','levels')+'</p><p>'+say('Corrida perfeita: P1, ERS usado e parada dentro da janela do pneu.','Perfect race: P1, ERS used and pit stop within the tyre window.')+'</p>'+button(say('Estatísticas preservadas','Preserved statistics'),'legacyStats')}
-if(view==='summon'){html+='<h2>'+t('summon')+'</h2><nav class="v2-tabs v2-banner-picker" aria-label="'+say('Banners gacha','Gacha banners')+'">'+Shop.catalog.banners.map(b=>'<button data-action="banner" data-id="'+esc(b.id)+'" aria-pressed="'+(b.id===currentBanner)+'">'+esc(b.name)+'</button>').join('')+'</nav><canvas class="v2-banner" width="900" height="220" data-banner-art aria-label="Banner de monopostos em Canvas"></canvas><p>'+say('Comum 49,357% · Raro 35% · Épico 15% · Lendário 0,5% · Mítico 0,143%. Destaque: lendário 1%. Lendas: raro 60%, épico 32%, lendário 7%, mítico 1%.','Common 49.357% · Rare 35% · Epic 15% · Legendary 0.5% · Mythic 0.143%. Featured: legendary 1%. Legends: rare 60%, epic 32%, legendary 7%, mythic 1%.')+'</p>';
-html+='<label>'+say('Desejo: chance dobrada','Wish: doubled chance')+' <select id="v2Wish"><option value="">—</option>'+Shop.catalog.items.filter(x=>x.category==='carros'&&x.tier===Shop.categories[s.cat]).map(x=>'<option value="'+x.id+'">'+esc(x.name)+'</option>').join('')+'</select></label>';
-const pity=q.pity[currentBanner]||{epic:0,legendary:0,mythic:0}
-;
-html+='<p>'+say('Garantias: épico ','Guarantees: epic ')+(10-pity.epic)+' · '+say('lendário ','legendary ')+((currentBanner==='banner-destaque'?100:currentBanner==='banner-lendas'?50:200)-pity.legendary)+(currentBanner==='banner-lendas'?' · '+say('mítico ','mythic ')+(150-pity.mythic):'')+'</p><p>'+F(c.tickets)+' '+say('fichas','tickets')+' · '+esc(q.featuredTickets)+' '+say('fichas de destaque','featured tickets')+' · '+F(q.pts)+' '+say('pontos de troca','exchange points')+'</p>'+button(t('summon')+' ×1 · '+(currentBanner==='banner-padrao'?F(Shop.summonPrice(s))+' CR':currentBanner==='banner-destaque'?say('ficha de destaque','featured ticket'):say('ficha','ticket')),'summon',1,!checkStage(3))+button(t('summon')+' ×10','summon',10,!checkStage(3)||(currentBanner==='banner-lendas'&&s.cat<4))+(currentBanner==='banner-destaque'?button(t('summon')+' · 60 '+say('gemas','gems'),'gemSummon',1,c.gems<60):'')+button(t('summon')+' ×1 · '+say('ficha','ticket'),'ticketSummon',1,!checkStage(3))+'<h3>'+say('Histórico','History')+'</h3><ol>'+q.history.map(h=>'<li>'+esc(Shop.get(h.id)?.name||h.id)+(h.duplicate?' · +'+esc(h.points)+' pts':' · '+say('Novo','New'))+'</li>').join('')+'</ol>'}
+if(view==='summon'){
+  const special=currentBanner==='banner-lendas',featured=currentBanner==='banner-destaque';
+  const cars=Shop.bannerCars(currentBanner),featuredCars=special?cars.filter(car=>car.exclusive):cars;
+  const rates=Shop.bannerRates(currentBanner,q.wish),pity=q.pity[currentBanner]||{epic:0,legendary:0,mythic:0};
+  const ready=(s.catProgress?s.stage:s.maxCircuit)>=3&&(!special||s.cat>=4);
+  const label=featured?say('ficha de destaque','featured ticket'):special?say('ficha','ticket'):F(Shop.summonPrice(s))+' CR';
+  const balance=featured?q.featuredTickets:special?c.tickets:s.money/Shop.summonPrice(s);
+  html+='<h2>'+t('summon')+'</h2><nav class="v2-tabs v2-banner-picker" aria-label="'+say('Banners gacha','Gacha banners')+'">'+Shop.catalog.banners.map(b=>'<button data-action="banner" data-id="'+esc(b.id)+'" aria-pressed="'+(b.id===currentBanner)+'">'+esc(b.name)+'</button>').join('')+'</nav>';
+  html+='<canvas class="v2-banner" width="900" height="220" data-banner-art aria-label="'+esc(special?'Lotus 97T e Jordan 191 em Canvas':'Monopostos históricos em Canvas')+'"></canvas>';
+  html+='<p>'+(special?say('Lotus 97T e Jordan 191 são exclusivos deste banner de fichas. Os demais resultados são raros e épicos do principal.','Lotus 97T and Jordan 191 are ticket banner exclusives. Other results are rare and epic cars from the main banner.'):say('20 monopostos históricos de Fórmula 1.','20 historic Formula 1 cars.'))+'</p>';
+  if(!special)html+='<label>'+say('Desejo: chance dobrada','Wish: doubled chance')+' <select id="v2Wish"><option value="">—</option>'+cars.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('')+'</select></label>';
+  html+='<details><summary>'+say('Carros e chances por invocação','Cars and odds per pull')+'</summary>'+featuredCars.map(car=>'<p>'+esc(car.name)+' · '+esc(rates.find(row=>row.car===car).chance.toLocaleString(ApexI18n.language==='en'?'en':'pt-BR',{maximumFractionDigits:4}))+'%</p>').join('')+'</details>';
+  html+='<p>'+say('Garantias: épico ','Guarantees: epic ')+Math.max(1,10-pity.epic)+' · '+say('lendário ','legendary ')+Math.max(1,(special?50:featured?100:200)-pity.legendary)+(special?' · '+say('mítico ','mythic ')+Math.max(1,150-pity.mythic):'')+'</p>';
+  html+='<p>'+F(c.tickets)+' '+say('fichas','tickets')+' · '+esc(q.featuredTickets)+' '+say('fichas de destaque','featured tickets')+' · '+F(q.pts)+' '+say('pontos de troca','exchange points')+'</p>';
+  html+=button(t('summon')+' ×1 · '+label,'summon',1,!ready||balance<1)+button(t('summon')+' ×10','summon',10,!ready||balance<10);
+  if(featured)html+=button(t('summon')+' · 60 '+say('gemas','gems'),'gemSummon',1,!ready||c.gems-(q.paidGems||0)<60);
+  if(!special&&!featured)html+=button(t('summon')+' ×1 · '+say('ficha','ticket'),'ticketSummon',1,!ready||c.tickets<1);
+  html+='<h3>'+say('Histórico','History')+'</h3><ol>'+q.history.map(h=>'<li>'+esc(Shop.get(h.id)?.name||h.id)+(h.duplicate?' · +'+esc(h.points)+' pts':' · '+say('Novo','New'))+'</li>').join('')+'</ol>';
+}
 if(['components','cosmetics','premium','automation','trade','event','dailyShop','weeklyShop'].includes(view)){html+='<h2>'+t({dailyShop:'todayOffers',weeklyShop:'weekOffers'}
 [view]||view)+'</h2>';
 if(view==='automation')html+=row('ERS '+say('automático','automatic'),say('Ativa quando disponível. Sem vantagem em PvP normalizado.','Activates when available. No advantage in normalized PvP.'),button(s.night.autoERSOwned?(s.night.autoERS?say('Desligar','Turn off'):say('Ligar','Turn on')):t('buy')+' · '+F(150*B.lapReward(V.index(s)))+' CR','auto','',!checkStage(5)));
@@ -98,7 +112,7 @@ Shop.catalog.evento.items.forEach((item,i)=>html+=row(item.name,item.cost+' '+sa
 else if(view==='dailyShop'||view==='weeklyShop'){const slots=view==='dailyShop'?Shop.dailyShop(s):Shop.weeklyShop(s);
 if(view==='dailyShop')html+=button(t('reroll')+' · 10 '+say('gemas','gems'),'reroll');
 slots.forEach((item,i)=>html+=row(item.name,item.empty?t('locked'):F(item.offerPrice)+' '+item.currency,button(t('buy'),'offer',i,item.empty||q.limits[item.offerKey]),item.category==='carros'?item.id:''))}
-else{const list=view==='components'?Shop.catalog.items.filter(x=>x.category==='componentes'):view==='cosmetics'?Shop.catalog.items.filter(x=>x.category==='cosmeticos'):view==='premium'?Shop.catalog.items.filter(x=>x.category==='real'):view==='trade'?Shop.catalog.items.filter(x=>x.category==='carros'&&x.tier===Shop.categories[s.cat]):Shop.catalog.items.filter(x=>x.category==='boosts');
+else{const list=view==='components'?Shop.catalog.items.filter(x=>x.category==='componentes'):view==='cosmetics'?Shop.catalog.items.filter(x=>x.category==='cosmeticos'):view==='premium'?Shop.catalog.items.filter(x=>x.category==='real'):view==='trade'?Shop.bannerCars('banner-padrao'):Shop.catalog.items.filter(x=>x.category==='boosts');
 list.forEach(item=>{const owned=Shop.owned(s,item),trade=view==='trade',price=trade?item.price.pts:Shop.priceInCR(item,s),currency=trade?'pts':item.currency,blocked=!Shop.unlocked(s,item)||item.category==='real'||item.price===0;html+=row(item.name,item.category==='real'?t('soon')+' · '+say('nenhuma cobrança','no charges'):('+'+((item.effect.piPct||0)*100).toFixed(1)+'% PI · '+F(price)+' '+currency),button(owned?t('equipped'):blocked?t('locked'):t('buy'),trade?'trade':'buy',item.id,owned||blocked)+(item.category==='componentes'&&owned?button(t('equip'),'componentEquip',item.id):'')+(item.category==='cosmeticos'&&owned?button(t('equip'),'cosmeticEquip',item.id):''),item.category==='carros'?item.id:'')}
 )}
 }
@@ -107,7 +121,7 @@ ApexSafeDOM.render(panel,html);
 const select=$('v2Batch');
 if(select)select.value=String(batch);
 if($('v2Banner'))$('v2Banner').value=currentBanner;
-if($('v2Wish'))$('v2Wish').value=s.shop.wish||'';
+if($('v2Wish'))$('v2Wish').value=Shop.bannerCars(currentBanner).some(car=>car.id===s.shop.wish)?s.shop.wish:'';
 if($('v2Focus'))$('v2Focus').value=s.focus||'potencia';
 paintArt();
 updateLive();
@@ -123,31 +137,31 @@ g.beginPath();
 m.points.forEach((p,i)=>i?g.lineTo(...p):g.moveTo(...p));
 g.closePath();
 g.stroke()}
-else if(canvas.hasAttribute('data-banner-art')){for(let i=0;i<5;i++)CarArt.draw(g,{x:90+i*180,y:120,a:-.12,scale:1.7,id:Shop.catalog.items.filter(x=>x.category==='carros'&&x.tier===Shop.categories[s.cat])[i].id}
-);
-g.fillStyle='#FFB627';
-g.font='bold 20px Arial';
-g.fillText((s.cat===4?'ELITE':Shop.categories[s.cat])+' / APEX',26,35)}
+else if(canvas.hasAttribute('data-banner-art')){
+  const cars=Shop.bannerCars(currentBanner);
+  const shown=currentBanner==='banner-lendas'?cars.filter(car=>car.exclusive):Shop.rarities.map(rarity=>cars.find(car=>car.rarity===rarity)).filter(Boolean);
+  shown.forEach((car,i)=>CarArt.draw(g,{x:canvas.width*(i+.5)/shown.length,y:120,a:-.12,scale:shown.length===2?2.6:1.5,id:car.id}));
+}
 else CarArt.draw(g,{x:canvas.width/2,y:canvas.height/2,a:-.14,scale:1.4,id}
 )}
 }
 function updateLive(){const finishTraining=panel.querySelector('[data-action="finishTraining"]');if(finishTraining)ApexRender.prop(finishTraining,'disabled',s.shop.training?.end>Date.now());const live=$('v2Standings');if(live&&race){const order=Race.order(race);const signature=order.map(x=>x.name+Math.floor(x.distance*10)).join();if(live.dataset.signature!==signature){live.dataset.signature=signature;ApexSafeDOM.render(live,order.map((x,i)=>'<p class="v2-standing"><b>P'+(i+1)+'</b> '+esc(x.player?'Aurora':x.name)+' <span>'+ (i===0?say('Líder','Leader'):'+'+((order[0].distance-x.distance)*race.duration).toFixed(1)+' s')+'</span></p>').join(''))}}for(const el of panel.querySelectorAll('[data-live="cash"]'))ApexRender.text(el,F(s.money));for(const el of panel.querySelectorAll('[data-countdown]'))ApexRender.text(el,Math.max(0,Math.ceil((+el.dataset.countdown-Date.now())/1000))+' s')}
-function reveal(results){pendingReveal=results.map(r=>({car:{id:r.id,name:r.car.name,rarity:['Comum','Raro','Épico','Lendário','Mítico'][Shop.rarities.indexOf(r.car.rarity)],color:['#b8c9d4','#70caff','#c6a0ff','#ffcd75','#ff86bf'][Shop.rarities.indexOf(r.car.rarity)]},duplicate:r.duplicate,guaranteed:r.guaranteed,points:r.points}));revealIndex=0;summonBusy=true;summonCinema.showModal();startReveal()}
+function reveal(results){pendingReveal=results.map(r=>({car:{id:r.id,name:r.car.name,rarity:['Comum','Raro','Épico','Lendário','Mítico'][Shop.rarities.indexOf(r.car.rarity)],color:r.car.color||['#b8c9d4','#70caff','#c6a0ff','#ffcd75','#ff86bf'][Shop.rarities.indexOf(r.car.rarity)]},duplicate:r.duplicate,guaranteed:r.guaranteed,points:r.points}));revealIndex=0;summonBusy=true;summonCinema.showModal();startReveal()}
 function commit(){save();stamp='';render();renderPanel(true)}
-panel.onchange=e=>{if(e.target.id==='v2Batch'){batch=e.target.value==='max'?'max':+e.target.value;stamp='';renderPanel(true)}if(e.target.id==='v2Banner'){currentBanner=e.target.value;stamp='';renderPanel(true)}if(e.target.id==='v2Wish'){s.shop.wish=e.target.value;save()}if(e.target.id==='v2Focus')s.focus=e.target.value};
+panel.onchange=e=>{if(e.target.id==='v2Batch'){batch=e.target.value==='max'?'max':+e.target.value;stamp='';renderPanel(true)}if(e.target.id==='v2Banner'){currentBanner=e.target.value;stamp='';renderPanel(true)}if(e.target.id==='v2Wish'){s.shop.wish=e.target.value;save();renderPanel(true)}if(e.target.id==='v2Focus')s.focus=e.target.value};
 panel.onclick=async e=>{const target=e.target.closest('button');if(!target||target.disabled||!ApexAccess.canWrite())return;if(target.dataset.go){go(target.dataset.go);return}const action=target.dataset.action,id=target.dataset.id;if(!action)return;let success=true;notice='';const item=Shop.get(id),purchasePrice=action==='buy'&&item?Shop.priceInCR(item,s):action==='upgrade'?V.cost(s,+id):action==='team'?E.cost(s.idle,+id,batch==='max'?E.maxBuy(s.idle,+id,s.money):batch):0;if(purchasePrice>=s.money*.5&&s.money>0&&!await SaveConfirmation.ask(say('Esta compra usa pelo menos metade do caixa. Confirmar?','This purchase uses at least half your cash. Confirm?')))return;
 if(action==='go'){go(id);return}if(action==='banner'){currentBanner=id;stamp='';renderPanel(true);return}
 if(action==='upgrade')success=buyUpgrade(+id);
 if(action==='team')success=E.buy(s,+id,batch)>0;
 if(action==='teamUpgrade')success=E.upgrade(s,+id);
 if(action==='manual'){const n=E.click(s);notice='+'+F(n)+' CR'}
-if(action==='equipCar'){if(Shop.get(id)&&s.shop.inventory.cars.includes(id))s.shop.selectedCar=id;else success=GarageState.equip(s,id);NightView.applyEquippedToRace()}
+if(action==='equipCar'){if(Shop.get(id)&&s.shop.inventory.cars.includes(id))s.shop.selectedCar=id;else{success=GarageState.equip(s,id);if(success)s.shop.selectedCar=''}if(success)NightView.applyEquippedToRace()}
 if(action==='finishTraining'||action==='skipTraining')success=Shop.finishTraining(s,action==='skipTraining');
 if(action==='equipStaff'){const item=Shop.get(id);s.shop[item.category==='pilotos'?'selectedPilot':'selectedEngineer']=id}
 if(action==='buy'||action==='trade'){const item=Shop.get(id),result=Shop.buy(s,id,action==='trade'?{currency:'pts',price:item.price.pts}:{});success=result.ok;notice=result.reason||t('buy')}
 if(action==='componentEquip')s.shop.equipped[Shop.get(id).slot]=id;
 if(action==='cosmeticEquip'){s.shop.cosmetic=id;s.shop.equippedCosmetics=s.shop.equippedCosmetics||{};s.shop.equippedCosmetics[Shop.get(id).slot]=id;notice=say('Pintura selecionada. Somente visual.','Paint selected. Visual only.')}
-if(action==='build'){const item=Shop.get(id),cost=[20,40,80,160,320][Shop.rarities.indexOf(item.rarity)];if(s.materials>=cost&&!s.shop.inventory.cars.includes(id)){s.materials-=cost;s.shop.inventory.cars.push(id)}else success=false}
+if(action==='build'){const item=Shop.get(id),cost=[20,40,80,160,320][Shop.rarities.indexOf(item.rarity)];if(item?.historical&&!item.exclusive&&checkStage(5)&&s.materials>=cost&&!Shop.owned(s,item)){s.materials-=cost;s.shop.inventory.cars.push(id)}else success=false}
 if(action==='contractStart')success=Ret.startContract(s,$('v2ContractCar')?.value,+id,[...GarageState.init(s).owned,...s.shop.inventory.cars]);
 if(action==='contractClaim')success=Ret.claimContract(s,id);
 if(action==='legacyContract'){const before=Object.values(s.career.materials).reduce((a,b)=>a+b,0);success=Career.claimContract(s,id);s.materials+=Object.values(s.career.materials).reduce((a,b)=>a+b,0)-before}
