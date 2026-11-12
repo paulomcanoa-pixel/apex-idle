@@ -1,7 +1,7 @@
 // Simulador do jogador "ativo": corre sem parar na pista mais alta, compra com guloseima simples.
 import * as B from './balance.mjs';
 const {P}=B;
-export function run({titles=0, maxHours=40, p=P, quiet=false}={}) {
+export function run({titles=0, maxHours=40, p=P, quiet=false, rewards=null}={}) {
   const st={t:0,cr:150,rep:0,n:0,lv:p.branches.map(()=>0),patL:0,units:p.gens.map(()=>0),races:0,idleCR:0,raceCR:0,spent:0};
   const log=[], reached=[0]; const posByCircuit={};
   const idleRate=()=>p.gens.reduce((s,g,i)=>s+g.rate*p.genRateMul*st.units[i],0)*(1+0.25*titles);
@@ -24,6 +24,7 @@ export function run({titles=0, maxHours=40, p=P, quiet=false}={}) {
     const pi=B.playerPI(st.lv,titles,p), place=B.placeOf(pi,st.n,p), dur=B.raceSeconds(st.n,pi,p);
     const inc=B.raceIncome(st.n,place,st.patL,titles,p), ir=idleRate()*dur;
     st.t+=dur; st.cr+=inc+ir; st.raceCR+=inc; st.idleCR+=ir; st.races++; st.rep+=p.pts[place-1];
+    if(rewards)st.cr+=rewards.race(st,{place,dur,titles});
     (posByCircuit[st.n]??=[]).push(place);
     while(st.n<23 && st.rep>=B.repToOpen(st.n+1,p)){ st.n++; reached[st.n]=st.t; log.push({rate:(inc+ir)/dur,idle:ir/dur,n:st.n,name:B.NAMES[st.n],t:st.t,races:st.races,pi,place:place,lv:[...st.lv],patL:st.patL}); }
     if(st.n>=23 && st.rep>=B.repToOpen(23,p)+60)break;
@@ -31,7 +32,7 @@ export function run({titles=0, maxHours=40, p=P, quiet=false}={}) {
   return {st,reached,log,posByCircuit};
 }
 const fmt=s=>s<90?s.toFixed(0)+' s':s<5400?(s/60).toFixed(1)+' min':(s/3600).toFixed(2)+' h';
-if (process.argv[1].endsWith('sim.mjs')) {
+if (process.argv[1]?.replaceAll('\\','/').split('/').at(-1)==='sim.mjs') {
   const r=run({});
   console.log('pista|nome|tempo ate abrir|corridas|PI jogador|lider IA|vaga|niveis [mot aer pne pil pit]|patro');
   r.log.forEach(l=>{const pi=l.pi; console.log(`${l.n+1}|CR/s ${l.rate.toFixed(1)}|${l.name}|${fmt(l.t)}|${l.races}|${pi.toFixed(2)}|${B.aiLeaderPI(l.n-1).toFixed(2)}|P${l.place}|${l.lv.join('/')}|${l.patL}`)});
@@ -39,6 +40,6 @@ if (process.argv[1].endsWith('sim.mjs')) {
   console.log('niveis finais',s.lv.join('/'),'patro',s.patL,'unidades',s.units.join('/'));
   for(const t of [1,2]){const q=run({titles:t});console.log('titulos',t,'-> pista 24 em',fmt(q.reached[23]??NaN))}
 }
-if (process.argv[1].endsWith('sim.mjs')) {
+if (process.argv[1]?.replaceAll('\\','/').split('/').at(-1)==='sim.mjs') {
   const r=run({}); console.log('posicao media por pista:', Object.entries(r.posByCircuit).map(([n,a])=>(+n+1)+':P'+(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1)).join(' '));
 }

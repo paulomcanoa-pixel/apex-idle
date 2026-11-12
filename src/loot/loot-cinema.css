@@ -87,3 +87,7 @@ body.lc-lock{overflow:hidden}
 .lc-instant *,.lc-instant *::before,.lc-instant *::after{animation:none!important;transition:none!important}
 .lc-instant .lc-card{opacity:1;transform:none}
 .lc-instant .lc-flash,.lc-instant .lc-fx{display:none}
+
+/* Pular/reduzir movimento também remove a caixa já aberta, sem depender de keyframes. */
+.lc-instant .lc-boxbtn{visibility:hidden;pointer-events:none}
+.lc-fly{z-index:100020}

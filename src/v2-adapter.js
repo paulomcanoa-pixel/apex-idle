@@ -1,12 +1,13 @@
 (function(root){
 const V=root.ProgressionV2||require('./progression-v2'),B=V.B,Shop=root.ApexShop||require('./shop'),Ret=root.ApexRetention||require('./retention');
 const A=root.Apex||require('../engine'),N=root.NightLeague||require('../night-model'),E=root.GameEconomy||require('../game/economy'),T=root.GameTick||require('../game/tick'),G=root.GameSave||require('../game/save'),H=root.Legends||require('../legends-model'),GS=root.GarageState||require('../garage-state'),Maps=root.CircuitMaps||require('../circuits-data'),Champ=root.Championship||require('../championship-model'),Farm=root.IdleFarm||require('../farm-model');
+const Loot=root.ApexLoot||require('./loot/loot-model'),LootHooks=root.ApexLootHooks||require('./loot/loot-hooks');
 Shop.loadCatalog(root.APEX_CATALOG||(typeof require==='function'?require('./data/shop-catalog.json'):null));
 root.APEX_V2_ENABLED=true;if(root.Race)root.Race.compounds.wet={name:'Chuva',color:'#65C9FF',base:1.02,window:3,drop:.03};
 const originalAdvance=A.advance;A.advance=(s,...args)=>s.version===2?0:originalAdvance(s,...args);
 const old={initial:A.initial,validate:A.validate,duration:A.duration,reward:A.reward,buy:A.buy,cost:A.cost,equipped:A.equippedCar,owned:A.ownedCars,nightInit:N.init,finish:N.finish,durationN:N.duration,grid:N.grid,season:N.newSeason,titles:N.titles,carCost:N.carCost,maxCar:N.maxCar,prod:E.production,buyTeam:E.buy,click:E.click,ascend:E.ascend,offline:T.offline,tick:T.tick,farmInit:Farm.init,farmSettle:Farm.settle,farmRate:Farm.rate,farmTotal:Farm.totalRate,champTick:Champ.tick,champSettle:Champ.settle,parts:A.parts.slice()};
 const originalRecord=N.record;N.record=(s,id,time)=>{const best=originalRecord(s,id,time);if(s.version===2&&(!s.race.records[id]||time<s.race.records[id]))s.race.records[id]=time;return best};
-A.initial=()=>{const s=V.initial();s.catProgress=true;s.meta.playerId=root.crypto?.randomUUID?.()||'apex-'+s.meta.createdAt;return s};
+A.initial=()=>{const s=V.initial();Loot.init(s);s.catProgress=true;s.meta.playerId=root.crypto?.randomUUID?.()||'apex-'+s.meta.createdAt;return s};
 A.validate=s=>s?.version===2?V.valid(s)&&old.validate({...s,version:1,levels:s.levels.slice(0,4),rep:Math.max(s.rep,Maps.circuits[s.circuit]?.rep||0)}):old.validate(s);
 A.circuits=Maps.circuits.map((c,i)=>({...c,rep:B.repToOpen(i),source:'',driver:'Escuderia Aurora',reference:'Referência arcade',year:'',mult:1.3**i}));
 A.cars.forEach(c=>c.name=c.name.replace(/F1/g,'Apex'));A.parts=B.branches.map(x=>({name:x.name,base:x.base,desc:x.id==='patro'?'Aumente a renda das corridas.':'Aumente o PI e dispute posições.'}));
@@ -21,7 +22,17 @@ A.buy=(s,i)=>s.version===2?V.buy(s,i,1).bought>0:old.buy(s,i);
 N.init=s=>{const n=old.nightInit(s);if(s.version===2)n.titles=s.season.titles;return n};
 N.duration=(s,a)=>s.version===2?A.duration(s):old.durationN(s,a);
 N.grid=(c,s,seed=Date.now())=>s?.version===2?N.names.map((name,i)=>({name,color:N.colors[i],pace:B.screenLap(V.index(s))/B.paceFactor(B.aiPI(V.index(s),i)*(1+.08*s.season.titles)*(1+.003*s.escuderia),V.leader(s))*(.985+Shop.rng(seed+i)()*.03)})):old.grid(c);
-N.finish=(s,place,time,reward,seed,options={})=>{if(s.version!==2)return old.finish(s,place,time,reward);Ret.refresh(s);const result=V.finish(s,place,time,seed);if(!result)return null;const n=N.init(s);n.races++;if(place===1)n.wins++;n.lastResult=result;Ret.raceDone(s,result,Shop.rng(seed),options);if(options.competition){Shop.init(s).eventTokens+=10+(place<=3?20:0);Ret.init(s).passXp+=20}return result};
+N.finish=(s,place,time,reward,seed,options={})=>{
+  if(s.version!==2)return old.finish(s,place,time,reward);
+  Ret.refresh(s);
+  const result=V.finish(s,place,time,seed);
+  if(!result)return null; // A seed já recebida não pode dar pontos duas vezes.
+  const n=N.init(s);n.races++;if(place===1)n.wins++;n.lastResult=result;
+  Ret.raceDone(s,result,Shop.rng(seed),options);
+  LootHooks.race(s,{place,ers:options.ers,pitWindow:options.pitWindow});
+  if(options.competition){Shop.init(s).eventTokens+=10+(place<=3?20:0);Ret.init(s).passXp+=20}
+  return result;
+};
 N.titles=s=>s.version===2?V.titleGain(s):old.titles(s);
 N.newSeason=s=>s.version===2?(V.newSeason(s,s.focus)?N.titles(s):0):old.season(s);
 N.carCost=(s,a,i,count)=>{if(s.version!==2)return old.carCost(s,a,i,count);if(!V.unlockedBranch(s,i)||count<0||s.levels[i]+count>100)return Infinity;let n=0;for(let k=0;k<count;k++)n+=V.cost(s,i,s.levels[i]+k+1);return n};
@@ -35,7 +46,14 @@ E.upgradeCost=(v,i)=>Math.ceil(teamUpgradeCost(v,i)*(v.categoryScale||1));
 E.upgrade=(s,i)=>{if(s.version!==2)return teamUpgrade(s,i);s.idle.categoryScale=V.scale(s);const n=s.idle.upgrades[i],price=E.upgradeCost(s.idle,i);if(!E.generators[i]||n>=4||s.idle.units[i]<E.milestones[n]||s.money<price||!Number.isFinite(price))return false;s.money-=price;s.idle.upgrades[i]++;return true};
 E.click=s=>{if(s.version!==2)return old.click(s);const value=Math.max(1,5*E.production(s.idle));s.idle.clicks++;return E.earn(s,value)};
 E.ascend=s=>s.version===2?0:old.ascend(s);
-T.offline=(s,now=Date.now())=>s.version===2?Ret.offline(s,now,E.production(s.idle)):old.offline(s,now);
+T.offline=(s,now=Date.now())=>{
+  if(s.version!==2)return old.offline(s,now);
+  // Só tempo real ausente; o seguro de retorno não enche a caixa.
+  const absent=Math.min(28800,Math.max(0,(now-s.idle.at)/1000));
+  const result=Ret.offline(s,now,E.production(s.idle));
+  LootHooks.away(s,absent);
+  return result;
+};
 T.tick=(s,dt,now)=>{if(s.version===2){s.idle.categoryScale=V.scale(s);s.idle.seasonTitles=s.season.titles;s.idle.escuderia=s.escuderia;s.idle.crBoostUntil=Shop.init(s).boosts.cr||0}return old.tick(s,dt,now)};
 const scratch=new WeakMap;
 Farm.init=(s,now)=>{if(s.version!==2)return old.farmInit(s,now);if(!scratch.has(s))scratch.set(s,{levels:[0,0,0],bank:0,at:Date.now(),total:0});return scratch.get(s)};

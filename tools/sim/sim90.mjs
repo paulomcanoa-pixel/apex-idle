@@ -14,9 +14,9 @@ const dLead=(n)=>B.aiLeaderPI(n);              // forma 1,3 x 1,19^n ... (n 0..1
 const NL=n=>Math.min(24,2*n); // etapa da categoria -> posicao na escada de 24 pistas
 const repOpen=(n,c)=>Math.round(B.repToOpen(NL(n))*Q.repScale[c]);
 const lapR=(n,c)=>Math.floor(P.r0*P.rg**NL(n)*Q.rScale[c]);
-export function sim({days=90,quiet=true}={}){
+export function sim({days=90,quiet=true,rewards=null}={}){
   const S={day:0,t:0,cr:150,rep:0,n:0,cat:0,titles:0,prest:0,G:0,Gbest:0,xp:0,lvl:1,lv:P.branches.map(()=>0),patL:0,units:P.gens.map(()=>0),lastRate:0,races:0};
-  const out=[],events=[],gaps=[]; let lastBuyT=0, activeT=0;
+  const out=[],events=[],gaps=[],reached=[0]; let lastBuyT=0, activeT=0;
   const xpNext=L=>Q.xpNextA+Q.xpNextB*L;
   const addXp=x=>{S.xp+=x;while(S.xp>=xpNext(S.lvl)){S.xp-=xpNext(S.lvl);S.lvl++}};
   const tMul=()=>({pi:(1+Q.titlePI*S.titles)*(1+Q.lvlPI*S.lvl), cr:(1+Q.titleCR*S.titles)*(1+Q.lvlCR*S.lvl)*(+(process.env.BOOST||1))});
@@ -38,6 +38,7 @@ export function sim({days=90,quiet=true}={}){
     const dur=P.laps*B.screenLap((S.n*2+S.cat*3)%24)/B.paceFactor(pi,B.aiLeaderPI(NL(S.n)))+P.overhead;
     const inc=(P.laps*lapR(S.n,S.cat)+Math.floor(lapR(S.n,S.cat)*(11-place)*P.prizeK))*B.patroMult(S.patL)*m.cr;
     const ir=idleRate()*dur; S.cr+=inc+ir; S.lastRate=(inc+ir)/dur; S.rep+=P.pts[place-1]; S.races++;
+    if(rewards)S.cr+=rewards.race(S,{place,dur,titles:S.titles});
     addXp(Q.xpRace+Q.xpPerG*(S.G+1)+(11-place)*2); (S.pl??=[]).push(place); if(process.env.DBG2&&S.races%100===0)console.log("r"+S.races,"n",S.n,"pi",pi.toFixed(2),"D",B.aiLeaderPI(NL(S.n)).toFixed(2),"pl",place,"inc",Math.round(inc),"cr",Math.round(S.cr),"lv",S.lv.join("/"),"rep",S.rep,"units",S.units.join("/"),"cat",S.cat); return {dur,place};
   }
   function advance(){
@@ -47,19 +48,20 @@ export function sim({days=90,quiet=true}={}){
         lastBuyT=activeT;S.lastRate=0;S.cat++; S.n=0; S.rep=0; S.lv=P.branches.map(()=>0); S.patL=0; S.units=P.gens.map(()=>0); addXp(1000);
         events.push([S.day,'Categoria '+CAT[S.cat]]);
       } else { S.n++; addXp(100) }
-      S.G=G(); S.Gbest=Math.max(S.Gbest,S.G+1);
+      S.G=G(); S.Gbest=Math.max(S.Gbest,S.G+1);if(reached[S.G+1]===undefined)reached[S.G+1]=S.t;
     }
   }
   for(let d=1;d<=days;d++){
     S.day=d; let lastSession=null;
     // diarias/semanais
+    if(rewards)S.cr+=rewards.mission(S,d%7===0);
     S.rep+=Q.dailyRep; addXp(Q.xpMission*3); if(d%7===0){S.rep+=Q.weeklyRep;addXp(300)}
     for(const h of Q.sessionHours){
-      const absT=(d-1)*24+h;
-      if(lastSession!==null){ const away=Math.min(Q.offlineMaxH,absT-lastSession); S.cr+=away*3600*(Q.offlineIdle*idleRate()+Q.offlineRace*S.lastRate) }
+      const absT=(d-1)*24+h;S.t=absT*3600;
+      if(lastSession!==null){ const away=Math.min(Q.offlineMaxH,absT-lastSession); S.cr+=away*3600*(Q.offlineIdle*idleRate()+Q.offlineRace*S.lastRate);if(rewards)S.cr+=rewards.away(S,away*3600) }
       let el=0,buys=0; if(shop()){lastBuyT=activeT;buys++} advance();
       while(el<Q.sessionSec){ if(shop()){buys++;gaps.push({cat:S.cat,min:(activeT-lastBuyT)/60,d});lastBuyT=activeT}
-        const r=race(); el+=r.dur; activeT+=r.dur; advance(); S.G=G();
+        const r=race(); S.t+=r.dur;el+=r.dur; activeT+=r.dur; advance(); S.G=G();
       }
       if(process.env.DBG&&d>=45&&d<=52)console.log("d"+d,"h"+h,CAT[S.cat],S.n,"cr",S.cr.toExponential(2),"rate",S.lastRate.toExponential(2),"lv",S.lv.join("/"),"buys",buys,"rep",S.rep,"/",repOpen(S.n+1,S.cat)); lastSession=absT+Q.sessionSec/3600; S.dry=buys?0:(S.dry||0)+1; S.maxDry=Math.max(S.maxDry||0,S.dry);
       // prestigio 1
@@ -73,10 +75,10 @@ export function sim({days=90,quiet=true}={}){
     S.G=G();
     out.push({day:d,lvl:S.lvl,pista:S.n+1,cat:CAT[S.cat],cats:S.cat,titles:S.titles,prest:S.prest,Gbest:S.Gbest,rate:S.lastRate});
   }
-  return {out,events,gaps,S};
+  return {out,events,gaps,S,reached};
 }
 const fmt=n=>n>=1e12?(n/1e12).toFixed(1)+'T':n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':n.toFixed(1);
-if(process.argv[1].endsWith('sim90.mjs')){
+if(process.argv[1]?.replaceAll('\\','/').split('/').at(-1)==='sim90.mjs'){
   const r=sim({days:90});
   console.log('dia|nivel escuderia|pista|categoria|titulos|temporadas|G max|CR/s');
   for(const d of [1,2,3,5,7,10,14,21,28,35,45,60,75,90]){const o=r.out[d-1];console.log([o.day,o.lvl,o.pista,o.cat,o.titles,o.prest,o.Gbest,fmt(o.rate)].join('|'))}
@@ -86,4 +88,4 @@ if(process.argv[1].endsWith('sim90.mjs')){
   console.log('lacuna entre compras (min ativos): mediana',med.toFixed(1),'max',all.at(-1).toFixed(1),'p95',all[Math.floor(all.length*.95)].toFixed(1),' >2x mediana:',all.filter(x=>x>2*med).length,'de',all.length);
   const big=r.gaps.filter(g=>g.min>20).slice(0,12).map(g=>`d${g.d}/${CAT[g.cat]}:${g.min.toFixed(0)}`);console.log('max sessoes consecutivas sem compra:',r.S.maxDry);console.log('maiores lacunas:',big.join(' '));
 }
-if(process.argv[1].endsWith('sim90.mjs')&&process.env.PL){const r=sim({days:90});const a=r.S.pl;console.log('corridas',a.length,'posicao media',(a.reduce((x,y)=>x+y,0)/a.length).toFixed(2),'%P1',(a.filter(x=>x===1).length/a.length*100).toFixed(0))}
+if(process.argv[1]?.replaceAll('\\','/').split('/').at(-1)==='sim90.mjs'&&process.env.PL){const r=sim({days:90});const a=r.S.pl;console.log('corridas',a.length,'posicao media',(a.reduce((x,y)=>x+y,0)/a.length).toFixed(2),'%P1',(a.filter(x=>x===1).length/a.length*100).toFixed(0))}

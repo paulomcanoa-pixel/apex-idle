@@ -1,0 +1,2 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {report} from '../../tools/sim/loot-sim.mjs';
+test('fórmula real nas pistas 3/8/15/24 respeita orçamento e progressão ativa e casual',()=>{const r=report();for(const x of r.budget){assert(Number.isFinite(x.income)&&x.income>0);assert(x.onlinePercent<=10);assert(x.afkSecondsPerHour<=150)}for(const x of [...r.progress,...r.casualProgress]){assert(Number.isFinite(x.before)&&Number.isFinite(x.after));if(x.track!==10)assert(Math.abs(x.changePercent)<5,JSON.stringify(x))}});

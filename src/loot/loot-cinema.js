@@ -87,11 +87,12 @@ function createFx(canvas) {
   };
 }
 
-function countUp(node, to, ms, fmt, tick) {
+function countUp(node, to, ms, fmt, tick, cancelled = () => false) {
   if (reduced() || ms <= 0) { node.textContent = fmt(to); return Promise.resolve(); }
   const t0 = root.performance.now();
   return new Promise(res => {
     (function step(t) {
+      if(cancelled()){res();return;}
       const k = Math.min(1, Math.max(0, (t - t0) / ms)), e = 1 - Math.pow(1 - k, 3); // clamp: nunca mostra número negativo
       node.textContent = fmt(to * e); if (tick) tick(k);
       if (k < 1 && node.isConnected) root.requestAnimationFrame(step); else { node.textContent = fmt(to); res(); }
@@ -101,11 +102,11 @@ function countUp(node, to, ms, fmt, tick) {
 
 // ---------- API ----------
 // play({kind, result, art, targets:{cr,fragments}, format, sound, onSoundChange, onLand, onDone}) -> {promise, skip, close}
-function play(opts) {
+function play(opts = {}) {
   if (active) return active;
-  if (!doc) throw new Error('ApexLootCinema precisa de DOM');
   const Art = opts.art || root.ApexLootArt, res = opts.result, fmt = opts.format || defaultFmt;
   if (!Art || !res || !Array.isArray(res.cards) || !res.cards.length) throw new TypeError('ApexLootCinema.play: result.cards ausente');
+  if (!doc) throw new Error('ApexLootCinema precisa de DOM');
   const cards = res.cards.slice().sort((a, b) => RANK[a.rarity] - RANK[b.rarity]); // melhor por último; só reordena, nunca muda raridade
   const best = cards[cards.length - 1].rarity, calm = reduced(), sfx = createSfx();
   sfx.setOn(!!opts.sound);
@@ -180,7 +181,7 @@ function play(opts) {
       await sleep(rank === 3 ? 700 : rank === 2 ? 600 : 380); if (ctl.skipped) return;
     }
     setPhase('summary'); doneBtn.focus();
-    for (const c of counters) { if (ctl.skipped) return; await countUp(c.node, c.to, 900, fmt, k => { if (k < 1 && Math.random() < 0.15) sfx.coin(); }); }
+    for (const c of counters) { if (ctl.skipped) return; await countUp(c.node, c.to, 900, fmt, k => { if (k < 1 && Math.random() < 0.15) sfx.coin(); }, () => ctl.skipped || ctl.closed); }
     if (ctl.skipped) return;
     fly(); fxCtl.burst(root.innerWidth / 2, root.innerHeight * 0.6, '#d4fc5a', 40, 380, true);
   }
@@ -198,7 +199,7 @@ function play(opts) {
 
   let resolve; const promise = new Promise(r => { resolve = r; });
   function close() {
-    if (ctl.closed) return; ctl.closed = true; ctl.skipped = true; ctl.sleepers.forEach(f => f());
+    if (ctl.closed) return; ctl.closed = true; ctl.skipped = true; if(ctl.tap)ctl.tap(); ctl.sleepers.forEach(f => f());
     fxCtl.stop(); root.removeEventListener('resize', onResize); doc.removeEventListener('keydown', onKey, true);
     ov.remove(); doc.body.classList.remove('lc-lock'); active = null;
     if (prevFocus && prevFocus.focus) prevFocus.focus();
@@ -212,7 +213,7 @@ function play(opts) {
   skipBtn.addEventListener('click', skip); doneBtn.addEventListener('click', close); doc.addEventListener('keydown', onKey, true);
   soundBtn.addEventListener('click', () => { sfx.setOn(!sfx.isOn()); soundBtn.textContent = 'Som: ' + (sfx.isOn() ? 'ligado' : 'desligado'); soundBtn.setAttribute('aria-pressed', String(sfx.isOn())); if (opts.onSoundChange) opts.onSoundChange(sfx.isOn()); });
   boxBtn.focus();
-  ritual().catch(err => { console.error('ApexLootCinema: falha na animação, mostrando o resultado direto', err); skip(); });
+  if(calm){ctl.skipped=true;showAll()}else ritual().catch(err => { console.error('ApexLootCinema: falha na animação, mostrando o resultado direto', err); skip(); });
   active = { promise, skip, close };
   return active;
 }

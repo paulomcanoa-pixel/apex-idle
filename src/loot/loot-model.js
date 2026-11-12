@@ -25,7 +25,7 @@ const CFG = {
   guarantee: { ouro: 1, lendaria: 2 },                           // ao menos 1 carta >= raro / >= épico por caixa
   pity: { epico: 20, lendario: 80 },                             // garantia após N cartas sem épico+/lendário
   kindWeights: { credits: 25, fragments: 15, part: 40, cosmetic: 20 },
-  creditSeconds: [50, 150, 400, 1200],                           // CR = renda(CR/s) x segundos
+  creditSeconds: [10, 15, 40, 120],                           // CR = renda(CR/s) x segundos
   fragmentValue: [10, 30, 90, 250],                              // carta de fragmentos
   dupFragments: [8, 25, 70, 200],                                // duplicata vira fragmentos
   craftCost: [30, 90, 250, 700],                                 // fragmentos para forjar item que falta
@@ -83,6 +83,7 @@ function defaultRng() {
   return Math.random();
 }
 function pickWeighted(weights, r) {
+  if(!Number.isFinite(r)||r<0||r>=1)throw new TypeError('RNG inválido');
   const total = weights.reduce((a, b) => a + b, 0);
   let acc = 0;
   for (let i = 0; i < weights.length; i++) { acc += weights[i]; if (r * total < acc) return i; }
@@ -110,6 +111,7 @@ function init(s, now = Date.now()) {
   st.byRarity = st.byRarity && typeof st.byRarity === 'object' ? st.byRarity : {};
   if (!Array.isArray(L.history)) L.history = [];
   if (!L.settings || typeof L.settings !== 'object') L.settings = {};
+  if (typeof L.settings.notify !== 'boolean') L.settings.notify = false;
   if (typeof L.settings.sound !== 'boolean') L.settings.sound = false; // som começa desligado
   return L;
 }
@@ -192,6 +194,7 @@ function resolveCard(L, rank, rng, income) {
 function rollBox(loot, tier, rng, income, opts = {}) {
   const ti = TIERS.indexOf(tier);
   if (ti < 0) throw new RangeError('tier inválido: ' + tier);
+  if(!Number.isFinite(income)||income<0)throw new TypeError('income inválido');
   const L = clone(loot);
   const cards = [];
   const n = CFG.draws[ti];
@@ -224,11 +227,15 @@ function rollBox(loot, tier, rng, income, opts = {}) {
 
 // Abre a caixa pronta; consome o enchimento (o excedente acima do tier fica para a próxima: sem desperdício).
 function open(s, kind, opts = {}) {
+  if(!Number.isFinite(s.money)||s.money<0||s.money>=CFG.moneyLimit)throw new TypeError('Caixa inválida: limite de dinheiro');
+  if(!Number.isFinite(opts.income)||opts.income<0)throw new TypeError('income inválido');
   const st = status(s, kind, opts);
   if (!st.ready) return null;
   const income = opts.income;
   const out = rollBox(s.loot, st.tier, opts.rng || defaultRng, income, opts);
   const L = out.loot;
+  if(s.money+out.result.credits>=CFG.moneyLimit)throw new RangeError('Limite de dinheiro: caixa preservada');
+  if(s.idle&&['totalEarned','cycleEarned'].some(k=>s.idle[k]+out.result.credits>=1e99))throw new RangeError('Limite de renda: caixa preservada');
   if (kind === 'afk') { L.afk.seconds = Math.max(0, st.value - st.thresholds[st.tierIndex]); L.afk.since = nowOf(opts); }
   else L.online.points = Math.max(0, st.value - st.thresholds[st.tierIndex]);
   L.history = [{ at: nowOf(opts), kind, tier: st.tier, best: out.result.best }, ...L.history].slice(0, CFG.historySize);
@@ -236,6 +243,7 @@ function open(s, kind, opts = {}) {
   out.result.moneyApplied = false;
   if (s.money + out.result.credits < CFG.moneyLimit) { s.money += out.result.credits; out.result.moneyApplied = true; }
   else console.error('ApexLoot.open: crédito ignorado por exceder o limite de dinheiro');
+  if(s.idle){s.idle.totalEarned+=out.result.credits;s.idle.cycleEarned+=out.result.credits}
   s.loot = L;
   return out.result;
 }
@@ -272,12 +280,12 @@ function expectedCreditSeconds(tier) { // por caixa, valor nominal (sem garantia
   return CFG.draws[ti] * w.reduce((t, x, i) => t + x / tw * kw.credits / kt * Math.max(0, CFG.creditSeconds[i]), 0);
 }
 // Jogador simulado para o balanceamento. Abre cada caixa assim que fica pronta (pior caso de frequência).
-function simulate({ hours, racesPerHour = 35, avgPlace = 4, awayHours = 0, awayStint = 8, income = 1, seed = 1, wait = false }) {
+function simulate({ hours, racesPerHour = 35, avgPlace = 4, awayHours = 0, awayStint = 8, income = 1, seed = 1, wait = false, perfect = false }) {
   const s = { money: 0, loot: null }; init(s, 0);
   const rng = createRng(seed); let credits = 0, boxes = 0;
   const tryOpen = kind => { const st = status(s, kind); if (st.ready && (!wait || st.full)) { const r = open(s, kind, { rng, income, now: 0 }); credits += r.credits; boxes++; } };
   for (let h = 0; h < hours; h++) {
-    for (let r = 0; r < racesPerHour; r++) { onRace(s, { place: avgPlace + (r % 3 === 0 ? -2 : 0) }); tryOpen('online'); }
+    for (let r = 0; r < racesPerHour; r++) { onRace(s, { place: Math.max(1,Math.min(10,avgPlace + (r % 3 === 0 ? -2 : 0))), ers: perfect, pitWindow: perfect }); tryOpen('online'); }
     if (awayHours > 0) { for (let k = 0; k < awayHours / awayStint; k++) { creditAway(s, awayStint * 3600); tryOpen('afk'); } }
   }
   return { creditSeconds: credits / income, boxes, fragments: s.loot.fragments, loot: s.loot };
@@ -290,3 +298,4 @@ const api = {
 root.ApexLoot = api;
 if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
+

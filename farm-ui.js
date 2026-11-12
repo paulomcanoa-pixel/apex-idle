@@ -23,7 +23,7 @@ g.fillStyle='#b9ee65';g.font='bold 11px Arial';g.textAlign='left';g.fillText('â—
 IdleFarm.ops.forEach((o,i)=>{g.fillStyle=f.levels[i]?o.color:'#526674';g.fillRect(235+i*116,326,106,32);g.fillStyle='#091724';g.font='bold 11px Arial';g.textAlign='center';g.fillText('+'+fmt(IdleFarm.rate(s,i))+'/min',288+i*116,346);if(f.levels[i]){const y=160-((t*(15+i*4))%42);g.globalAlpha=.25+.5*(1-(160-y)/42);g.fillStyle=o.color;g.beginPath();g.arc(308+i*103,y,9,0,7);g.fill();g.globalAlpha=1}});
 particles=particles.filter(p=>p.life>0);for(const p of particles){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=150*dt;g.globalAlpha=Math.max(0,p.life);g.fillStyle='#ffe496';g.beginPath();g.arc(p.x,p.y,5,0,7);g.fill()}g.globalAlpha=1;
 g.fillStyle='#94afba';g.font='12px Arial';g.textAlign='left';g.fillText('Cada melhoria movimenta sua economia.',28,530)}
-const previous=render;render=function(){previous();if(drawer.open&&drawer.dataset.section==='farm')refreshFarm()};setInterval(()=>{if(!ApexAccess.canWrite())return;IdleFarm.settle(s);if(drawer.open&&drawer.dataset.section==='farm')refreshFarm()},1000);
+const previous=render;render=function(){previous();if(drawer.open&&drawer.dataset.section==='farm')refreshFarm()};ApexRender.schedule('farm-1',()=>{if(!ApexAccess.canWrite())return;IdleFarm.settle(s);if(drawer.open&&drawer.dataset.section==='farm')refreshFarm()},1000);
 const oldImport=$('import').onchange;$('import').onchange=async e=>{await oldImport(e);IdleFarm.init(s);IdleFarm.settle(s);cache='';refreshFarm()};
 refreshFarm();requestAnimationFrame(drawFarm);save();
 })();

@@ -29,6 +29,6 @@ function onlineClick(e){const b=e.target.closest('[data-online]');if(!b)return;i
 rankedPanel.onclick=onlineClick;rankingsPanel.onclick=onlineClick;
 rankedPanel.onchange=e=>{if(e.target.id==='onlineCar')onlineCar=e.target.value;if(e.target.id==='onlineStyle')onlineStyle=e.target.value};
 rankingsPanel.onchange=e=>{if(e.target.id==='onlineSort'){onlineSort=e.target.value;fetchRanked()}};
-function openOnline(id){if(onlinePolling)clearInterval(onlinePolling);if(id==='pvp'||id==='rankings'){fetchRanked();onlinePolling=setInterval(()=>{if(drawer.open&&(drawer.dataset.section==='pvp'||drawer.dataset.section==='rankings')&&document.activeElement?.id!=='pilotName')fetchRanked()},5000)}}
+function openOnline(id){if(onlinePolling)onlinePolling();if(id==='pvp'||id==='rankings'){fetchRanked();onlinePolling=ApexRender.schedule('ranked-poll',()=>{if(drawer.open&&(drawer.dataset.section==='pvp'||drawer.dataset.section==='rankings')&&document.activeElement?.id!=='pilotName')fetchRanked()},5000)}}
 renderOnline();
 

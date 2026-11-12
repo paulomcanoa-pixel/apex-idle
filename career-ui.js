@@ -61,7 +61,7 @@ const careerEquip=A.equipCar;A.equipCar=function(state,id){if(!Career.available(
 const careerPrepare=prepareRace;prepareRace=function(){if(!Career.available(s,A.equippedCar(s).id)){radio('Este carro está reservado para o GP semanal. Equipe outro carro.');return}careerPrepare()};
 raceButton.onclick=prepareRace;$('againRace').onclick=prepareRace;
 function settleCareer(){if(Career.settle(s,simulateGP)){save();radio('GP semanal concluído! Veja resultado e replay na Carreira.');render()}}
-settleCareer();setInterval(settleCareer,1000);
+settleCareer();ApexRender.schedule('career-1',settleCareer,1000);
 const replayDialog=document.createElement('dialog');replayDialog.className='race-result career-replay';ApexRender.html(replayDialog,'<h2>Replay do GP semanal</h2><p id="careerReplayLabel"></p><canvas id="careerReplayCanvas" width="800" height="360" aria-label="Replay do GP simulado"></canvas><label>Velocidade<select id="careerReplaySpeed"><option value="1">1×</option><option value="4">4×</option><option value="8" selected>8×</option></select></label><button id="careerReplayPause">Pausar</button><button id="careerReplayClose">Fechar replay</button>');document.body.append(replayDialog);
 let replayFrame=0,replayState=null,replayElapsed=0,replayLast=0,replayPaused=false;
 function stopCareerReplay(){cancelAnimationFrame(replayFrame);replayState=null}

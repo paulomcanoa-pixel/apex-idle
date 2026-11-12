@@ -43,5 +43,5 @@ g.strokeStyle='#2d4d5c';g.lineWidth=4;g.beginPath();g.moveTo(100,275);g.lineTo(9
 if(t<celebrate){for(let i=0;i<35;i++){g.fillStyle=i%2?'#d4fc5a':'#78e4e1';g.fillRect((i*137)%1000,((t/6+i*51)%330),4,8)}g.fillStyle='#d4fc5a';g.font='bold 24px Arial';g.fillText('CONTRATO CONCLUÍDO',500,42)}g.textAlign='left';
 }
 const prior=render;render=function(){prior();if(drawer.open&&drawer.dataset.section==='pilots')renderAcademy()};
-setInterval(()=>{if(drawer.open&&drawer.dataset.section==='pilots'&&!document.hidden)renderAcademy()},1000);const oldImport=$('import').onchange;$('import').onchange=async e=>{await oldImport(e);ACD.init(s);signature='';renderAcademy()};renderAcademy();requestAnimationFrame(draw);save();
+ApexRender.schedule('academy-1',()=>{if(drawer.open&&drawer.dataset.section==='pilots'&&!document.hidden)renderAcademy()},1000);const oldImport=$('import').onchange;$('import').onchange=async e=>{await oldImport(e);ACD.init(s);signature='';renderAcademy()};renderAcademy();requestAnimationFrame(draw);save();
 })();

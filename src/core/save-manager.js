@@ -11,7 +11,9 @@ function read(){const raw=storage.getItem(key);if(raw===null)return{raw:null,dat
 try{return{raw,data:parse(raw),recovered:false}}catch(error){const previous=storage.getItem(key+'.prev');onError(error);if(previous!==null){try{return{raw,data:parse(previous),recovered:true,original:raw}}catch(fallbackError){onError(fallbackError)}}return{raw,data:null,error,original:raw}}
 }
 function saveNow(state,{reason='ação',expected}={}){if(!canWrite())return{ok:false,reason:'readonly'};if(!validate(state))throw Error('Estado inválido: '+reason);if(expected!==undefined&&storage.getItem(key)!==expected)return{ok:false,reason:'conflict'};
-const instant=now(),raw=storage.getItem(key);backupOriginal(raw);
+const instant=now(),raw=storage.getItem(key);
+if(state.loot!==undefined&&raw!==null&&storage.getItem(key+'.bak-loot')===null)storage.setItem(key+'.bak-loot',raw);
+backupOriginal(raw);
 // Preserve the previous valid snapshot before replacing it, at most once per five minutes.
 if(raw!==null&&(!rotated||instant-rotated>=300000)){try{const old=JSON.parse(raw);if(verify(old)&&validate(old)){storage.setItem(key+'.prev',raw);rotated=instant}}catch(error){onError(error)}}
 seal(state,instant);const payload=JSON.stringify(state);storage.setItem(key,payload);return{ok:true,payload}}
