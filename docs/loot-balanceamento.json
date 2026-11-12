@@ -1,0 +1,418 @@
+{
+  "before": {
+    "creditSeconds": [
+      50,
+      150,
+      400,
+      1200
+    ],
+    "budget": [
+      {
+        "track": 3,
+        "income": 0.973228247295014,
+        "onlinePercent": 33.1254942057741,
+        "afkSecondsPerHour": 51.188274835285114
+      },
+      {
+        "track": 8,
+        "income": 3.7497755163124817,
+        "onlinePercent": 33.024888057418046,
+        "afkSecondsPerHour": 51.17819697876755
+      },
+      {
+        "track": 15,
+        "income": 29.700468393450503,
+        "onlinePercent": 33.05797378508915,
+        "afkSecondsPerHour": 51.18731983820333
+      },
+      {
+        "track": 24,
+        "income": 263.88224906959323,
+        "onlinePercent": 33.058182106610055,
+        "afkSecondsPerHour": 51.1874464751803
+      }
+    ],
+    "progress": [
+      {
+        "track": 5,
+        "before": 2303.5478189054893,
+        "after": 2283.2298863388583,
+        "changePercent": -0.8820278181281616
+      },
+      {
+        "track": 10,
+        "before": 5873.961222926141,
+        "after": 5124.134221923719,
+        "changePercent": -12.765269850196459
+      },
+      {
+        "track": 24,
+        "before": 51208.00755384075,
+        "after": 47649.7076690716,
+        "changePercent": -6.948717700113416
+      }
+    ],
+    "casualProgress": [
+      {
+        "track": 5,
+        "before": 0.8789561287764232,
+        "after": 0.8789103722742729,
+        "changePercent": -0.00520577770063424
+      },
+      {
+        "track": 10,
+        "before": 3.8764575683831506,
+        "after": 3.5431317055947087,
+        "changePercent": -8.598723368136085
+      },
+      {
+        "track": 24,
+        "before": 16.337362227390393,
+        "after": 15.334673384040475,
+        "changePercent": -6.137397392517019
+      }
+    ],
+    "casualEvents": {
+      "before": [
+        [
+          10,
+          "Categoria F4"
+        ],
+        [
+          17,
+          "Nova Temporada #1 (titulos 4)"
+        ],
+        [
+          22,
+          "Categoria F4"
+        ],
+        [
+          27,
+          "Categoria F3"
+        ],
+        [
+          34,
+          "Categoria F2"
+        ],
+        [
+          34,
+          "Nova Temporada #2 (titulos 8)"
+        ],
+        [
+          38,
+          "Categoria F4"
+        ],
+        [
+          42,
+          "Categoria F3"
+        ],
+        [
+          47,
+          "Categoria F2"
+        ],
+        [
+          54,
+          "Categoria F1"
+        ],
+        [
+          57,
+          "Nova Temporada #3 (titulos 12)"
+        ],
+        [
+          60,
+          "Categoria F4"
+        ],
+        [
+          64,
+          "Categoria F3"
+        ],
+        [
+          69,
+          "Categoria F2"
+        ],
+        [
+          76,
+          "Categoria F1"
+        ],
+        [
+          85,
+          "Categoria Lendas"
+        ]
+      ],
+      "after": [
+        [
+          9,
+          "Categoria F4"
+        ],
+        [
+          16,
+          "Nova Temporada #1 (titulos 4)"
+        ],
+        [
+          21,
+          "Categoria F4"
+        ],
+        [
+          26,
+          "Categoria F3"
+        ],
+        [
+          32,
+          "Categoria F2"
+        ],
+        [
+          32,
+          "Nova Temporada #2 (titulos 8)"
+        ],
+        [
+          36,
+          "Categoria F4"
+        ],
+        [
+          40,
+          "Categoria F3"
+        ],
+        [
+          45,
+          "Categoria F2"
+        ],
+        [
+          52,
+          "Categoria F1"
+        ],
+        [
+          55,
+          "Nova Temporada #3 (titulos 12)"
+        ],
+        [
+          58,
+          "Categoria F4"
+        ],
+        [
+          62,
+          "Categoria F3"
+        ],
+        [
+          67,
+          "Categoria F2"
+        ],
+        [
+          74,
+          "Categoria F1"
+        ],
+        [
+          83,
+          "Categoria Lendas"
+        ]
+      ]
+    }
+  },
+  "after": {
+    "creditSeconds": [
+      10,
+      15,
+      40,
+      120
+    ],
+    "budget": [
+      {
+        "track": 3,
+        "income": 0.973228247295014,
+        "onlinePercent": 4.418142530348995,
+        "afkSecondsPerHour": 5.316327402518978
+      },
+      {
+        "track": 8,
+        "income": 3.7497755163124817,
+        "onlinePercent": 4.3031390773556115,
+        "afkSecondsPerHour": 5.267048631066411
+      },
+      {
+        "track": 15,
+        "income": 29.700468393450503,
+        "onlinePercent": 4.3352468185149835,
+        "afkSecondsPerHour": 5.2759521474265645
+      },
+      {
+        "track": 24,
+        "income": 263.88224906959323,
+        "onlinePercent": 4.334371164198576,
+        "afkSecondsPerHour": 5.274926145687431
+      }
+    ],
+    "progress": [
+      {
+        "track": 5,
+        "before": 2303.5478189054893,
+        "after": 2397.904763499165,
+        "changePercent": 4.096157406383183
+      },
+      {
+        "track": 10,
+        "before": 5873.961222926141,
+        "after": 5959.071176609013,
+        "changePercent": 1.4489362536253436
+      },
+      {
+        "track": 24,
+        "before": 51208.00755384075,
+        "after": 50795.49140397875,
+        "changePercent": -0.8055696160962245
+      }
+    ],
+    "casualProgress": [
+      {
+        "track": 5,
+        "before": 0.8789561287764232,
+        "after": 0.8789520658714789,
+        "changePercent": -0.00046224206319278593
+      },
+      {
+        "track": 10,
+        "before": 3.8764575683831506,
+        "after": 3.546085503078954,
+        "changePercent": -8.522524998048485
+      },
+      {
+        "track": 24,
+        "before": 16.337362227390393,
+        "after": 15.881704241424258,
+        "changePercent": -2.789054803487201
+      }
+    ],
+    "casualEvents": {
+      "before": [
+        [
+          10,
+          "Categoria F4"
+        ],
+        [
+          17,
+          "Nova Temporada #1 (titulos 4)"
+        ],
+        [
+          22,
+          "Categoria F4"
+        ],
+        [
+          27,
+          "Categoria F3"
+        ],
+        [
+          34,
+          "Categoria F2"
+        ],
+        [
+          34,
+          "Nova Temporada #2 (titulos 8)"
+        ],
+        [
+          38,
+          "Categoria F4"
+        ],
+        [
+          42,
+          "Categoria F3"
+        ],
+        [
+          47,
+          "Categoria F2"
+        ],
+        [
+          54,
+          "Categoria F1"
+        ],
+        [
+          57,
+          "Nova Temporada #3 (titulos 12)"
+        ],
+        [
+          60,
+          "Categoria F4"
+        ],
+        [
+          64,
+          "Categoria F3"
+        ],
+        [
+          69,
+          "Categoria F2"
+        ],
+        [
+          76,
+          "Categoria F1"
+        ],
+        [
+          85,
+          "Categoria Lendas"
+        ]
+      ],
+      "after": [
+        [
+          10,
+          "Categoria F4"
+        ],
+        [
+          16,
+          "Nova Temporada #1 (titulos 4)"
+        ],
+        [
+          21,
+          "Categoria F4"
+        ],
+        [
+          26,
+          "Categoria F3"
+        ],
+        [
+          33,
+          "Categoria F2"
+        ],
+        [
+          33,
+          "Nova Temporada #2 (titulos 8)"
+        ],
+        [
+          37,
+          "Categoria F4"
+        ],
+        [
+          41,
+          "Categoria F3"
+        ],
+        [
+          46,
+          "Categoria F2"
+        ],
+        [
+          54,
+          "Categoria F1"
+        ],
+        [
+          56,
+          "Nova Temporada #3 (titulos 12)"
+        ],
+        [
+          60,
+          "Categoria F4"
+        ],
+        [
+          63,
+          "Categoria F3"
+        ],
+        [
+          68,
+          "Categoria F2"
+        ],
+        [
+          75,
+          "Categoria F1"
+        ],
+        [
+          84,
+          "Categoria Lendas"
+        ]
+      ]
+    }
+  }
+}
