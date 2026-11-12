@@ -42,9 +42,11 @@ Comando único npm test preserva todos os testes anteriores e acrescenta os de l
 
 Testado no navegador em origens locais separadas, preservando o save principal: carregar jogo existente; probabilidades em 390 px; importar fixture pelo fluxo real com confirmação; abrir AFK lendária com 5 cartas em ordem; Pular na Online; recarregar no meio e confirmar recompensa e caixa consumida; forjar item, saldo 170→140 e item Obtido; comprar motor e abrir banners no desktop 1366 px. Console da origem nova sem erros nesses fluxos. Nenhum save real enviado à nuvem.
 
+No Brave, a demonstração local abriu uma caixa Online Lendária de cinco cartas com CPU 4× mais lenta, conforme o seletor do DevTools. O PerformanceObserver registrou zero tarefas de 50 ms ou mais entre o início da abertura e o fechamento do resultado. O painel também mostrou INP local de 432 ms em uma interação de ponteiro durante a sessão. Essa métrica inclui espera e apresentação do quadro. Em um segundo teste, a emulação prefers-reduced-motion: reduce mostrou as cinco cartas diretamente no resumo.
+
 ## Não verificado
 
-A medição DevTools CPU 4x sem tarefa >50 ms ainda não foi executada: o controlador disponível do navegador não oferece throttling de CPU. Não se afirma desempenho 4x aprovado. Movimento reduzido foi coberto em teste automatizado com DOM falso; falta emulação manual no DevTools. Sincronização com loot passa pelo módulo real e RPC simulado, não por gravação no banco de produção. Regressão completa de temporada/ERS/circuitos está coberta pela suíte existente, sem repetir todos esses fluxos manualmente nesta entrega.
+Sincronização com loot passa pelo módulo real e RPC simulado, não por gravação no banco de produção. Regressão completa de temporada/ERS/circuitos está coberta pela suíte existente, sem repetir todos esses fluxos manualmente nesta entrega.
 
 ## Decisões para o dono
 
