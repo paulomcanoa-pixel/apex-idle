@@ -1,21 +1,39 @@
 (function(root){
 const V=root.ProgressionV2||require('./progression-v2'),B=V.B,Shop=root.ApexShop||require('./shop'),Ret=root.ApexRetention||require('./retention');
 const A=root.Apex||require('../engine'),N=root.NightLeague||require('../night-model'),E=root.GameEconomy||require('../game/economy'),T=root.GameTick||require('../game/tick'),G=root.GameSave||require('../game/save'),H=root.Legends||require('../legends-model'),GS=root.GarageState||require('../garage-state'),Maps=root.CircuitMaps||require('../circuits-data'),Champ=root.Championship||require('../championship-model'),Farm=root.IdleFarm||require('../farm-model');
+const Vehicle=root.ApexVehicle||require('./vehicle-performance');
 const Loot=root.ApexLoot||require('./loot/loot-model'),LootHooks=root.ApexLootHooks||require('./loot/loot-hooks');
 Shop.loadCatalog(root.APEX_CATALOG||(typeof require==='function'?require('./data/shop-catalog.json'):null));
 root.APEX_V2_ENABLED=true;if(root.Race)root.Race.compounds.wet={name:'Chuva',color:'#65C9FF',base:1.02,window:3,drop:.03};
 const originalAdvance=A.advance;A.advance=(s,...args)=>s.version===2?0:originalAdvance(s,...args);
 const old={initial:A.initial,validate:A.validate,duration:A.duration,reward:A.reward,buy:A.buy,cost:A.cost,equipped:A.equippedCar,owned:A.ownedCars,nightInit:N.init,finish:N.finish,durationN:N.duration,grid:N.grid,season:N.newSeason,titles:N.titles,carCost:N.carCost,maxCar:N.maxCar,prod:E.production,buyTeam:E.buy,click:E.click,ascend:E.ascend,offline:T.offline,tick:T.tick,farmInit:Farm.init,farmSettle:Farm.settle,farmRate:Farm.rate,farmTotal:Farm.totalRate,champTick:Champ.tick,champSettle:Champ.settle,parts:A.parts.slice()};
 const originalRecord=N.record;N.record=(s,id,time)=>{const best=originalRecord(s,id,time);if(s.version===2&&(!s.race.records[id]||time<s.race.records[id]))s.race.records[id]=time;return best};
-A.initial=()=>{const s=V.initial();Loot.init(s);s.catProgress=true;s.meta.playerId=root.crypto?.randomUUID?.()||'apex-'+s.meta.createdAt;return s};
+A.initial=()=>{const s=V.initial();Loot.init(s);s.catProgress=true;s.meta.playerId=root.crypto?.randomUUID?.()||'apex-'+s.meta.createdAt;H.init(s);GS.init(s);GS.equip(s,'lotus49');const c=Champ.init(s);c.roster.real_clark={stars:0,copies:0};c.driver='real_clark';return s};
 A.validate=s=>s?.version===2?V.valid(s)&&old.validate({...s,version:1,levels:s.levels.slice(0,4),rep:Math.max(s.rep,Maps.circuits[s.circuit]?.rep||0)}):old.validate(s);
 A.circuits=Maps.circuits.map((c,i)=>({...c,rep:B.repToOpen(i),source:'',driver:'Escuderia Aurora',reference:'Referência arcade',year:'',mult:1.3**i}));
 A.cars.forEach(c=>c.name=c.name.replace(/F1/g,'Apex'));A.parts=B.branches.map(x=>({name:x.name,base:x.base,desc:x.id==='patro'?'Aumente a renda das corridas.':'Aumente o PI e dispute posições.'}));
 A.ownedCars=s=>s.version===2?GS.init(s).owned:old.owned(s);
-A.equippedCar=s=>{if(s.version===2){const q=Shop.init(s),c=Shop.get(q.selectedCar);if(c&&q.inventory.cars.includes(c.id))return{...c,color:c.color||['#9cafbe','#65c9ff','#b38bff','#ffcd75','#ff86bf'][Shop.rarities.indexOf(c.rarity)],bonus:c.effect.piPct,rarity:['Comum','Raro','Épico','Lendário','Mítico'][Shop.rarities.indexOf(c.rarity)]}}return old.equipped(s)};
-function power(s){const chosen=A.equippedCar(s),legacyParts=Math.min(.15,Math.max(0,(root.PartsShop||require('../parts-shop-model')).factor(s)-1)),parts=Math.min(.15,legacyParts+Shop.componentBonus(s));return{car:Math.min(.22,chosen.bonus||0),parts,staff:Math.min(.24,Shop.staffBonus(s)+(Shop.init(s).selectedPilot?(B.trackProfile(Shop.hash(Shop.init(s).selectedPilot))===B.trackProfile(Shop.hash(chosen.id))?.03:0):(H.affinity(chosen.id,s.championship?.driver)?.03:0)))}}
-function pi(s){const p=power(s);return V.pi(s,p.car,p.parts)*(1+p.staff)}
-A.duration=s=>s.version===2?B.screenLap(V.index(s))/B.paceFactor(pi(s),V.leader(s)):old.duration(s);
+function selectedCar(s){
+  const q=Shop.init(s);H.init(s);const garage=GS.init(s);
+  let c=Shop.get(q.selectedCar);if(!c||!q.inventory.cars.includes(c.id))c=Shop.get(garage.equipped);
+  if(!c?.historical){const id=[...garage.owned,...q.inventory.cars].find(id=>Shop.get(id)?.historical)||'lotus49';
+    if(garage.owned.includes(id)){GS.equip(s,id);q.selectedCar=''}else q.selectedCar=id;c=Shop.get(id);
+  }
+  return c;
+}
+A.equippedCar=s=>{if(s.version!==2)return old.equipped(s);const c=selectedCar(s);return{...c,bonus:c.effect.piPct,rarity:['Comum','Raro','Épico','Lendário','Mítico'][Shop.rarities.indexOf(c.rarity)]}};
+function performance(s,id,options={}){return Vehicle.performance(s,id||A.equippedCar(s).id,options)}
+function power(s,options={}){const chosen=performance(s,undefined,options),legacyParts=Math.min(.15,Math.max(0,(root.PartsShop||require('../parts-shop-model')).factor(s)-1)),parts=Math.min(.15,legacyParts+Shop.componentBonus(s,options));return{car:chosen.bonus,parts,staff:chosen.staffBonus,performance:chosen}}
+function pi(s,options={}){const p=power(s,options);return V.pi(s,p.car,p.parts)*(1+p.staff)}
+function duration(s,options={}){return B.screenLap(V.index(s))/B.paceFactor(pi(s,options),V.leader(s))}
+function updateRace(s,r){
+  const carId=A.equippedCar(s).id,options={wet:r.event==='rain'&&r.distance>=1,trackProfile:r.challenge?.trackProfile};
+  if(r.carId&&carId!==r.carId){r.changedCar=true;if(r.challenge?.token)Ret.cancelChallenge(s,r.challenge.token)}
+  r.performance=performance(s,carId,options);r.windowMult=(r.baseWindowMult||1)*r.performance.windowMult;r.trackProfile=r.performance.trackProfile;
+  return duration(s,options);
+}
+function compare(s,id,options={}){const current=performance(s,undefined,options),candidate=performance(s,id,options),parts=power(s,options).parts,currentPI=V.pi(s,current.bonus,parts)*(1+current.staffBonus),candidatePI=V.pi(s,candidate.bonus,parts)*(1+candidate.staffBonus);return{current,candidate,deltaPI:candidatePI-currentPI,currentPI,candidatePI,lapDelta:B.screenLap(V.index(s))/B.paceFactor(candidatePI,V.leader(s))-B.screenLap(V.index(s))/B.paceFactor(currentPI,V.leader(s))}}
+A.duration=s=>s.version===2?duration(s):old.duration(s);
 A.reward=s=>s.version===2?Math.floor(V.reward(s)*(Shop.init(s).boosts.cr>Date.now()?2:1)):old.reward(s);
 A.cost=(s,i)=>s.version===2?V.cost(s,i):old.cost(s,i);
 A.buy=(s,i)=>s.version===2?V.buy(s,i,1).bought>0:old.buy(s,i);
@@ -25,10 +43,13 @@ N.grid=(c,s,seed=Date.now())=>s?.version===2?N.names.map((name,i)=>({name,color:
 N.finish=(s,place,time,reward,seed,options={})=>{
   if(s.version!==2)return old.finish(s,place,time,reward);
   Ret.refresh(s);
+  const affinity=typeof options.affinity==='boolean'?options.affinity:performance(s,options.carId,{wet:options.event==='rain',trackProfile:options.trackProfile}).synergy;
   const result=V.finish(s,place,time,seed);
   if(!result)return null; // A seed já recebida não pode dar pontos duas vezes.
   const n=N.init(s);n.races++;if(place===1)n.wins++;n.lastResult=result;
   Ret.raceDone(s,result,Shop.rng(seed),options);
+  const academy=root.DriverAcademy||require('../academy-model');
+  academy.record(s,{place,event:options.event||'clear',affinity});
   LootHooks.race(s,{place,ers:options.ers,pitWindow:options.pitWindow});
   if(options.competition){Shop.init(s).eventTokens+=10+(place<=3?20:0);Ret.init(s).passXp+=20}
   return result;
@@ -63,7 +84,7 @@ Champ.tick=(s,...a)=>s.version===2?0:old.champTick(s,...a);Champ.settle=(s,...a)
 const draw=root.CarArt?.draw;if(draw)root.CarArt.draw=(ctx,options)=>{const c=Shop.get(options.id);if(c?.category==='carros'&&!c.historical){const i=Shop.rarities.indexOf(c.rarity);options={...options,id:['vento','scarlatto','solar','eclipse','zenith'][Math.max(0,i)],color:options.color||['#96b3c7','#4bb7ed','#a67bff','#ffbd58','#fa6da9'][Math.max(0,i)]}}if(ctx.canvas?.id==='track'&&root.ApexCamera){const matrix=ctx.getTransform(),zoom=Math.hypot(matrix.a,matrix.b)/(root.devicePixelRatio||1);options={...options,scale:Math.max(options.scale||.17,root.ApexCamera.minCarSizePx(root.innerWidth)/(80*Math.max(.01,zoom)))*(options.number==='01'?1.25:1)}}if(ctx.canvas?.id==='track'&&options.number==='01'&&root.ApexCosmetics){options={...options,color:root.ApexCosmetics.paintColor(root.ApexPaintState?.(),options.color)}}draw(ctx,options);if(ctx.canvas?.id==='track'&&options.number==='01'&&root.ApexCosmetics)root.ApexCosmetics.decorate(ctx,options,root.ApexPaintState?.())};
 const equipped=GS.equip;GS.equip=(s,id)=>{const ok=equipped(s,id);if(ok&&s.version===2)Shop.init(s).selectedCar='';return ok};
 const equipStaff=Champ.equip;Champ.equip=(s,id)=>{const ok=equipStaff(s,id);if(ok&&s.version===2){const role=Champ.roster.find(p=>p.id===id)?.role;Shop.init(s)[role==='driver'?'selectedPilot':'selectedEngineer']=''}return ok};
-root.ApexV2={V,B,Shop,Ret,power,pi,place:s=>B.placeOf(pi(s)*B.aiLeaderPI(V.index(s))/V.leader(s),V.index(s))};
+root.ApexV2={V,B,Shop,Ret,power,pi,duration,performance,updateRace,compare,place:s=>B.placeOf(pi(s)*B.aiLeaderPI(V.index(s))/V.leader(s),V.index(s))};
 if(typeof module!=='undefined')module.exports=root.ApexV2;
 })(typeof window!=='undefined'?window:globalThis);
 

@@ -1,8 +1,8 @@
 (function(root){
-const V=root.ProgressionV2||require('./progression-v2'),Shop=root.ApexShop||require('./shop');
+const V=root.ProgressionV2||require('./progression-v2'),Shop=root.ApexShop||require('./shop'),Talents=root.ApexTalents||require('./talents'),Journey=root.ApexJourney||require('./career-journey');
 function init(s,now=Date.now()){if(!s.retention)s.retention={drop:{none:0,rare:0,legendary:0},claims:[],passXp:0,passClaimed:[],contracts:[],perfect:[],events:{}};const r=s.retention,period=28*86400000;if(!r.passStartedAt)r.passStartedAt=now;if(now-r.passStartedAt>=period){r.passArchive=[{at:r.passStartedAt,xp:r.passXp,claimed:r.passClaimed.slice()},...(r.passArchive||[])].slice(0,12);r.passStartedAt+=Math.floor((now-r.passStartedAt)/period)*period;r.passXp=0;r.passClaimed=[]}return r}
 function income(s){return(V.reward(s)*6.3/(V.duration(s)*5+6))+(s.idle?.units||[]).reduce((n,u,i)=>n+V.B.P.gens[i].rate*u*2**s.idle.upgrades[i],0)}
-function offline(s,now=Date.now(),teamRate=0){const r=init(s),at=s.idle.at,cap=(8+(s.shop?.offlineCapHours||0))*3600,seconds=Math.min(cap,Math.max(0,(now-at)/1000,s.shop?.returnMinHours?Math.min(cap,s.shop.returnMinHours*3600):0));if(now<at){s.meta.clockWarnings=(s.meta.clockWarnings||0)+1;return{seconds:0,amount:0,clockWarning:true}}const rate=.1*teamRate+.03*(V.reward(s)*6.3/(V.duration(s)*5+6)),amount=seconds*rate;if(s.money+amount<1e100){s.money+=amount;s.idle.totalEarned+=amount;s.idle.cycleEarned+=amount}s.idle.at=now;Shop.init(s).returnMinHours=0;Shop.init(s).lastOfflineRate=rate;r.lastReturn={seconds,amount};return{seconds,amount}}
+function offline(s,now=Date.now(),teamRate=0){const r=init(s),at=s.idle.at,cap=(8+(s.shop?.offlineCapHours||0))*3600,seconds=Math.min(cap,Math.max(0,(now-at)/1000,s.shop?.returnMinHours?Math.min(cap,s.shop.returnMinHours*3600):0));if(now<at){s.meta.clockWarnings=(s.meta.clockWarnings||0)+1;return{seconds:0,amount:0,clockWarning:true}}const rate=.1*teamRate+.03*(V.reward(s)*6.3/(V.duration(s)*5+6)),amount=seconds*rate*(1+Talents.effects(s).offline);if(s.money+amount<1e100){s.money+=amount;s.idle.totalEarned+=amount;s.idle.cycleEarned+=amount}s.idle.at=now;Shop.init(s).returnMinHours=0;Shop.init(s).lastOfflineRate=rate;r.lastReturn={seconds,amount};if(seconds>=60)Journey.mark(s,'offline_return');return{seconds,amount}}
 function refresh(s,now=Date.now()){const d=s.daily,date=Shop.day(now),week=Shop.week(now);if(d.day!==date){const difference=d.day?Math.round((Date.parse(date)-Date.parse(d.day))/86400000):1;if(difference>1){if(difference===2&&d.pauseWeek!==week)d.pauseWeek=week;else d.streak=0}d.day=date;d.claimed=[];d.races=0;d.upgrades=0;d.top=0;d.chest=false}if(d.week!==week){if(s.shop){if(s.shop.eventWeek&&s.shop.eventWeek!==week){s.money+=s.shop.eventTokens*V.B.lapReward(V.index(s))*.5;s.shop.eventTokens=0}s.shop.eventWeek=week}d.week=week;d.weekRaces=0;d.weeklyClaimed=[]}return d}
 const missions=[{id:'races',name:'Complete 5 corridas',goal:5},{id:'top',name:'Termine 3 vezes entre os cinco',goal:3},{id:'upgrades',name:'Compre 3 melhorias',goal:3}];
 function claimDaily(s,id,now=Date.now()){const d=refresh(s,now);
@@ -28,7 +28,7 @@ function claimWeekly(s,now=Date.now()){const d=refresh(s,now);
   root.ApexLootHooks?.mission(s,'weekly');
   return true}
 function weather(random=Math.random){const r=random();return r<.12?'rain':r<.22?'safety':r<.24?'red':'clear'}
-function raceDone(s,result,random=Math.random,{ers=false,pitWindow=false,event='clear',circuit=s.circuit}={}){const r=init(s),p=r.drop;
+function raceDone(s,result,random=Math.random,{ers=false,pitWindow=false,event='clear',circuit=s.circuit,challenge=null,carId='',trackProfile=null}={}){const r=init(s),p=r.drop;
   refresh(s);
   if(s.cat>=3){r.challenges=r.challenges||{};
   const stars=r.challenges[circuit]||[],goals=[result.place===1&&result.time<=V.B.screenLap(V.index(s))*5,!ers,event==='rain'];
@@ -48,12 +48,37 @@ function raceDone(s,result,random=Math.random,{ers=false,pitWindow=false,event='
   if(event!=='clear'){const penalty=Math.floor(result.prize*.08);
   s.money=Math.max(0,s.money-penalty);
   r.lastEvent={event,penalty}}
+  Journey.mark(s,'race_finish',{place:result.place});
+  if(challenge)finishChallenge(s,result,{challenge,carId,trackProfile,event,pitWindow});
   return drop}
 function contracts(s){return init(s).contracts}
 function startContract(s,car,minutes,owned,now=Date.now()){const list=contracts(s);if(![1,5,15].includes(minutes)||!owned.includes(car)||list.length>=3||list.some(x=>x.car===car))return false;list.push({id:car+'-'+now,car,minutes,end:now+minutes*60000});return true}
 function claimContract(s,id,now=Date.now()){const list=contracts(s),i=list.findIndex(x=>x.id===id&&x.end<=now);if(i<0)return false;const [c]=list.splice(i,1);s.money+=Math.ceil(income(s)*c.minutes*30);s.materials+={1:2,5:8,15:24}[c.minutes];return true}
-function passTier(s){let xp=init(s).passXp,tier=0;while(tier<40&&xp>=100+25*(tier+1)){xp-=100+25*(tier+1);tier++}return tier}
-function claimPass(s,tier){const r=init(s);if(tier<1||tier>passTier(s)||r.passClaimed.includes(tier))return false;r.passClaimed.push(tier);if(tier%10===0){s.championship.gems+=50;s.championship.tickets+=2}else if(tier%5===0)s.championship.gems+=20;else if(tier%2)s.championship.tickets++;else s.money+=Math.ceil(income(s)*(10+tier)*60);return true}
-const api={init,income,offline,refresh,missions,claimDaily,chest,claimWeekly,weather,raceDone,startContract,claimContract,contracts,passTier,claimPass};root.ApexRetention=api;if(typeof module!=='undefined')module.exports=api;
+function passProgress(s){const r=init(s);let xp=r.passXp,tier=0;while(tier<40&&xp>=100+25*(tier+1)){xp-=100+25*(tier+1);tier++}return{tier,xp,nextXp:tier===40?0:100+25*(tier+1),claimable:Array.from({length:tier},(_,i)=>i+1).filter(t=>!r.passClaimed.includes(t))}}
+function passTier(s){return passProgress(s).tier}
+function claimPass(s,tier){const r=init(s);if(!Number.isInteger(tier)||tier<1||tier>passTier(s)||r.passClaimed.includes(tier))return false;r.passClaimed.push(tier);if(tier%10===0){s.championship.gems+=50;s.championship.tickets+=2}else if(tier%5===0)s.championship.gems+=20;else if(tier%2)s.championship.tickets++;else s.money+=Math.ceil(income(s)*(10+tier)*60);return true}
+function claimAllPass(s){return passProgress(s).claimable.reduce((n,t)=>n+(claimPass(s,t)?1:0),0)}
+function returnSummary(s){const out=init(s).lastReturn||{seconds:0,amount:0};const candidates=V.B.branches.map((b,i)=>({name:b.name,cost:V.cost(s,i),open:V.unlockedBranch(s,i)&&s.levels[i]<100})).filter(x=>x.open&&Number.isFinite(x.cost));candidates.sort((a,b)=>a.cost-b.cost);const n=candidates[0],nextPurchase=n?{name:n.name,cost:n.cost,affordable:s.money>=n.cost,remaining:Math.max(0,n.cost-s.money)}:null;return{...out,nextPurchase,message:n?(s.money>=n.cost?'Você já pode investir em '+n.name+'.':'Continue preparando a próxima melhoria de '+n.name+'.'):'Sua equipe mantém a Aurora em movimento.'}}
+const challengeRules=[
+  {id:'technical',name:'Precisão nas curvas',description:'Circuito técnico. Termine entre os cinco primeiros com um acerto de curvas.',trackProfile:'curvas',event:'clear',windowMult:1,targetPlace:5},
+  {id:'rain',name:'Domine a chuva',description:'Chuva prevista. Termine entre os cinco primeiros e escolha seus pneus com cuidado.',trackProfile:null,event:'rain',windowMult:1,targetPlace:5},
+  {id:'tyres',name:'Poupe para atacar',description:'Desgaste elevado. Termine entre os cinco primeiros e faça a parada dentro da janela.',trackProfile:null,event:'clear',windowMult:.8,targetPlace:5,requirePit:true},
+  {id:'heritage',name:'Espírito dos clássicos',description:'Use um histórico até 1991 e termine entre os cinco primeiros. O Lotus 49 inicial participa.',trackProfile:null,event:'clear',windowMult:1,targetPlace:5,eraMax:1991}
+];
+function weeklyChallenge(s,now=Date.now()){const r=init(s,now),observed=Shop.week(now),week=r.weeklyChallenge?.week>observed?r.weeklyChallenge.week:observed,index=((Math.floor(Date.parse(week)/604800000)%challengeRules.length)+challengeRules.length)%challengeRules.length,rule=challengeRules[index];if(!r.weeklyChallenge||r.weeklyChallenge.week!==week)r.weeklyChallenge={week,completed:false,bestTime:0,attempts:0};const state=r.weeklyChallenge;return{...rule,week,completed:state.completed,bestTime:state.bestTime,queued:!!state.queued,running:!!state.running}}
+function startChallenge(s,now=Date.now()){weeklyChallenge(s,now);const q=s.retention.weeklyChallenge;if(q.queued||q.running)return false;q.queued=true;return true}
+function takeChallenge(s,now=Date.now()){const c=weeklyChallenge(s,now),q=s.retention.weeklyChallenge;if(!q.queued||q.running)return null;q.queued=false;q.attempts=Math.min(1e9,q.attempts+1);const token=c.week+'-'+q.attempts;q.running={token,started:now};return{...c,token}}
+function cancelChallenge(s,token){const q=init(s).weeklyChallenge;if(!token||!q?.running||q.running.token!==token)return false;q.running=null;return true}
+function recoverChallenge(s){const q=init(s).weeklyChallenge;if(!q?.running)return false;q.running=null;q.lastResult={success:false,rewarded:false,interrupted:true};return true}
+function finishChallenge(s,result,options={},now=Date.now()){const c=weeklyChallenge(s,now),q=s.retention.weeklyChallenge,submitted=options.challenge;if(!submitted||submitted.week!==c.week||submitted.id!==c.id||q.running?.token!==submitted.token)return null;q.running=null;if(!Number.isFinite(result?.time)||result.time<=0||!Number.isInteger(result.place)||result.place<1||result.place>10)return null;
+  const D=root.LegendsData||(typeof require==='function'?require('../legends-data'):null),car=D?.cars.find(x=>x.id===options.carId),eligible=!c.eraMax||!!(car&&Number(car.year)<=c.eraMax),success=eligible&&result.place<=c.targetPlace&&(!c.requirePit||options.pitWindow===true)&&(c.event!=='rain'||options.event==='rain')&&(!c.trackProfile||options.trackProfile===c.trackProfile);
+  const out={name:c.name,success,eligible,rewarded:false};if(success){q.bestTime=q.bestTime?Math.min(q.bestTime,result.time):result.time;if(!q.completed){q.completed=true;Shop.init(s);s.championship.tickets+=2;s.materials+=20;init(s).passXp+=150;out.rewarded=true}}q.lastResult=out;return out}
+function valid(s){const r=s?.retention;if(r===undefined)return true;if(!r||typeof r!=='object'||Array.isArray(r))return false;
+  if(r.passXp!==undefined&&(!Number.isFinite(r.passXp)||r.passXp<0||r.passXp>1e12))return false;
+  if(r.passClaimed!==undefined&&(!Array.isArray(r.passClaimed)||r.passClaimed.length>40||new Set(r.passClaimed).size!==r.passClaimed.length||!r.passClaimed.every(n=>Number.isInteger(n)&&n>=1&&n<=40)))return false;
+  const q=r.weeklyChallenge;if(q===undefined)return true;
+  return!!(q&&typeof q==='object'&&!Array.isArray(q)&&/^\d{4}-\d{2}-\d{2}$/.test(q.week)&&Number.isFinite(Date.parse(q.week))&&typeof q.completed==='boolean'&&Number.isFinite(q.bestTime)&&q.bestTime>=0&&Number.isSafeInteger(q.attempts)&&q.attempts>=0&&q.attempts<=1e9&&(q.queued===undefined||typeof q.queued==='boolean')&&(!q.running||q.running.token===q.week+'-'+q.attempts&&Number.isSafeInteger(q.running.started)&&q.running.started>=0));
+}
+const api={init,income,offline,refresh,missions,claimDaily,chest,claimWeekly,weather,raceDone,startContract,claimContract,contracts,passTier,claimPass,passProgress,claimAllPass,returnSummary,weeklyChallenge,startChallenge,takeChallenge,cancelChallenge,recoverChallenge,finishChallenge,valid};root.ApexRetention=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
 
