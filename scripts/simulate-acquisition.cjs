@@ -6,7 +6,8 @@ const Shop=require('../src/shop');
 const Ret=require('../src/retention');
 const A=require('../engine');
 const E=require('../game/economy');
-require('../src/v2-adapter');
+const Academy=require('../academy-model');
+const Adapter=require('../src/v2-adapter');
 const NOW=Date.UTC(2026,10,15,12);
 const round=(n,d=4)=>Number(n.toFixed(d));
 const copy=s=>JSON.parse(JSON.stringify(s));
@@ -76,7 +77,60 @@ function acquisitionRoutes(){
   return{rows,exclusives,projectGate:'Kart, etapa 6 (stage 5), ou categoria superior; não possuir o carro; materiais suficientes.'};
 }
 
-function buildReport(){
+const profiles=[{id:'ACTIVE',sessions:3,minutesPerSession:40},{id:'CASUAL',sessions:1,minutesPerSession:20},{id:'OFFLINE',sessions:3,minutesPerSession:0}];
+function distribution(values,total,horizonDays){const achieved=values.filter(Number.isFinite).sort((a,b)=>a-b),at=p=>achieved.length>=Math.ceil(total*p)?round(achieved[Math.ceil(total*p)-1],3):null;return{runs:total,completed:achieved.length,censored:total-achieved.length,horizonDays,p50Days:at(.5),p90Days:at(.9),p95Days:at(.95),minDays:achieved.length?round(achieved[0],3):null,maxObservedDays:achieved.length?round(achieved.at(-1),3):null}}
+function scenarioState(){const s=snapshot('kart-stage4');s.stage=5;s.circuit=10;s.maxCircuit=10;s.globalPeak=6;s.materials=0;s.shop.pts=0;s.idle.categoryScale=V.scale(s);return s}
+function acquisitionScenario(profile,seed,days){
+  const baseline=scenarioState(),gacha=copy(baseline),academy=copy(baseline),offline=copy(baseline),random=Shop.rng(seed),raceRandom=Shop.rng(seed^0x5f3759df),target='mp44',driver='real_fittipaldi';
+  Academy.init(academy,NOW);Academy.choose(academy,driver,NOW);gacha.shop.wish=target;
+  const raceSeconds=A.duration(baseline)*5+6,teamRate=E.production(baseline.idle),lapReward=A.reward(baseline),cost=Shop.summonPrice(baseline),rewards=[];
+  for(let place=1;place<=10;place++){const probe=copy(baseline),before=probe.materials,result=V.finish(probe,place,raceSeconds,place);rewards[place]={prize:result.prize,materials:probe.materials-before}}
+  let projectMaterials=0,races=0,pulls=0,crIn=0,crSpent=0,pointsIn=0,previousEnd=NOW;
+  const outcome={gacha:null,project:null,trade:null,academy:null};
+  for(let day=0;day<days;day++)for(let visit=0;visit<profile.sessions;visit++){
+    const start=NOW+(day*24+visit*24/profile.sessions)*3600000,end=start+profile.minutesPerSession*60000,dayAt=(end-NOW)/86400000;
+    offline.idle.at=previousEnd;const absent=Ret.offline(offline,start,teamRate).amount;previousEnd=end;
+    let sessionCR=teamRate*profile.minutesPerSession*60;
+    const count=Math.floor(profile.minutesPerSession*60/raceSeconds);
+    for(let i=0;i<count;i++){
+      // Fixed competence assumption: 30% podiums, otherwise P4-P10; weather uses the shipped model.
+      const place=raceRandom()<.3?1+Math.floor(raceRandom()*3):4+Math.floor(raceRandom()*7),event=Ret.weather(raceRandom);
+      const reward=rewards[place];sessionCR+=lapReward*5+reward.prize-(event==='clear'?0:Math.floor(reward.prize*.08));
+      projectMaterials+=reward.materials;races++;Academy.record(academy,{place,event,affinity:true});
+    }
+    const gross=absent+sessionCR;crIn+=gross;gacha.money+=gross*.25;academy.money+=gross;
+    if(outcome.project===null&&projectMaterials>=Shop.projectCost(target)){const probe=copy(baseline);probe.materials=projectMaterials;assert(Shop.buildProject(probe,target));outcome.project=dayAt}
+    while((outcome.gacha===null||outcome.trade===null)&&gacha.money>=cost){
+      const results=Shop.summon(gacha,'banner-padrao',1,random);assert(results?.length===1);pulls++;crSpent+=cost;pointsIn+=results[0].points;
+      if(outcome.gacha===null&&results[0].id===target)outcome.gacha=dayAt;
+      if(outcome.trade===null&&gacha.shop.pts>=Shop.get(target).price.pts){const probe=copy(gacha);probe.shop.inventory.cars=probe.shop.inventory.cars.filter(id=>id!==target);assert(Shop.buy(probe,target,{currency:'pts',now:end}).ok);outcome.trade=dayAt}
+    }
+    // Visits, not background timers, collect observations and sign contracts.
+    for(const at of [start,end]){
+      Academy.collect(academy,at);
+      if(outcome.academy===null&&Academy.sign(academy,at))outcome.academy=(at-NOW)/86400000;
+      if(outcome.academy===null&&!academy.academy.assignment&&!academy.academy.contract){if(!Academy.negotiate(academy,at))Academy.start(academy,'endurance',at)}
+    }
+  }
+  return{outcome,races,pulls,crIn,crSpent,pointsIn,materials:projectMaterials};
+}
+function simulateProfiles({runs=32,days=90,seed=20261116}={}){
+  assert(Number.isInteger(runs)&&runs>0&&runs<=128);assert(Number.isInteger(days)&&days>0&&days<=180);assert(Number.isSafeInteger(seed));
+  const state=scenarioState();
+  return{seed,runs,days,targetCar:'mp44',targetDriver:'real_fittipaldi',snapshot:'Kart etapa 6, carro/piloto inicial, melhorias [10,8,6,5,3,2], equipe [15,8,2,1,0,0], sem títulos.',assumptions:[
+    'Cenário após desbloqueios, não tempo desde criação da conta. Estágio/equipe/melhorias congelados; não prevê comportamento humano nem retenção.',
+    'ACTIVE abre 3 vezes/dia por 40min; CASUAL 1 vez/dia por 20min; OFFLINE coleta 3 vezes/dia e não completa corridas. A ausência segue o teto e fórmula de Ret.offline.',
+    'Cada corrida usa duração real × 5 voltas + 6s; cinco prêmios de volta, prêmio de V.finish e penalidade de clima. Hipótese de habilidade: 30% de pódios; demais P4-P10, clima Ret.weather, combo inicial ativo. Sem ERS/pit perfeito, missões, baús, passe, bônus ou dinheiro pago.',
+    '25% do CR bruto disponível para invocar no banner principal, desejo MP4/4. Shop.summon aplica taxas, garantias e duplicatas reais; contadores começam zerados. Compra em lote não muda a amostragem.',
+    'Projeto e troca são alternativas independentes: prazo para juntar recursos e executar a compra se o carro ainda faltar. Materiais e pontos não são compartilhados com outros gastos; a troca continua medindo pontos mesmo se o gacha já tiver dado o alvo.',
+    'Academia usa observar/endurance, provas reais exigidas pelo modelo e assinatura nas visitas; saldo próprio sem concorrência de gastos. Sem corridas, OFFLINE não cumpre provas, mesmo com fragmentos.',
+    'Percentis por posto sobre TODOS os runs. null significa que a proporção não foi atingida até o horizonte; não é média apenas dos sortudos. Dias são tempo de calendário, com compras contabilizadas no fim da sessão.'
+  ],rates:{lapSeconds:round(A.duration(state)),teamCRps:round(E.production(state.idle)),principalPullCR:Shop.summonPrice(state),projectMaterials:Shop.projectCost('mp44'),tradePoints:Shop.get('mp44').price.pts},profiles:profiles.map(profile=>{
+    const rows=Array.from({length:runs},(_,i)=>acquisitionScenario(profile,seed+i*997,days)),average=key=>round(rows.reduce((n,row)=>n+row[key],0)/runs,2);
+    return{...profile,routes:Object.fromEntries(['gacha','project','trade','academy'].map(route=>[route,distribution(rows.map(row=>row.outcome[route]),runs,days)])),economy:{meanCRSources:average('crIn'),meanCRGachaSinks:average('crSpent'),meanDuplicatePoints:average('pointsIn'),meanRaceMaterials:average('materials'),meanPulls:average('pulls'),races:rows[0].races}};
+  })};
+}
+function buildReport(options){
   const mythic=Shop.bannerCars('banner-padrao').find(c=>c.rarity==='mitico');
   const common=Shop.bannerCars('banner-padrao').find(c=>c.rarity==='comum');
   const normal=mythicDistribution('banner-padrao');assert(Math.abs(normal.meanPulls-700)<.001);
@@ -84,7 +138,26 @@ function buildReport(){
   assert.equal(wish.find(r=>r.car.id===mythic.id).chance,2*base.find(r=>r.car.id===mythic.id).chance);
   return{method:'Fórmulas reais em cenários fixos, sem dados de jogadores; sobrevivência S(n)=produto(1-p(k)), E[N]=soma S(n). Percentis para qualquer mítico, desde contador zero. Cada alternativa de compra usa uma cópia independente do saldo offline.',
     mythic:[normal,mythicDistribution('banner-padrao',mythic.id),mythicDistribution('banner-padrao',common.id),mythicDistribution('banner-lendas')],
-    acquisition:acquisitionRoutes(),offline:['new-player','kart-stage4','f1-stage6'].flatMap(kind=>[2,8].map(hours=>offlineScenario(kind,hours)))};
+    acquisition:acquisitionRoutes(),offline:['new-player','kart-stage4','f1-stage6'].flatMap(kind=>[2,8].map(hours=>offlineScenario(kind,hours))),onboarding:simulateOnboarding(),scenarios:simulateProfiles(options)};
+}
+function simulateOnboarding({days=7}={}){
+  return {horizonDays:days,method:'Trajetória determinística desde A.initial. Sem pagamentos, cliques manuais, presentes, baús ou missões. A cada bandeirada compra até 12 melhorias entre as liberadas, sempre a mais barata, usando até 60% do caixa; até três unidades de equipe usando 20% do saldo. Corrida de cinco voltas com posição prevista por Adapter.place, sem simular decisões de pneus/ERS. É uma política de teste, não uma previsão de jogadores. OFFLINE parte da mesma conta nova, sem corridas. Custos, recompensas, desbloqueios e offline executam os modelos publicados.',profiles:profiles.map(profile=>{
+    const s=A.initial();Shop.init(s);Ret.init(s,NOW);s.idle.at=NOW;let previousEnd=NOW,races=0;
+    const milestones={firstUpgrade:null,firstTeam:null,firstRace:null,banners:null,projects:null};
+    const mark=(id,at)=>{if(milestones[id]===null)milestones[id]=round((at-NOW)/3600000,3)};
+    const invest=at=>{
+      let budget=s.money*.6;
+      for(let i=0;i<12;i++){const candidates=V.B.branches.map((_,branch)=>({branch,cost:V.cost(s,branch)})).filter(x=>V.unlockedBranch(s,x.branch)&&s.levels[x.branch]<100&&x.cost<=budget).sort((a,b)=>a.cost-b.cost);if(!candidates.length)break;const purchase=V.buy(s,candidates[0].branch);if(!purchase.bought)break;budget-=purchase.spent;mark('firstUpgrade',at)}
+      for(let i=0;i<3;i++){const candidates=E.generators.map((_,index)=>({index,cost:E.cost(s.idle,index,1)})).filter(x=>(s.catProgress?2*s.stage:s.maxCircuit)>=V.B.P.genUnlock[x.index]&&x.cost<=s.money*.2).sort((a,b)=>a.cost-b.cost);if(!candidates.length||!E.buy(s,candidates[0].index,1))break;mark('firstTeam',at)}
+    };
+    for(let day=0;day<days;day++)for(let visit=0;visit<profile.sessions;visit++){
+      let at=NOW+(day*24+visit*24/profile.sessions)*3600000;const end=at+profile.minutesPerSession*60000;
+      s.idle.at=previousEnd;Ret.offline(s,at,E.production(s.idle));invest(at);
+      while(at+(A.duration(s)*5+6)*1000<=end){const seconds=A.duration(s)*5+6,place=Adapter.place(s);s.money+=A.reward(s)*5+E.production(s.idle)*seconds;at+=seconds*1000;s.laps+=5;races++;V.finish(s,place,seconds,races);mark('firstRace',at);if(s.stage>=3||s.cat>0)mark('banners',at);if(s.stage>=5||s.cat>0)mark('projects',at);invest(at)}
+      s.money+=E.production(s.idle)*Math.max(0,(end-at)/1000);previousEnd=end;
+    }
+    return{id:profile.id,hoursToMilestone:milestones,races,stage:s.stage+1,category:s.cat,carLevels:s.levels,teamUnits:s.idle.units,valid:V.valid(s)};
+  })};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(buildReport(),null,2)+'\n');
-module.exports={buildReport,mythicDistribution};
+module.exports={buildReport,mythicDistribution,simulateProfiles,simulateOnboarding,distribution};

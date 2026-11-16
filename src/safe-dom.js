@@ -1,7 +1,7 @@
 (function(root){
 'use strict';
 // Templates internos viram nós; texto importado nunca passa por um parser HTML do navegador.
-const tags=new Set('nav button small strong p span h2 h3 article div canvas label select option ol li br b progress details summary pre input a'.split(' '));
+const tags=new Set('nav button small strong p span h2 h3 h4 article section header figure figcaption ul div canvas label select option ol li br b progress details summary pre input a'.split(' '));
 const decode=text=>text.replace(/&(amp|lt|gt|quot|#39|nbsp);/g,(_,key)=>({amp:'&',lt:'<',gt:'>',quot:'"','#39':"'",nbsp:'\u00a0'}[key]));
 function render(target,markup){
   const doc=target.ownerDocument||root.document,fragment=doc.createDocumentFragment(),stack=[fragment];
@@ -15,7 +15,7 @@ function render(target,markup){
     for(const m of opening[2].matchAll(/([\w-]+)(?:="([^"]*)")?/g)){
       const key=m[1].toLowerCase(),value=decode(m[2]||'');
       if(['id','class','width','height','role','type','value','disabled','checked','max'].includes(key)||/^(data|aria)-[\w-]+$/.test(key))node.setAttribute(key,value);
-      if(tag==='a'&&key==='href'&&['/termos.html','/privacidade.html'].includes(value))node.setAttribute(key,value);
+      if(tag==='a'&&key==='href'&&(['/termos.html','/privacidade.html'].includes(value)||(root.LegendsData?.cars||[]).some(c=>c.source===value&&value.startsWith('https://'))))node.setAttribute(key,value);
       if(tag==='a'&&key==='target'&&value==='_blank'){node.setAttribute(key,value);node.setAttribute('rel','noopener')}
     }
     stack.at(-1).append(node);if(!['input','br'].includes(tag))stack.push(node);

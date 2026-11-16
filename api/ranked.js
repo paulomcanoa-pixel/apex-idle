@@ -33,11 +33,12 @@ if(req.method==='POST'){
 if(body.action==='register'){if(!p){p=M.register(db,{id,key,name:body.name,ip:String(req.headers['x-forwarded-for']||'unknown').split(',')[0]},now);newSession=true}}
 else{
 if(!p)throw Object.assign(new Error('Crie seu perfil de piloto.'),{status:401});
-if(body.action!=='timeTrial'&&now-p.lastAction<1200)throw Object.assign(new Error('Aguarde um instante.'),{status:429});
+const social=M.socialActions.includes(body.action);if(body.action!=='timeTrial'&&!social&&now-p.lastAction<1200)throw Object.assign(new Error('Aguarde um instante.'),{status:429});
 if(body.action==='join')M.join(db,p,body,now,id);
 else if(body.action==='leave')M.leave(db,p);
 else if(body.action==='timeTrial')M.timeTrial(db,p,body,now);
-else throw Object.assign(new Error('Ação inválida.'),{status:400});if(body.action!=='timeTrial')p.lastAction=now
+else if(social)M.socialAction(db,p,body,now,id);
+else throw Object.assign(new Error('Ação inválida.'),{status:400});if(body.action!=='timeTrial'&&!social)p.lastAction=now
 }}
 return M.view(db,p,req.query?.sort||body.sort,now)
 });

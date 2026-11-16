@@ -30,7 +30,13 @@ function updateRace(s,r){
   const carId=A.equippedCar(s).id,options={wet:r.event==='rain'&&r.distance>=1,trackProfile:r.challenge?.trackProfile};
   if(r.carId&&carId!==r.carId){r.changedCar=true;if(r.challenge?.token)Ret.cancelChallenge(s,r.challenge.token)}
   r.performance=performance(s,carId,options);r.windowMult=(r.baseWindowMult||1)*r.performance.windowMult;r.trackProfile=r.performance.trackProfile;
-  return duration(s,options);
+  const pace=duration(s,options);
+  if(r.challenge?.mode==='qualifying'){
+    if(!r.challengeDuration)r.challengeDuration=pace;
+    // A fixed target cannot be made easier by improving the garage after the start.
+    if(pace<r.challengeDuration-1e-8&&!r.challengeCancelled){Ret.cancelChallenge(s,r.challenge.token);r.challengeCancelled=true}
+  }
+  return pace;
 }
 function compare(s,id,options={}){const current=performance(s,undefined,options),candidate=performance(s,id,options),parts=power(s,options).parts,currentPI=V.pi(s,current.bonus,parts)*(1+current.staffBonus),candidatePI=V.pi(s,candidate.bonus,parts)*(1+candidate.staffBonus);return{current,candidate,deltaPI:candidatePI-currentPI,currentPI,candidatePI,lapDelta:B.screenLap(V.index(s))/B.paceFactor(candidatePI,V.leader(s))-B.screenLap(V.index(s))/B.paceFactor(currentPI,V.leader(s))}}
 A.duration=s=>s.version===2?duration(s):old.duration(s);

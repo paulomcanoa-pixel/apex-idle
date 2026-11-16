@@ -28,7 +28,7 @@ function claimWeekly(s,now=Date.now()){const d=refresh(s,now);
   root.ApexLootHooks?.mission(s,'weekly');
   return true}
 function weather(random=Math.random){const r=random();return r<.12?'rain':r<.22?'safety':r<.24?'red':'clear'}
-function raceDone(s,result,random=Math.random,{ers=false,pitWindow=false,event='clear',circuit=s.circuit,challenge=null,carId='',trackProfile=null}={}){const r=init(s),p=r.drop;
+function raceDone(s,result,random=Math.random,{ers=false,pitWindow=false,event='clear',circuit=s.circuit,challenge=null,carId='',trackProfile=null,totalLaps=5,bestLap=0,pitStops=0}={}){const r=init(s),p=r.drop;
   refresh(s);
   if(s.cat>=3){r.challenges=r.challenges||{};
   const stars=r.challenges[circuit]||[],goals=[result.place===1&&result.time<=V.B.screenLap(V.index(s))*5,!ers,event==='rain'];
@@ -44,12 +44,12 @@ function raceDone(s,result,random=Math.random,{ers=false,pitWindow=false,event='
   r.lastDrop=null;
   if(result.place===1&&ers&&pitWindow){s.money+=Math.floor(result.prize*.5);
   s.championship.tickets++;
-  r.perfect.push({at:Date.now(),circuit:s.circuit,time:result.time})}
+  r.perfect.push({at:Date.now(),circuit:s.circuit,time:result.time});r.perfect=r.perfect.slice(-100)}
   if(event!=='clear'){const penalty=Math.floor(result.prize*.08);
   s.money=Math.max(0,s.money-penalty);
   r.lastEvent={event,penalty}}
   Journey.mark(s,'race_finish',{place:result.place});
-  if(challenge)finishChallenge(s,result,{challenge,carId,trackProfile,event,pitWindow});
+  if(challenge)finishChallenge(s,result,{challenge,carId,trackProfile,event,pitWindow,totalLaps,bestLap,pitStops,circuit});
   return drop}
 function contracts(s){return init(s).contracts}
 function startContract(s,car,minutes,owned,now=Date.now()){const list=contracts(s);if(![1,5,15].includes(minutes)||!owned.includes(car)||list.length>=3||list.some(x=>x.car===car))return false;list.push({id:car+'-'+now,car,minutes,end:now+minutes*60000});return true}
@@ -63,22 +63,50 @@ const challengeRules=[
   {id:'technical',name:'Precisão nas curvas',description:'Circuito técnico. Termine entre os cinco primeiros com um acerto de curvas.',trackProfile:'curvas',event:'clear',windowMult:1,targetPlace:5},
   {id:'rain',name:'Domine a chuva',description:'Chuva prevista. Termine entre os cinco primeiros e escolha seus pneus com cuidado.',trackProfile:null,event:'rain',windowMult:1,targetPlace:5},
   {id:'tyres',name:'Poupe para atacar',description:'Desgaste elevado. Termine entre os cinco primeiros e faça a parada dentro da janela.',trackProfile:null,event:'clear',windowMult:.8,targetPlace:5,requirePit:true},
-  {id:'heritage',name:'Espírito dos clássicos',description:'Use um histórico até 1991 e termine entre os cinco primeiros. O Lotus 49 inicial participa.',trackProfile:null,event:'clear',windowMult:1,targetPlace:5,eraMax:1991}
+  {id:'heritage',name:'Espírito dos clássicos',description:'Use um histórico até 1991 e termine entre os cinco primeiros. O Lotus 49 inicial participa.',trackProfile:null,event:'clear',windowMult:1,targetPlace:5,eraMax:1991},
+  {id:'qualifying',name:'Uma volta perfeita',description:'Cinco voltas para bater a meta de volta definida na largada pelo ritmo do seu conjunto. Escolha pneus e ERS para uma tentativa rápida; a posição não é requisito.',trackProfile:null,event:'clear',windowMult:1,targetPlace:10,totalLaps:5,mode:'qualifying'},
+  {id:'endurance',name:'Resistência da Aurora',description:'Oito voltas. Termine no top 5 e faça uma parada dentro da janela dos pneus. Preserve o segundo jogo até a bandeirada.',trackProfile:null,event:'clear',windowMult:1,targetPlace:5,totalLaps:8,requirePit:true,mode:'endurance'}
 ];
-function weeklyChallenge(s,now=Date.now()){const r=init(s,now),observed=Shop.week(now),week=r.weeklyChallenge?.week>observed?r.weeklyChallenge.week:observed,index=((Math.floor(Date.parse(week)/604800000)%challengeRules.length)+challengeRules.length)%challengeRules.length,rule=challengeRules[index];if(!r.weeklyChallenge||r.weeklyChallenge.week!==week)r.weeklyChallenge={week,completed:false,bestTime:0,attempts:0};const state=r.weeklyChallenge;return{...rule,week,completed:state.completed,bestTime:state.bestTime,queued:!!state.queued,running:!!state.running}}
+const weekMs=604800000,rotationStart=Date.UTC(2026,10,9),ruleAt=(week,count=6)=>challengeRules[((Math.floor((Date.parse(week)-(count===4?0:rotationStart))/weekMs)%count)+count)%count];
+function archive(s){const r=init(s);if(!Array.isArray(r.eventHistory))r.eventHistory=[];if(!Array.isArray(r.eventTrophies))r.eventTrophies=[];if(!Array.isArray(r.eventRecords))r.eventRecords=[];return{history:r.eventHistory,trophies:r.eventTrophies,records:r.eventRecords}}
+function weeklyChallenge(s,now=Date.now()){
+  const r=init(s,now),observed=Shop.week(now),week=r.weeklyChallenge?.week>observed?r.weeklyChallenge.week:observed;
+  // Saves from the four-event rotation keep their active rule and their claimed reward.
+  if(r.weeklyChallenge&&!r.weeklyChallenge.ruleId)r.weeklyChallenge.ruleId=ruleAt(r.weeklyChallenge.week,4).id;
+  if(!r.weeklyChallenge||r.weeklyChallenge.week!==week){
+    if(r.weeklyChallenge){archive(s);const q=r.weeklyChallenge;r.eventHistory=[{week:q.week,ruleId:q.ruleId,completed:q.completed,bestTime:q.bestTime,bestLap:q.bestLap||0,attempts:q.attempts},...r.eventHistory.filter(x=>x.week!==q.week)].slice(0,12)}
+    r.weeklyChallenge={week,ruleId:ruleAt(week).id,completed:false,bestTime:0,bestLap:0,attempts:0};
+  }
+  const state=r.weeklyChallenge,rule=challengeRules.find(x=>x.id===state.ruleId)||ruleAt(week);
+  return{totalLaps:5,mode:'race',...rule,week,completed:state.completed,bestTime:state.bestTime,bestLap:state.bestLap||0,targetLapSeconds:state.running?.targetLapSeconds||0,queued:!!state.queued,running:!!state.running};
+}
 function startChallenge(s,now=Date.now()){weeklyChallenge(s,now);const q=s.retention.weeklyChallenge;if(q.queued||q.running)return false;q.queued=true;return true}
-function takeChallenge(s,now=Date.now()){const c=weeklyChallenge(s,now),q=s.retention.weeklyChallenge;if(!q.queued||q.running)return null;q.queued=false;q.attempts=Math.min(1e9,q.attempts+1);const token=c.week+'-'+q.attempts;q.running={token,started:now};return{...c,token}}
+function takeChallenge(s,now=Date.now(),options={}){const c=weeklyChallenge(s,now),q=s.retention.weeklyChallenge;if(!q.queued||q.running||q.attempts>=1e9)return null;q.queued=false;q.attempts++;const token=c.week+'-'+q.attempts,targetLapSeconds=c.mode==='qualifying'?(Number.isFinite(options.duration)&&options.duration>0?options.duration:V.duration(s))*1.02:0;q.running={token,started:now,targetLapSeconds};return{...c,token,targetLapSeconds}}
 function cancelChallenge(s,token){const q=init(s).weeklyChallenge;if(!token||!q?.running||q.running.token!==token)return false;q.running=null;return true}
 function recoverChallenge(s){const q=init(s).weeklyChallenge;if(!q?.running)return false;q.running=null;q.lastResult={success:false,rewarded:false,interrupted:true};return true}
-function finishChallenge(s,result,options={},now=Date.now()){const c=weeklyChallenge(s,now),q=s.retention.weeklyChallenge,submitted=options.challenge;if(!submitted||submitted.week!==c.week||submitted.id!==c.id||q.running?.token!==submitted.token)return null;q.running=null;if(!Number.isFinite(result?.time)||result.time<=0||!Number.isInteger(result.place)||result.place<1||result.place>10)return null;
-  const D=root.LegendsData||(typeof require==='function'?require('../legends-data'):null),car=D?.cars.find(x=>x.id===options.carId),eligible=!c.eraMax||!!(car&&Number(car.year)<=c.eraMax),success=eligible&&result.place<=c.targetPlace&&(!c.requirePit||options.pitWindow===true)&&(c.event!=='rain'||options.event==='rain')&&(!c.trackProfile||options.trackProfile===c.trackProfile);
-  const out={name:c.name,success,eligible,rewarded:false};if(success){q.bestTime=q.bestTime?Math.min(q.bestTime,result.time):result.time;if(!q.completed){q.completed=true;Shop.init(s);s.championship.tickets+=2;s.materials+=20;init(s).passXp+=150;out.rewarded=true}}q.lastResult=out;return out}
+function finishChallenge(s,result,options={},now=Date.now()){const c=weeklyChallenge(s,now),q=s.retention.weeklyChallenge,submitted=options.challenge;if(!submitted||submitted.week!==c.week||submitted.id!==c.id||q.running?.token!==submitted.token)return null;const target=q.running.targetLapSeconds;q.running=null;if(!Number.isFinite(result?.time)||result.time<=0||!Number.isInteger(result.place)||result.place<1||result.place>10)return null;
+  const D=root.LegendsData||(typeof require==='function'?require('../legends-data'):null),car=D?.cars.find(x=>x.id===options.carId),eligible=!!car&&(!c.eraMax||Number(car.year)<=c.eraMax),lap=Number.isFinite(options.bestLap)&&options.bestLap>0?options.bestLap:0;
+  const distanceOK=c.mode==='race'||options.totalLaps===c.totalLaps,clockOK=c.mode!=='qualifying'||lap>0&&target>0&&lap<=target,pitOK=!c.requirePit||options.pitWindow===true&&(c.mode!=='endurance'||options.pitStops>=1);
+  const success=eligible&&result.place<=c.targetPlace&&pitOK&&distanceOK&&clockOK&&(c.event!=='rain'||options.event==='rain')&&(!c.trackProfile||options.trackProfile===c.trackProfile);
+  const out={name:c.name,success,eligible,rewarded:false,targetLapSeconds:target||0,bestLap:lap};
+  if(success){
+    q.bestTime=q.bestTime?Math.min(q.bestTime,result.time):result.time;if(lap)q.bestLap=q.bestLap?Math.min(q.bestLap,lap):lap;
+    archive(s);const circuit=Number.isInteger(options.circuit)?options.circuit:s.circuit,key=c.id+':'+circuit+':'+s.cat,previous=s.retention.eventRecords.find(x=>x.key===key),score=c.mode==='qualifying'?lap:result.time;
+    if(!previous||score<previous.score)s.retention.eventRecords=[{key,ruleId:c.id,circuit,category:s.cat,score,carId:car.id,week:c.week},...s.retention.eventRecords.filter(x=>x.key!==key)].slice(0,72);
+    if(!q.completed){q.completed=true;Shop.init(s);s.championship.tickets+=2;s.materials+=20;init(s).passXp+=150;out.rewarded=true;const trophy=s.retention.eventTrophies.find(x=>x.id===c.id);if(trophy){trophy.lastWeek=c.week;trophy.completions=Math.min(1e9,trophy.completions+1)}else s.retention.eventTrophies.push({id:c.id,firstWeek:c.week,lastWeek:c.week,completions:1})}
+  }
+  q.lastResult=out;return out;
+}
 function valid(s){const r=s?.retention;if(r===undefined)return true;if(!r||typeof r!=='object'||Array.isArray(r))return false;
   if(r.passXp!==undefined&&(!Number.isFinite(r.passXp)||r.passXp<0||r.passXp>1e12))return false;
   if(r.passClaimed!==undefined&&(!Array.isArray(r.passClaimed)||r.passClaimed.length>40||new Set(r.passClaimed).size!==r.passClaimed.length||!r.passClaimed.every(n=>Number.isInteger(n)&&n>=1&&n<=40)))return false;
+  const date=x=>typeof x==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(x)&&Number.isFinite(Date.parse(x)),rule=x=>challengeRules.some(c=>c.id===x),positive=x=>Number.isFinite(x)&&x>0,nonnegative=x=>Number.isFinite(x)&&x>=0,count=x=>Number.isSafeInteger(x)&&x>=0&&x<=1e9;
+  if(r.eventHistory!==undefined&&(!Array.isArray(r.eventHistory)||r.eventHistory.length>12||new Set(r.eventHistory.map(x=>x?.week)).size!==r.eventHistory.length||!r.eventHistory.every(x=>x&&date(x.week)&&rule(x.ruleId)&&typeof x.completed==='boolean'&&nonnegative(x.bestTime)&&nonnegative(x.bestLap)&&count(x.attempts))))return false;
+  if(r.eventTrophies!==undefined&&(!Array.isArray(r.eventTrophies)||r.eventTrophies.length>6||new Set(r.eventTrophies.map(x=>x?.id)).size!==r.eventTrophies.length||!r.eventTrophies.every(x=>x&&rule(x.id)&&date(x.firstWeek)&&date(x.lastWeek)&&x.firstWeek<=x.lastWeek&&count(x.completions)&&x.completions>0)))return false;
+  if(r.eventRecords!==undefined&&(!Array.isArray(r.eventRecords)||r.eventRecords.length>72||new Set(r.eventRecords.map(x=>x?.key)).size!==r.eventRecords.length||!r.eventRecords.every(x=>x&&rule(x.ruleId)&&Number.isInteger(x.circuit)&&x.circuit>=0&&x.circuit<24&&Number.isInteger(x.category)&&x.category>=0&&x.category<6&&x.key===x.ruleId+':'+x.circuit+':'+x.category&&positive(x.score)&&typeof x.carId==='string'&&x.carId.length<64&&date(x.week))))return false;
   const q=r.weeklyChallenge;if(q===undefined)return true;
-  return!!(q&&typeof q==='object'&&!Array.isArray(q)&&/^\d{4}-\d{2}-\d{2}$/.test(q.week)&&Number.isFinite(Date.parse(q.week))&&typeof q.completed==='boolean'&&Number.isFinite(q.bestTime)&&q.bestTime>=0&&Number.isSafeInteger(q.attempts)&&q.attempts>=0&&q.attempts<=1e9&&(q.queued===undefined||typeof q.queued==='boolean')&&(!q.running||q.running.token===q.week+'-'+q.attempts&&Number.isSafeInteger(q.running.started)&&q.running.started>=0));
+  return!!(q&&typeof q==='object'&&!Array.isArray(q)&&date(q.week)&&(q.ruleId===undefined||rule(q.ruleId))&&typeof q.completed==='boolean'&&nonnegative(q.bestTime)&&(q.bestLap===undefined||nonnegative(q.bestLap))&&count(q.attempts)&&(q.queued===undefined||typeof q.queued==='boolean')&&(!q.running||q.running.token===q.week+'-'+q.attempts&&Number.isSafeInteger(q.running.started)&&q.running.started>=0&&(q.running.targetLapSeconds===undefined||nonnegative(q.running.targetLapSeconds))));
 }
-const api={init,income,offline,refresh,missions,claimDaily,chest,claimWeekly,weather,raceDone,startContract,claimContract,contracts,passTier,claimPass,passProgress,claimAllPass,returnSummary,weeklyChallenge,startChallenge,takeChallenge,cancelChallenge,recoverChallenge,finishChallenge,valid};root.ApexRetention=api;if(typeof module!=='undefined')module.exports=api;
+const api={init,income,offline,refresh,missions,claimDaily,chest,claimWeekly,weather,raceDone,startContract,claimContract,contracts,passTier,claimPass,passProgress,claimAllPass,returnSummary,weeklyChallenge,startChallenge,takeChallenge,cancelChallenge,recoverChallenge,finishChallenge,archive,challengeRules,valid};root.ApexRetention=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
 
