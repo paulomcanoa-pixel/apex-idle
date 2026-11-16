@@ -8,6 +8,7 @@ for(let attempt=0;attempt<7;attempt++){
 const current=await get(PATH,{access:'private',token,useCache:false,headers:{'accept-encoding':'identity'}});
 const db=current?await new Response(current.stream).json():M.initial();const before=JSON.stringify(db);const value=action(db);
 if(before===JSON.stringify(db))return value;
+if(current&&(!current.blob?.etag||current.blob.etag.startsWith('W/')))throw Object.assign(new Error('Não foi possível confirmar a versão do ranked. Tente novamente.'),{status:503});
 try{await put(PATH,JSON.stringify(db),{access:'private',token,addRandomSuffix:false,allowOverwrite:!!current,contentType:'application/json',...(current?{ifMatch:current.blob.etag}:{})});return value}
 catch(e){if(!/Precondition|AlreadyExists|Conflict/.test(e.name+' '+e.message))throw e;if(attempt===6){let metadata;try{metadata=head?await head(PATH,{token}):null}catch{}const etag=current?.blob?.etag;const diagnostic={kind:e.name,found:!!current,etagPresent:!!etag,weakETag:!!etag?.startsWith('W/'),metadataMatches:metadata?.etag===etag,metadataAvailable:!!metadata};if(dependencies?.onConflict)dependencies.onConflict(diagnostic);else console.warn('Ranked: conditional storage write failed',diagnostic)}await(dependencies?.sleep?dependencies.sleep():new Promise(r=>setTimeout(r,60+attempt*60)))}
 }

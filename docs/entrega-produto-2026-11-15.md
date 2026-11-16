@@ -19,11 +19,12 @@ Projeto JavaScript existente, Canvas, Escuderia Aurora, chave de save e importa�
 
 ## Verificação
 
-- `npm test`: suíte completa aprovada, incluindo 120 testes via `node:test` e os scripts de regressão anteriores.
-- Quatro suítes de produto somam 37 testes: desempenho e save, jornada e coortes, corrida e Academia, API e concorrência ranked.
+- `npm test`: suíte completa aprovada, incluindo 122 testes via `node:test` e os scripts de regressão anteriores.
+- Quatro suítes de produto somam 39 testes: desempenho e save, jornada e coortes, corrida e Academia, API e concorrência ranked.
 - `npm run build`: 113 arquivos estáticos e SDK público preparados. Não existe comando de lint configurado; JavaScript alterado verificado por `node --check`.
 - Navegador local em 1366×768 e 390×844: corrida e largada, garagem/seleção de piloto, compra, objetivo/recompensa, temporada, exportação/reimportação e banner gacha. Sem erros de console nos fluxos observados. Correção visual de padding herdado no Canvas mobile feita durante essa validação.
 - API ranked exercitada em testes desde requisição/cookie até armazenamento simulado e resposta, incluindo atualização concorrente. Isso não substitui teste de carga nem dez jogadores reais simultâneos.
+- Preview no Vercel: página e `/api/ranked` responderam 200; a API retornou os 22 carros e o desafio semanal. O teste real identificou conflito de ETag na entrega comprimida do Blob: a leitura agora solicita `accept-encoding: identity`, mantém `ifMatch` e recusa gravação quando não há ETag forte. Documentação de referência: [SDK Vercel Blob](https://vercel.com/docs/vercel-blob/using-blob-sdk).
 - Cenários reproduzíveis de aquisição e offline: `node scripts/simulate-acquisition.cjs`.
 
 ## Como conferir

@@ -66,3 +66,9 @@ test('CAS refaz a ação sobre estado fresco sem perder incremento concorrente',
  let state={count:0},etag='v1',writes=0;const deps={token:'test-only',sleep:async()=>{},get:async()=>({stream:JSON.stringify(state),blob:{etag}}),put:async(path,body,options)=>{writes++;assert.equal(options.access,'private');assert.equal(options.addRandomSuffix,false);if(writes===1){state.count=10;etag='v2';throw Object.assign(Error('concurrent write'),{name:'BlobPreconditionFailedError'})}assert.equal(options.ifMatch,'v2');state=JSON.parse(body);etag='v3'}};
  const result=await API.transaction(db=>++db.count,deps);assert.equal(result,11);assert.equal(state.count,11);assert.equal(writes,2);
 });
+test('leitura de CAS pede conteúdo sem compressão e nunca grava sem versão forte',async()=>{
+ for(const etag of ['',undefined,'W/"v1"']){let writes=0;await assert.rejects(API.transaction(db=>++db.count,{token:'test-only',get:async(path,options)=>{assert.equal(options.useCache,false);assert.equal(options.headers['accept-encoding'],'identity');return{stream:JSON.stringify({count:0}),blob:{etag}}},put:async()=>writes++}),error=>error.status===503);assert.equal(writes,0)}
+});
+test('conflitos esgotados preservam o arquivo e registram apenas diagnóstico técnico',async()=>{
+ let writes=0,diagnostic;await assert.rejects(API.transaction(db=>++db.count,{token:'test-only',get:async()=>({stream:JSON.stringify({count:0}),blob:{etag:'"v1"'}}),put:async()=>{writes++;throw Object.assign(Error('conflict'),{name:'BlobPreconditionFailedError'})},head:async()=>({etag:'"v2"'}),sleep:async()=>{},onConflict:value=>diagnostic=value}),error=>error.status===409);assert.equal(writes,7);assert.deepEqual(diagnostic,{kind:'BlobPreconditionFailedError',found:true,etagPresent:true,weakETag:false,metadataMatches:false,metadataAvailable:true});
+});
