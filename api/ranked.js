@@ -2,14 +2,14 @@ const M=require('../server/ranked-model.cjs');
 const crypto=require('node:crypto');
 const PATH='ranked/state-v1.json';
 async function transaction(action,dependencies){
-const {get,put}=dependencies||await import('@vercel/blob');const token=dependencies?.token||process.env.BLOB_READ_WRITE_TOKEN;
+const {get,put,head}=dependencies||await import('@vercel/blob');const token=dependencies?.token||process.env.BLOB_READ_WRITE_TOKEN;
 if(!token)throw Object.assign(new Error('Armazenamento ranked indisponível.'),{status:503});
 for(let attempt=0;attempt<7;attempt++){
-const current=await get(PATH,{access:'private',token,useCache:false});
+const current=await get(PATH,{access:'private',token,useCache:false,headers:{'accept-encoding':'identity'}});
 const db=current?await new Response(current.stream).json():M.initial();const before=JSON.stringify(db);const value=action(db);
 if(before===JSON.stringify(db))return value;
 try{await put(PATH,JSON.stringify(db),{access:'private',token,addRandomSuffix:false,allowOverwrite:!!current,contentType:'application/json',...(current?{ifMatch:current.blob.etag}:{})});return value}
-catch(e){if(!/Precondition|AlreadyExists|Conflict/.test(e.name+' '+e.message))throw e;await(dependencies?.sleep?dependencies.sleep():new Promise(r=>setTimeout(r,60+attempt*60)))}
+catch(e){if(!/Precondition|AlreadyExists|Conflict/.test(e.name+' '+e.message))throw e;if(attempt===6){let metadata;try{metadata=head?await head(PATH,{token}):null}catch{}const etag=current?.blob?.etag;const diagnostic={kind:e.name,found:!!current,etagPresent:!!etag,weakETag:!!etag?.startsWith('W/'),metadataMatches:metadata?.etag===etag,metadataAvailable:!!metadata};if(dependencies?.onConflict)dependencies.onConflict(diagnostic);else console.warn('Ranked: conditional storage write failed',diagnostic)}await(dependencies?.sleep?dependencies.sleep():new Promise(r=>setTimeout(r,60+attempt*60)))}
 }
 throw Object.assign(new Error('Sala movimentada. Tente novamente.'),{status:409})
 }
