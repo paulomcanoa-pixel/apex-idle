@@ -12,6 +12,8 @@ O consentimento começa desligado. `ApexCommercial.record` mantém até 200 even
 - Compras e resgates têm ação própria. O saldo residual é amostrado a cada 30 segundos como `other_gameplay`, incluindo renda automática e ações antigas ainda sem marcador próprio. Não atribuir esse agregado inteiro à equipe ou à corrida. Fechar a aba antes da amostra pode perder parte do último intervalo.
 - Fila: entradas, saídas, resultados e espera observada. Erros de save são limitados a um evento por minuto. Uma falha de armazenamento pode impedir o próprio evento de persistir localmente.
 
+O retorno de uma aba oculta registra o crédito offline já aplicado, sem duplicá-lo na renda residual. Após pelo menos 30 minutos fora, `session_resume` precede `offline_return` para conservar a janela da compra após retorno. Isso continua sendo medição de uma sessão consentida, não prova de retenção de toda a população.
+
 ## Análise reproduzível
 
 Execute `node scripts/simulate-acquisition.cjs > aquisicao.json` para probabilidades, retorno de 2/8 horas, uma trajetória inicial de sete dias e 32 sementes por perfil durante 90 dias. O relatório declara a política de compras, sessões, hipótese de posições e recursos excluídos. As rotas projeto/troca são contrafactuais independentes: não some seus recursos como se as quatro rotas fossem gratuitas simultaneamente. Percentis `null` significam que a proporção não atingiu a meta no horizonte.

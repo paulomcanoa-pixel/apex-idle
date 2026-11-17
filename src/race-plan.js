@@ -1,0 +1,13 @@
+(function(root){
+'use strict';
+const compounds=['soft','medium','hard','wet'],modes=['save','balanced','attack'];
+const defaults=()=>({compound:'medium',pitLap:0,nextTyres:'medium',automatic:true,mode:'balanced'});
+function valid(p){return !!p&&typeof p==='object'&&!Array.isArray(p)&&Object.keys(p).every(k=>['compound','pitLap','nextTyres','automatic','mode'].includes(k))&&compounds.includes(p.compound)&&compounds.includes(p.nextTyres)&&Number.isInteger(p.pitLap)&&p.pitLap>=0&&p.pitLap<=7&&typeof p.automatic==='boolean'&&modes.includes(p.mode)}
+function normalize(p){return valid(p)?{compound:p.compound,pitLap:p.pitLap,nextTyres:p.nextTyres,automatic:p.automatic,mode:p.mode}:defaults()}
+function read(s){return normalize(s.shop?.racePlan)}
+function write(s,p){if(!valid(p))return false;if(!s.shop)s.shop={};s.shop.racePlan=normalize(p);return true}
+function forRace(p,laps=5){p=normalize(p);const distance=[5,6,8].includes(laps)?laps:5;return{...p,pitLap:Math.min(p.pitLap,distance-1)}}
+function capture(s,doc=root.document){const current=read(s);return normalize({compound:doc.querySelector('.strategy input[name="compound"]:checked')?.value||current.compound,pitLap:Number(doc.getElementById('pitLap')?.value??current.pitLap),nextTyres:doc.getElementById('nextTyres')?.value||current.nextTyres,automatic:doc.getElementById('planAutoEngineer')?.checked??doc.getElementById('autoEngineer')?.checked??current.automatic,mode:doc.getElementById('planMode')?.value||current.mode})}
+function sync(s,laps=5,doc=root.document){const p=forRace(read(s),laps),select=doc.getElementById('pitLap');if(!select)return p;const options=Array.from({length:laps},(_,i)=>{const o=doc.createElement('option');o.value=String(i);o.textContent=i?'Após '+i+' volta'+(i===1?'':'s'):'Sem parada';return o});select.replaceChildren(...options);select.value=String(p.pitLap);for(const input of doc.querySelectorAll('.strategy input[name="compound"]'))input.checked=input.value===p.compound;doc.getElementById('nextTyres').value=p.nextTyres;const automatic=doc.getElementById('autoEngineer');if(automatic)automatic.checked=p.automatic;const planner=doc.getElementById('planAutoEngineer');if(planner)planner.checked=p.automatic;const mode=doc.getElementById('planMode');if(mode)mode.value=p.mode;const info=doc.getElementById('strategyDistance');if(info)info.textContent=laps+' voltas · uma parada · regras arcade. ERS é um recurso do jogo aplicado também aos históricos.';return p}
+const api={valid,normalize,read,write,forRace,capture,sync};root.ApexRacePlan=api;if(typeof module!=='undefined')module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);

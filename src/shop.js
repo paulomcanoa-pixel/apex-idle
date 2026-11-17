@@ -57,7 +57,8 @@ function valid(s){
   const staff=value=>object(value)&&optional(value.stars,n=>Number.isInteger(n)&&number(n,5))&&optional(value.copies,count)&&optional(value.xp,n=>number(n,1e12));
   const counters=value=>object(value)&&['epic','legendary','mythic'].every(key=>optional(value[key],count));
   const setup=value=>object(value)&&['wing','suspension'].every(key=>Number.isInteger(value[key])&&number(value[key],10));
-  const preset=value=>object(value)&&optional(value.setup,setup)&&optional(value.equipped,stringMap)&&['car','pilot','engineer'].every(key=>optional(value[key],text));
+  const plan=value=>(root.ApexRacePlan||(typeof require==='function'?require('./race-plan'):null)).valid(value);
+  const preset=value=>object(value)&&optional(value.setup,setup)&&optional(value.strategy,plan)&&optional(value.equipped,stringMap)&&['car','pilot','engineer'].every(key=>optional(value[key],text));
   return object(q)&&optional(q.inventory,value=>object(value)&&['components','cars','cosmetics'].every(key=>optional(value[key],strings))&&optional(value.staff,value=>map(value,staff)))
     &&['equipped','equippedCosmetics'].every(key=>optional(q[key],stringMap))
     &&['selectedCar','selectedPilot','selectedEngineer','wish','cosmetic','eventWeek'].every(key=>optional(q[key],text))
@@ -68,7 +69,7 @@ function valid(s){
     &&optional(q.staffMigrated,value=>map(value,item=>typeof item==='boolean'))
     &&optional(q.history,value=>Array.isArray(value)&&value.length<=1000&&value.every(row=>object(row)&&text(row.id)&&optional(row.duplicate,v=>typeof v==='boolean')&&optional(row.points,count)))
     &&optional(q.training,value=>object(value)&&text(value.pilot)&&number(value.xp,1e12)&&number(value.end,Number.MAX_SAFE_INTEGER)&&value.end>0)
-    &&optional(q.presets,value=>map(value,preset))
+    &&optional(q.racePlan,plan)&&optional(q.presets,value=>map(value,preset))
     &&optional(q.dailyReroll,value=>object(value)&&text(value.day)&&count(value.count));
 }
 function get(id){return catalog?.items.find(x=>x.id===id)||retiredCars.get(id)}
@@ -90,7 +91,7 @@ if(c==='componentes'){q.inventory.components.push(item.id+'@'+s.cat);q.equipped[
 if(c==='cosmeticos')q.inventory.cosmetics.push(item.id);
 if(c==='carros')q.inventory.cars.push(item.id);
 if(c==='pilotos'||c==='engenheiros'){const canonical=canonicalStaff(item.id),st=s.championship.roster[canonical]||(s.championship.roster[canonical]={copies:0,stars:0});st.copies=Math.min(100000,st.copies+1);while(st.stars<5&&st.copies>=[1,2,4,8,16][st.stars]){st.copies-=[1,2,4,8,16][st.stars];st.stars++}q.inventory.staff[item.id]={...q.inventory.staff[item.id],copies:st.copies,stars:st.stars,xp:q.staffXp?.[canonical]||q.inventory.staff[item.id]?.xp||0};q.staffMigrated[item.id]=true;if(c==='pilotos'&&!q.selectedPilot)q.selectedPilot=item.id;if(c==='engenheiros'&&!q.selectedEngineer)q.selectedEngineer=item.id}
-if(c==='treino'){const pilot=driver(s);if(pilot?.owned)q.training={pilot:pilot.id,xp:e.pilotXp||0,end:now+(item.id==='treino-intensivo'?30:5)*60000}}
+if(c==='treino'){const pilot=driver(s);if(pilot?.owned)q.training={pilot:pilot.id,xp:e.pilotXp||0,end:now+trainingMinutes(item)*60000}}
 if(c==='boosts'){if(e.crMult)q.boosts.cr=now+(e.min||30)*60000;if(e.xpMult)q.boosts.xp=now+(e.min||30)*60000;if(e.autoERS||e.autoErsMin)q.boosts.ers=now+(e.autoErsMin||e.min||60)*60000;if(e.hours||e.offlineHours){const economy=root.GameEconomy||require('../game/economy'),rate=.1*economy.production(s.idle)+.03*V.reward(s)*6.3/(V.duration(s)*5+6);s.money+=(e.hours||e.offlineHours)*3600*rate;}if(e.minOfflineHours)q.returnMinHours=e.minOfflineHours;if(e.offlineCapHours)q.offlineCapHours=e.offlineCapHours}
 }
 function buy(s,id,options={}){const check=canBuy(s,id,options);if(!check.ok)return check;pay(s,check.currency,check.price);apply(s,check.item,options.now);s.shop.limits[check.key]=(s.shop.limits[check.key]||0)+1;if(check.item.limit==='unico')s.shop.limits['once:'+id]=1;return{ok:true,spent:check.price}}
@@ -101,6 +102,8 @@ const staffAliases={lia:'piloto-lia-monteiro',enzo:'piloto-enzo-vale',maya:'pilo
 const staffProfiles={lia:'curvas',enzo:'potencia',maya:'aderencia',nico:'potencia',ines:'aderencia',rui:'aderencia',ana:'curvas',leo:'potencia',iris:'curvas',tomas:'aderencia'};
 const profileLabels={potencia:'Ataque nas retas',curvas:'Precisão em curvas',aderencia:'Conservação de pneus'};
 function canonicalStaff(id){if(typeof id==='string'&&/^(pil|eng)-/.test(id)&&staffAliases[id.slice(4)])return id.slice(4);return Object.keys(staffAliases).find(key=>staffAliases[key]===id)||id}
+function trainingMinutes(item){return item.id==='treino-intensivo'?30:5}
+function trainingPreview(s,id){const item=get(id),pilot=driver(s);if(!item||item.category!=='treino'||!pilot?.owned)return null;const talents=root.ApexTalents||(typeof require==='function'?require('./talents'):null),xp=Math.floor((item.effect.pilotXp||0)*(1+(talents?.effects(s)?.xp||0))),next=trainingProgress(pilot.xp+xp),toBonus=pilot.bonus+next.bonus-pilot.training.bonus;return{pilot:pilot.name,minutes:trainingMinutes(item),xp,fromLevel:pilot.level,toLevel:next.level,fromBonus:pilot.bonus,toBonus,nextXp:next.nextXp,teamBonusBefore:staffBonus(s),teamBonusAfter:Math.min(.4,teamRoster(s).filter(p=>p.selected).reduce((n,p)=>n+(p.id===pilot.id?toBonus:p.bonus),0))}}
 function trainingProgress(xp=0){xp=Number.isFinite(xp)?Math.max(0,xp):0;const level=Math.min(20,1+Math.floor(Math.sqrt(xp/100))),start=100*(level-1)**2,nextXp=level<20?100*level**2:null;return{level,xp,nextXp,progress:level===20?1:(xp-start)/(nextXp-start),target:nextXp,bonus:(level-1)*.002}}
 function teamRoster(s){const q=init(s),C=root.Championship||require('../championship-model'),c=s.championship;return C.roster.map(person=>{const alias=staffAliases[person.id],item=get(alias),legacy=c.roster[person.id],v=q.inventory.staff[alias],owned=!!(legacy||v),stars=Math.min(5,Math.max(legacy?.stars||0,v?.stars||0)),xp=Math.max(legacy?.xp||0,v?.xp||0,q.staffXp?.[person.id]||0),training=trainingProgress(xp),base=item?.effect.piPct||[.02,.04,.07,.12][person.rarity]||.02;
 const skills=person.skills||{},profile=staffProfiles[person.id]||((skills.management||0)>=(skills.qualifying||0)&&(skills.management||0)>=(skills.race||0)?'aderencia':(skills.qualifying||0)>=(skills.race||0)?'curvas':'potencia');
@@ -182,6 +185,6 @@ function finishTraining(s,skip=false,now=Date.now()){const q=init(s),v=q.trainin
 function tradeExtra(s,type,now=Date.now()){if(type==='staff')return false;const q=init(s),prices={featured:200,staff:600,chest:150},limits={featured:3,staff:1,chest:1},key='trade:'+week(now)+':'+type,price=prices[type];if(!price||q.pts<price||(q.limits[key]||0)>=limits[type])return false;let target;if(type==='staff'){target=catalog.items.find(x=>x.category==='pilotos'&&x.rarity==='lendario');if(!unlocked(s,target))return false}q.pts-=price;s.summonPoints=q.pts;q.limits[key]=(q.limits[key]||0)+1;if(type==='featured')q.featuredTickets++;if(type==='staff')apply(s,target,now);if(type==='chest'){s.championship.tickets+=3;s.money+=(root.ApexRetention||require('./retention')).income(s)*3600}return true}
 function buyOffer(s,offer,now=Date.now()){if(!offer||offer.empty||init(s).limits[offer.offerKey])return{ok:false,reason:'Oferta já comprada'};if(offer.bundle){if(wallet(s,'pts')<offer.offerPrice)return{ok:false,reason:'Saldo insuficiente'};pay(s,'pts',offer.offerPrice);s.money+=(root.ApexRetention||require('./retention')).income(s)*3600;s.championship.tickets+=3;s.shop.limits[offer.offerKey]=1;return{ok:true}}const result=buy(s,offer.id,{currency:offer.currency,price:offer.offerPrice,now});if(result.ok)s.shop.limits[offer.offerKey]=1;return result}
 function reroll(s,now=Date.now()){const q=init(s),d=day(now);if(q.dailyReroll?.day===d||wallet(s,'gemas')<10)return false;pay(s,'gemas',10);q.dailyReroll={day:d,count:1};return true}
-const api={valid,driver,engineer,teamRoster,equipStaff,trainingProgress,projectCost,buildProject,mythicChance,bannerCars,bannerRates,finishTraining,tradeExtra,loadCatalog,init,get,day,week,hash,rng,unlocked,priceInCR,summonPrice,wallet,canBuy,buy,owned,componentBonus,carBonus,staffBonus,summon,dailyShop:(s,n)=>slots(s,'daily',n),weeklyShop:(s,n)=>slots(s,'weekly',n),buyOffer,reroll,get catalog(){return catalog},categories,rarities};root.ApexShop=api;if(typeof module!=='undefined')module.exports=api;
+const api={trainingPreview,trainingMinutes,valid,driver,engineer,teamRoster,equipStaff,trainingProgress,projectCost,buildProject,mythicChance,bannerCars,bannerRates,finishTraining,tradeExtra,loadCatalog,init,get,day,week,hash,rng,unlocked,priceInCR,summonPrice,wallet,canBuy,buy,owned,componentBonus,carBonus,staffBonus,summon,dailyShop:(s,n)=>slots(s,'daily',n),weeklyShop:(s,n)=>slots(s,'weekly',n),buyOffer,reroll,get catalog(){return catalog},categories,rarities};root.ApexShop=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
 

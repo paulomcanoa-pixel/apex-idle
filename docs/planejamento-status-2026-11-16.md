@@ -2,6 +2,8 @@
 
 Referência: `outputs/APEX-IDLE-ANALISE-PRODUTO-2026-11-14.md`. Este acompanhamento separa implementação, simulação e validação com pessoas.
 
+Continuação mais recente: [Estratégia, garagem e continuidade](entrega-fluxos-2026-11-16.md). Presets completos, composição por link, previsão do treino, resumo ao retornar de aba e correções de Equipe/online foram implementados. O relatório abaixo registra o bloco anterior; a continuação eleva o conjunto a 161 testes e o build a 116 arquivos. A validação visual nova continua pendente.
+
 ## Mantido
 
 JavaScript e Canvas existentes, chave `apex-idle-v2`, importação/exportação, progresso antigo, Escuderia Aurora, 20 carros históricos e dois exclusivos, gacha com desejo e garantias, preços de troca e duplicatas definidos pelo usuário, Academia, ERS, clima, pneus/boxes, calendário, renda offline, conta/sincronização, legado e publicação no Vercel. Não foi recriado o jogo nem alterado seu framework.

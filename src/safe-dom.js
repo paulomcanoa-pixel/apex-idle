@@ -14,7 +14,7 @@ function render(target,markup){
     const tag=opening[1].toLowerCase(),node=doc.createElement(tag);
     for(const m of opening[2].matchAll(/([\w-]+)(?:="([^"]*)")?/g)){
       const key=m[1].toLowerCase(),value=decode(m[2]||'');
-      if(['id','class','width','height','role','type','value','disabled','checked','max'].includes(key)||/^(data|aria)-[\w-]+$/.test(key))node.setAttribute(key,value);
+      if(['id','class','width','height','role','type','value','disabled','checked','max','readonly'].includes(key)||/^(data|aria)-[\w-]+$/.test(key))node.setAttribute(key,value);
       if(tag==='a'&&key==='href'&&(['/termos.html','/privacidade.html'].includes(value)||(root.LegendsData?.cars||[]).some(c=>c.source===value&&value.startsWith('https://'))))node.setAttribute(key,value);
       if(tag==='a'&&key==='target'&&value==='_blank'){node.setAttribute(key,value);node.setAttribute('rel','noopener')}
     }

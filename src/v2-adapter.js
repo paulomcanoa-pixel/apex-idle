@@ -68,7 +68,9 @@ E.production=v=>old.prod(v)*(v.categoryScale||1)*(v.crBoostUntil>Date.now()?2:1)
 const teamCost=E.cost,teamUpgradeCost=E.upgradeCost,teamUpgrade=E.upgrade;
 E.cost=(v,i,n=1)=>Math.ceil(teamCost(v,i,n)*(v.categoryScale||1));
 E.maxBuy=(v,i,money)=>{let n=0;while(E.generators[i]&&n<1000-v.units[i]&&E.cost(v,i,n+1)<=money)n++;return n};
-E.buy=(s,i,count=1)=>{if(s.version!==2)return old.buyTeam(s,i,count);if(!E.generators[i]||![1,10,100,'max'].includes(count)||(s.catProgress?2*s.stage:s.maxCircuit)<B.P.genUnlock[i])return 0;s.idle.categoryScale=V.scale(s);const n=count==='max'?E.maxBuy(s.idle,i,s.money):count,price=E.cost(s.idle,i,n);if(!n||!Number.isFinite(price)||s.money<price)return 0;s.money-=price;s.idle.units[i]+=n;return n};
+function teamUnlocked(s,i){return!!E.generators[i]&&(s.catProgress?2*s.stage:s.maxCircuit)>=B.P.genUnlock[i]}
+function teamProduction(s,i){return E.generators[i]?E.production({...s.idle,units:s.idle.units.map((n,index)=>index===i?n:0)}):0}
+E.buy=(s,i,count=1)=>{if(s.version!==2)return old.buyTeam(s,i,count);if(!teamUnlocked(s,i)||![1,10,100,'max'].includes(count))return 0;s.idle.categoryScale=V.scale(s);const n=count==='max'?E.maxBuy(s.idle,i,s.money):count,price=E.cost(s.idle,i,n);if(!n||!Number.isFinite(price)||s.money<price)return 0;s.money-=price;s.idle.units[i]+=n;return n};
 E.upgradeCost=(v,i)=>Math.ceil(teamUpgradeCost(v,i)*(v.categoryScale||1));
 E.upgrade=(s,i)=>{if(s.version!==2)return teamUpgrade(s,i);s.idle.categoryScale=V.scale(s);const n=s.idle.upgrades[i],price=E.upgradeCost(s.idle,i);if(!E.generators[i]||n>=4||s.idle.units[i]<E.milestones[n]||s.money<price||!Number.isFinite(price))return false;s.money-=price;s.idle.upgrades[i]++;return true};
 E.click=s=>{if(s.version!==2)return old.click(s);const value=Math.max(1,5*E.production(s.idle));s.idle.clicks++;return E.earn(s,value)};
@@ -79,6 +81,8 @@ T.offline=(s,now=Date.now())=>{
   const absent=Math.min(28800,Math.max(0,(now-s.idle.at)/1000));
   const result=Ret.offline(s,now,E.production(s.idle));
   LootHooks.away(s,absent);
+  if(result.seconds>=60&&result.amount>0&&root.document&&typeof root.CustomEvent==='function')root.dispatchEvent(new root.CustomEvent('apex-offline-settled',{detail:{...result,at:now}}));
+
   return result;
 };
 T.tick=(s,dt,now)=>{if(s.version===2){s.idle.categoryScale=V.scale(s);s.idle.seasonTitles=s.season.titles;s.idle.escuderia=s.escuderia;s.idle.crBoostUntil=Shop.init(s).boosts.cr||0}return old.tick(s,dt,now)};
@@ -90,7 +94,7 @@ Champ.tick=(s,...a)=>s.version===2?0:old.champTick(s,...a);Champ.settle=(s,...a)
 const draw=root.CarArt?.draw;if(draw)root.CarArt.draw=(ctx,options)=>{const c=Shop.get(options.id);if(c?.category==='carros'&&!c.historical){const i=Shop.rarities.indexOf(c.rarity);options={...options,id:['vento','scarlatto','solar','eclipse','zenith'][Math.max(0,i)],color:options.color||['#96b3c7','#4bb7ed','#a67bff','#ffbd58','#fa6da9'][Math.max(0,i)]}}if(ctx.canvas?.id==='track'&&root.ApexCamera){const matrix=ctx.getTransform(),zoom=Math.hypot(matrix.a,matrix.b)/(root.devicePixelRatio||1);options={...options,scale:Math.max(options.scale||.17,root.ApexCamera.minCarSizePx(root.innerWidth)/(80*Math.max(.01,zoom)))*(options.number==='01'?1.25:1)}}if(ctx.canvas?.id==='track'&&options.number==='01'&&root.ApexCosmetics){options={...options,color:root.ApexCosmetics.paintColor(root.ApexPaintState?.(),options.color)}}draw(ctx,options);if(ctx.canvas?.id==='track'&&options.number==='01'&&root.ApexCosmetics)root.ApexCosmetics.decorate(ctx,options,root.ApexPaintState?.())};
 const equipped=GS.equip;GS.equip=(s,id)=>{const ok=equipped(s,id);if(ok&&s.version===2)Shop.init(s).selectedCar='';return ok};
 const equipStaff=Champ.equip;Champ.equip=(s,id)=>{const ok=equipStaff(s,id);if(ok&&s.version===2){const role=Champ.roster.find(p=>p.id===id)?.role;Shop.init(s)[role==='driver'?'selectedPilot':'selectedEngineer']=''}return ok};
-root.ApexV2={V,B,Shop,Ret,power,pi,duration,performance,updateRace,compare,place:s=>B.placeOf(pi(s)*B.aiLeaderPI(V.index(s))/V.leader(s),V.index(s))};
+root.ApexV2={teamUnlocked,teamProduction,V,B,Shop,Ret,power,pi,duration,performance,updateRace,compare,place:s=>B.placeOf(pi(s)*B.aiLeaderPI(V.index(s))/V.leader(s),V.index(s))};
 if(typeof module!=='undefined')module.exports=root.ApexV2;
 })(typeof window!=='undefined'?window:globalThis);
 
