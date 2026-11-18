@@ -16,7 +16,9 @@ function init(s){if(!s.journey||typeof s.journey!=='object'||Array.isArray(s.jou
   if((s.levels||[]).some(n=>n>0)||s.season?.titles>0)j.marks.upgrade=1;
   const selected=s.shop?.selectedCar||s.garage?.equipped||s.heritage?.equipped;
   const cars=(root.LegendsData||(typeof require==='function'?require('../legends-data'):{})).cars||[];
-  if(cars.some(c=>c.id===selected))j.marks.car=1;
+  // New games ask for an intentional garage choice. Older saves retain their
+  // inferred progress and already claimed rewards without replaying onboarding.
+  if(cars.some(c=>c.id===selected)&&(!j.marks.carActionRequired||j.marks.carAction||j.claimed.includes('car')))j.marks.car=1;
   if((s.race?.history||[]).length||s.night?.races>0)j.marks.race=1;
   if((s.idle?.units||[]).some(n=>n>0)||s.season?.titles>0)j.marks.team=1;
   if((s.race?.history||[]).some(r=>r.place<=5)||s.night?.wins>0)j.marks.top=1;

@@ -1,6 +1,22 @@
 // Presentation only: the camera never changes simulation time or save data.
 (function(){
-const map=document.createElement('section');map.className='race-minimap';ApexRender.attr(map,'aria-label','Minimapa do circuito');ApexRender.html(map,'<div class="minimap-heading"><span>CIRCUITO</span><b id="mapLap">01</b></div><canvas id="raceMap" width="440" height="260" aria-label="Traçado completo com posição do seu carro"></canvas><div class="map-key"><i></i> SEU CARRO <span id="mapProgress">0%</span></div><button type="button" id="mapCamera">Ver pista inteira</button><div class="map-visual-controls"><button type="button" id="lightMode" aria-label="Alternar entre dia e noite">☀ Dia</button><button type="button" id="projectionMode" aria-label="Alternar entre visão 2,5D e superior">◈ 2,5D</button></div><button type="button" id="motionRate" aria-label="Alternar ritmo da corrida">Ritmo 0,5×</button>');document.body.append(map);
+const map=document.createElement('section');map.className='race-minimap';ApexRender.attr(map,'aria-label','Minimapa do circuito');ApexRender.html(map,'<details class="minimap-disclosure" open><summary>Mapa e câmera</summary><div class="minimap-content"><div class="minimap-heading"><span>CIRCUITO</span><b id="mapLap">01</b></div><canvas id="raceMap" width="440" height="260" aria-label="Traçado completo com posição do seu carro"></canvas><div class="map-key"><i></i> SEU CARRO <span id="mapProgress">0%</span></div><button type="button" id="mapCamera">Ver pista inteira</button><div class="map-visual-controls"><button type="button" id="lightMode" aria-label="Alternar entre dia e noite">☀ Dia</button><button type="button" id="projectionMode" aria-label="Alternar entre visão 2,5D e superior">◈ 2,5D</button></div><button type="button" id="motionRate" aria-label="Alternar ritmo da corrida">Ritmo 0,5×</button></div></details>');document.body.append(map);
+// A short viewport needs a compact HUD, not smaller or unreachable controls.
+// Keep the existing full minimap in tall windows and let the player expand it
+// with native keyboard/touch disclosure in short windows.
+const mapDisclosure=map.querySelector('details');
+const compactMap=window.matchMedia('(max-height: 680px) and (min-width: 761px), (max-height: 740px) and (max-width: 760px)');
+function updateMapDisclosure(){mapDisclosure.open=!compactMap.matches}
+updateMapDisclosure();compactMap.addEventListener('change',updateMapDisclosure);
+map.addEventListener('keydown',event=>{if(event.key==='Escape'&&compactMap.matches&&mapDisclosure.open){mapDisclosure.open=false;mapDisclosure.querySelector('summary').focus();event.stopPropagation()}});
+document.addEventListener('DOMContentLoaded',()=>{
+  const power=document.querySelector('.v2-power');
+  if(!power)return;
+  const placeMap=()=>map.style.setProperty('--map-compact-top',Math.ceil(power.getBoundingClientRect().bottom+8)+'px');
+  new ResizeObserver(placeMap).observe(power);
+  window.addEventListener('resize',placeMap,{passive:true});
+  placeMap();
+},{once:true});
 const controls=document.createElement('nav');controls.className='camera-controls';ApexRender.attr(controls,'aria-label','Câmera da corrida');ApexRender.html(controls,'<button id="zoomOut" aria-label="Afastar câmera">−</button><output id="cameraZoom" aria-live="polite">5×</output><button id="zoomIn" aria-label="Aproximar câmera">+</button><button id="cameraMode" aria-pressed="true">◎ Seguir carro</button>');document.body.append(controls);
 try{window.apexDaylight=localStorage.getItem('apex-visual-light')!=='night'}catch{window.apexDaylight=true}
 function updateLight(){ApexRender.text($('lightMode'),window.apexDaylight?'☀ Dia':'☾ Noite');ApexRender.attr($('lightMode'),'aria-pressed',String(window.apexDaylight))}

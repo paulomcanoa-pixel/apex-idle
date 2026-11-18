@@ -26,3 +26,21 @@ test('retenção D7 e D30 usa o dia exato da primeira sessão observada, não at
 test('primeiros marcos continuam deduplicados após recarga e rotação dos 200 eventos',()=>{
   let s=player();s.consent.analytics=true;Commercial.record(s,'car_equip');const first=s.analyticsMilestones.first_car_equip;for(let i=0;i<210;i++)Commercial.record(s,'race_finish',{place:10});s=JSON.parse(JSON.stringify(s));assert.equal(s.telemetry.length,200);assert(!Commercial.record(s,'first_car_equip'));Commercial.record(s,'car_equip');assert.equal(s.analyticsMilestones.first_car_equip,first);assert.equal(Commercial.funnel(s).first_car_equip,undefined);assert.equal(Commercial.report(s).milestones.first_car_equip,first);assert(!Commercial.record(s,'../private'));s.consent.analytics=false;const count=s.telemetry.length;Commercial.record(s,'session_start');assert.equal(s.telemetry.length,count);
 });
+test('novo jogo pede uma escolha na garagem antes da recompensa e do fim da introdução',()=>{
+  const A=require('./engine');require('./src/v2-adapter');
+  const s=A.initial();R.init(s);assert.equal(s.journey.marks.carActionRequired,1);
+  assert.equal(A.equippedCar(s).id,'lotus49');assert.equal(J.goals(s).find(g=>g.id==='car').done,false);
+  s.levels[0]=1;assert(J.claim(s,'upgrade'));assert.equal(J.next(s).id,'car');assert(!J.claim(s,'car'));
+  s.consent.analytics=true;Commercial.record(s,'session_start');Commercial.record(s,'race_finish',{place:8});Commercial.record(s,'team_buy');
+  assert.equal(Commercial.funnel(s).tutorial_done,undefined);
+  const restored=JSON.parse(JSON.stringify(s));assert(J.valid(restored));assert.equal(J.goals(restored).find(g=>g.id==='car').done,false);
+  Commercial.record(restored,'car_equip',{car:Shop.hash('lotus49'),circuit:0});
+  assert.equal(restored.journey.marks.carAction,1);assert(J.claim(restored,'car'));assert(!J.claim(restored,'car'));
+  assert.equal(Commercial.funnel(restored).first_car_equip,1);assert.equal(Commercial.funnel(restored).tutorial_done,1);
+});
+test('inferência de carro em save antigo e recompensas já conquistadas permanecem válidas',()=>{
+  const s=player();s.garage={owned:['lotus49'],equipped:'lotus49'};s.levels[0]=1;
+  assert(J.claim(s,'upgrade'));assert(J.claim(s,'car'));const tickets=s.championship.tickets;
+  const restored=JSON.parse(JSON.stringify(s));assert(J.goals(restored).find(g=>g.id==='car').done);assert(!J.claim(restored,'car'));
+  assert.equal(restored.championship.tickets,tickets);assert.equal(restored.journey.marks.carAction,undefined);
+});

@@ -1,5 +1,7 @@
 # Estratégia, garagem e continuidade — 16/11/2026
 
+> Atualização de 17/11: veja [a continuação publicada](entrega-conclusao-2026-11-17.md). A inspeção anterior confirmou partes da interface; a nova inspeção visual foi encerrada a pedido do usuário. Os registros abaixo descrevem a situação daquela rodada.
+
 Continuação de `planejamento-status-2026-11-16.md` e da análise de produto de 14/11. Esta entrega melhora os fluxos que conectam coleção, preparação, corrida e retorno ao jogo.
 
 ## O que mudou
