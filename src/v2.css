@@ -90,3 +90,35 @@
 }
 .garage-recommendation h3,.garage-recommendation p{margin:0 0 6px}
 .garage-recommendation button{min-height:44px}
+
+.v2-panel .v2-section-picker{display:none}
+.v2-panel .v2-notice:empty{display:none}
+@media(max-width:440px){
+  body.apex-v2 .game-drawer[data-section=apexV2]{
+    top:max(66px,calc(env(safe-area-inset-top) + 60px))!important;
+    height:auto!important;
+    max-height:none!important;
+  }
+  .v2-panel .v2-tabs-wide{display:none}
+  .v2-panel .v2-section-picker{
+    display:grid;
+    grid-template-columns:max-content minmax(0,1fr);
+    gap:10px;
+    align-items:center;
+    padding:6px 0;
+  }
+  .v2-panel .v2-section-picker select{min-height:44px;width:100%;min-width:0}
+  .v2-panel .v2-tabs:not(.v2-tabs-wide){gap:5px}
+  .v2-panel .v2-tabs:not(.v2-tabs-wide) button{flex:1 1 0;min-width:0}
+  .v2-panel .garage-hero{
+    grid-template-columns:106px minmax(0,1fr);
+    gap:8px;
+    align-items:start;
+    padding:6px 0 12px;
+  }
+  .v2-panel .garage-hero canvas{width:100%;max-height:100px;align-self:center}
+  .v2-panel .garage-hero h3{font-size:22px}
+  .v2-panel .garage-hero p{margin:4px 0;font-size:12px;line-height:1.4}
+  .v2-panel .garage-quick-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .v2-panel .garage-quick-actions button{flex:1 1 90px;margin:0}
+}

@@ -8,7 +8,15 @@ const guide=document.createElement('section');guide.className='v2-guide';ApexSaf
 let view='upgrades',storeTab='summon',teamTab='income',workTab='upgrades',batch=1,stamp='',currentBanner='banner-padrao',notice='',lastFinish=s.night?.lastResult||null,lastLap=s.laps,lastHUD=0,eventPending=false,confirmedSeason=false;
 const aliases={carShop:'upgrades',garage:'upgrades',lineup:'garage',setup:'garage',parts:'components',album:'garage',projects:'projects',operation:'income',pilots:'pilots',contracts:'contracts',farm:'income',ascension:'season',idleStats:'achievements',cloudRanking:'rankings',championship:'championship',circuitShop:'circuits',circuits:'circuits',seasonShop:'season',sponsorShop:'missions',missions:'missions',summon:'summon',compactHelp:'help'};
 const previousOpen=openMenu;let formationLink='';const sharedFormation=location.hash.startsWith('#lineup=')?ApexFormation.decode(location.hash.slice(8)):null;
-function open(viewId){view=viewId;stamp='';confirmedSeason=false;previousOpen('apexV2');renderPanel(true)}
+function open(viewId){
+  view=viewId;
+  stamp='';
+  confirmedSeason=false;
+  const labels={work:t('workshop'),team:t('team'),store:say('Loja','Shop'),champ:t('championship')};
+  menus.apexV2.title=viewId==='standings'?say('Pista','Track'):labels[group(viewId)];
+  previousOpen('apexV2');
+  renderPanel(true);
+}
 openMenu=function(id){if(aliases[id])return aliases[id]==='rankings'?previousOpen('rankings'):open(aliases[id]);if(id==='track'){drawer.close();return}previousOpen(id)};
 function goToGoal(goal){
   if(!goal||goal.done||goal.locked){open('championship');panel.querySelector('[data-action="journeyClaim"]:not([disabled])')?.focus();return}
@@ -21,7 +29,17 @@ for(const button of document.querySelectorAll('.area-navigation [data-area]')){c
 power.onclick=e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)};guide.onclick=e=>{if(!e.target.closest('button'))return;if(e.target.closest('[data-action="guideGo"]')){goToGoal(ApexJourney.next(s));return}s.onboarding.done=true;save();refreshHUD(true)};
 document.querySelector('#trackMissions').onclick=()=>open('missions');
 const group=id=>['upgrades','garage','projects'].includes(id)?'work':['income','pilots'].includes(id)?'team':['summon','components','automation','cosmetics','premium','trade','event','dailyShop','weeklyShop'].includes(id)?'store':'champ';
-function tabs(items){return '<nav class="v2-tabs">'+items.map(([id,key])=>'<button data-go="'+id+'" aria-current="'+(view===id?'page':'false')+'">'+esc(t(key))+'</button>').join('')+'</nav>'}
+function tabs(items){
+  const long=items.length>3;
+  const nav='<nav class="v2-tabs'+(long?' v2-tabs-wide':'')+'">'+items.map(([id,key])=>
+    '<button data-go="'+id+'" aria-current="'+(view===id?'page':'false')+'">'+esc(t(key))+'</button>'
+  ).join('')+'</nav>';
+  if(!long)return nav;
+  return nav+'<label class="v2-section-picker" for="v2Section">'+say('Seção','Section')
+    +'<select id="v2Section">'+items.map(([id,key])=>
+      '<option value="'+id+'"'+(view===id?' selected':'')+'>'+esc(t(key))+'</option>'
+    ).join('')+'</select></label>';
+}
 function button(label,action,id='',disabled=false){return '<button data-action="'+action+'" data-id="'+esc(id)+'" '+(disabled?'disabled':'')+'>'+esc(label)+'</button>'}
 function row(name,detail,controls,art=''){return '<article class="v2-row">'+(art?'<canvas width="180" height="110" data-art="'+esc(art)+'" aria-label="'+esc(name)+'"></canvas>':'')+'<div><h3>'+esc(name)+'</h3><p>'+detail+'</p></div><div class="v2-actions">'+controls+'</div></article>'}
 function header(){const g=group(view);return g==='work'?tabs([['upgrades','upgrades'],['garage','garage'],['projects','projects']]):g==='team'?tabs([['income','team'],['pilots','pilots']]):g==='store'?tabs([['summon','summon'],['components','components'],['automation','automation'],['cosmetics','cosmetics'],['premium','premium'],['trade','trade'],['event','event'],['dailyShop','todayOffers'],['weeklyShop','weekOffers']]):tabs([['championship','championship'],['contracts','contracts'],['achievements','achievements'],['circuits','circuits'],['season','season'],['missions','missions']])}
@@ -207,7 +225,7 @@ function flushEconomy(){if(economyState!==s){resetEconomy();return}const after=e
 ApexRender.schedule('economy-measurement',flushEconomy,30000);
 function recordEconomy(action,before){const after=economySnapshot(),details={action:Shop.hash(action)};for(const key of Object.keys(after))if(after[key]!==before[key]){const delta=after[key]-before[key];details['delta'+key]=delta;economyObserved[key]+=delta}if(Object.keys(details).length>1)ApexCommercial.record(s,'economy_action',details)}
 function commit(){save();stamp='';render();renderPanel(true)}
-panel.onchange=e=>{if(e.target.id==='v2Batch'){batch=e.target.value==='max'?'max':+e.target.value;stamp='';renderPanel(true)}if(e.target.id==='v2Banner'){currentBanner=e.target.value;stamp='';renderPanel(true)}if(e.target.id==='v2Wish'){s.shop.wish=e.target.value;save();renderPanel(true)}if(e.target.id==='v2Focus')s.focus=e.target.value};
+panel.onchange=e=>{if(e.target.id==='v2Section'){const next=e.target.value;const known=[...panel.querySelectorAll('.v2-tabs [data-go]')].some(button=>button.dataset.go===next);if(known){go(next);$('v2Section')?.focus({preventScroll:true})}return}if(e.target.id==='v2Batch'){batch=e.target.value==='max'?'max':+e.target.value;stamp='';renderPanel(true)}if(e.target.id==='v2Banner'){currentBanner=e.target.value;stamp='';renderPanel(true)}if(e.target.id==='v2Wish'){s.shop.wish=e.target.value;save();renderPanel(true)}if(e.target.id==='v2Focus')s.focus=e.target.value};
 panel.onclick=async e=>{const target=e.target.closest('button');if(!target||target.disabled||!ApexAccess.canWrite())return;if(target.dataset.go){go(target.dataset.go);return}const action=target.dataset.action,id=target.dataset.id;if(!action)return;const ownedBefore=new Set([...GarageState.init(s).owned,...s.shop.inventory.cars]);const selectionBefore=['applyFormation','loadPreset'].includes(action)?{pilot:Shop.driver(s)?.id||'',engineer:Shop.engineer(s)?.id||''}:null;let success=true;let balancesBefore=economySnapshot();notice='';const item=Shop.get(id),purchasePrice=action==='buy'&&item?Shop.priceInCR(item,s):action==='upgrade'?V.cost(s,+id):action==='team'?E.cost(s.idle,+id,batch==='max'?E.maxBuy(s.idle,+id,s.money):batch):0;if(purchasePrice>=s.money*.5&&s.money>0&&!await SaveConfirmation.ask(say('Esta compra usa pelo menos metade do caixa. Confirmar?','This purchase uses at least half your cash. Confirm?')))return;balancesBefore=economySnapshot();
 if(action==='go'){go(id);return}if(action==='shareFormation'){const code=ApexFormation.encode(s);formationLink=code?location.origin+'/#lineup='+code:'';notice=code?'Copie o link. A composição é mostrada na Garagem de quem abrir.':'Selecione um conjunto válido para compartilhar.';renderPanel(true);return}if(action==='applyFormation'){if(race?.challenge){notice='Conclua o desafio antes de trocar de conjunto.';renderPanel(true);return}success=ApexFormation.apply(s,sharedFormation);if(success){ApexRacePlan.sync(s,5);NightView.applyEquippedToRace()}}if(action==='banner'){currentBanner=id;stamp='';renderPanel(true);return}
 if(action==='upgrade')success=buyUpgrade(+id);
