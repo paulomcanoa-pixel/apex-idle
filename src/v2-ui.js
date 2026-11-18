@@ -10,9 +10,15 @@ const aliases={carShop:'upgrades',garage:'upgrades',lineup:'garage',setup:'garag
 const previousOpen=openMenu;let formationLink='';const sharedFormation=location.hash.startsWith('#lineup=')?ApexFormation.decode(location.hash.slice(8)):null;
 function open(viewId){view=viewId;stamp='';confirmedSeason=false;previousOpen('apexV2');renderPanel(true)}
 openMenu=function(id){if(aliases[id])return aliases[id]==='rankings'?previousOpen('rankings'):open(aliases[id]);if(id==='track'){drawer.close();return}previousOpen(id)};
+function goToGoal(goal){
+  if(!goal||goal.done||goal.locked){open('championship');panel.querySelector('[data-action="journeyClaim"]:not([disabled])')?.focus();return}
+  if(goal.action==='academy'){previousOpen('pilots');return}
+  if(goal.action==='race'||goal.action==='track'){drawer.close();$('boost').focus();return}
+  go(goal.action);
+}
 function go(id){if(id==='social'){ApexOnline.open('crew');return}if(['account','pvp','rankings','weekly','settings'].includes(id)){previousOpen(id);return}open(id)}
 for(const button of document.querySelectorAll('.area-navigation [data-area]')){const id=button.dataset.area;button.onclick=()=>id==='track'?drawer.close():open({car:'upgrades',team:'income',champ:'championship',store:'summon'}[id]);if(id==='car'||id==='champ')ApexRender.text(button.querySelector('span'),t(id==='car'?'workshop':'championship'))}
-power.onclick=e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)};guide.onclick=e=>{if(!e.target.closest('button'))return;if(e.target.closest('[data-action="guideGo"]')){open('championship');return}s.onboarding.done=true;save();refreshHUD(true)};
+power.onclick=e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)};guide.onclick=e=>{if(!e.target.closest('button'))return;if(e.target.closest('[data-action="guideGo"]')){goToGoal(ApexJourney.next(s));return}s.onboarding.done=true;save();refreshHUD(true)};
 document.querySelector('#trackMissions').onclick=()=>open('missions');
 const group=id=>['upgrades','garage','projects'].includes(id)?'work':['income','pilots'].includes(id)?'team':['summon','components','automation','cosmetics','premium','trade','event','dailyShop','weeklyShop'].includes(id)?'store':'champ';
 function tabs(items){return '<nav class="v2-tabs">'+items.map(([id,key])=>'<button data-go="'+id+'" aria-current="'+(view===id?'page':'false')+'">'+esc(t(key))+'</button>').join('')+'</nav>'}
@@ -26,7 +32,14 @@ function buyUpgrade(i){const before=ApexV2.pi(s),out=V.buy(s,i,batch);if(out.bou
 function best(){let winner=null;const before=ApexV2.pi(s);for(let i=0;i<6;i++){const price=V.cost(s,i);if(!V.unlockedBranch(s,i)||s.levels[i]>=100||price>s.money)continue;const draft=JSON.parse(JSON.stringify(s));draft.levels[i]++;const gain=i===3?(A.reward(draft)/A.reward(s)-1):ApexV2.pi(draft)/before-1,score=price/Math.max(.0001,gain);if(!winner||score<winner.score)winner={i,kind:'car',cost:price,score}}E.generators.forEach((g,i)=>{const price=E.cost(s.idle,i,1);if(s.idle.units[i]>=1000||!genOpen(i)||price>s.money)return;const score=price/Math.max(.0001,g.rate*V.scale(s)/Math.max(1,Ret.income(s)));if(!winner||score<winner.score)winner={i,kind:'team',cost:price,score}});return winner}
 const E=GameEconomy;
 NightView.buyBest=()=>{if(!ApexAccess.canWrite())return false;const b=best();if(!b)return false;const ok=b.kind==='car'?buyUpgrade(b.i):E.buy(s,b.i,1);if(ok){save();render();renderPanel(true)}return ok};
-$('trackBest').onclick=()=>NightView.buyBest();
+$('trackBest').onclick=async()=>{
+  const choice=best();
+  if(!choice)return;
+  const name=choice.kind==='car'?B.branches[choice.i].name:E.generators[choice.i].name;
+  if(!await SaveConfirmation.ask('Comprar '+name+' por '+F(choice.cost)+' CR?'))return;
+  const current=best();
+  if(current?.kind===choice.kind&&current.i===choice.i&&current.cost===choice.cost)NightView.buyBest();
+};
 function renderPanel(force=false){
 if(!drawer.open||drawer.dataset.section!=='apexV2')return;
 const q=Shop.init(s),c=Championship.init(s),r=Ret.init(s),signature=JSON.stringify([view,storeTab,batch,currentBanner,s.levels,s.rep,s.cat,s.stage,s.maxCircuit,s.garage,q.inventory,q.equipped,q.selectedCar,q.selectedPilot,q.selectedEngineer,q.limits,q.history,q.pts,c.gems,c.tickets,q.eventTokens,q.training,s.journey,s.talents,s.daily,r.passClaimed,r.contracts,notice,confirmedSeason,s.season,s.globalPeak]);
@@ -86,19 +99,19 @@ if(view==='achievements'){html+=(s.cat>=3?'<h3>'+say('Desafios de pista','Track 
 html+='<h2>'+t('achievements')+'</h2><p>'+Ret.init(s).perfect.length+' '+say('corridas perfeitas','perfect races')+' · '+(s.night?.wins||0)+' '+say('vitórias','wins')+' · '+esc(s.escuderia)+' '+say('níveis','levels')+'</p><p>'+say('Corrida perfeita: P1, ERS usado e parada dentro da janela do pneu.','Perfect race: P1, ERS used and pit stop within the tyre window.')+'</p>'+button(say('Estatísticas preservadas','Preserved statistics'),'legacyStats')}
 if(view==='summon'){
   const special=currentBanner==='banner-lendas',featured=currentBanner==='banner-destaque';
-  const cars=Shop.bannerCars(currentBanner),featuredCars=special?cars.filter(car=>car.exclusive):cars;
+  const cars=Shop.bannerCars(currentBanner);
   const pity=q.pity[currentBanner]||{epic:0,legendary:0,mythic:0},rates=Shop.bannerRates(currentBanner,q.wish,pity.mythic);
-  const ready=(s.catProgress?s.stage:s.maxCircuit)>=3&&(!special||s.cat>=4);
+  const ready=Shop.bannerUnlocked(s,currentBanner);
   const label=featured?say('ficha de destaque','featured ticket'):special?say('ficha','ticket'):F(Shop.summonPrice(s))+' CR';
   const balance=featured?q.featuredTickets:special?c.tickets:s.money/Shop.summonPrice(s);
   html+='<h2>'+t('summon')+'</h2><nav class="v2-tabs v2-banner-picker" aria-label="'+say('Banners gacha','Gacha banners')+'">'+Shop.catalog.banners.map(b=>'<button data-action="banner" data-id="'+esc(b.id)+'" aria-pressed="'+(b.id===currentBanner)+'">'+esc(b.name)+'</button>').join('')+'</nav>';
   html+='<canvas class="v2-banner" width="900" height="220" data-banner-art aria-label="'+esc(special?'Lotus 97T e Jordan 191 em Canvas':'Monopostos históricos em Canvas')+'"></canvas>';
   html+='<p>'+(special?say('Lotus 97T e Jordan 191 são exclusivos deste banner de fichas. Os demais resultados são raros e épicos do principal.','Lotus 97T and Jordan 191 are ticket banner exclusives. Other results are rare and epic cars from the main banner.'):say('20 monopostos históricos de Fórmula 1.','20 historic Formula 1 cars.'))+'</p>';
   if(!special)html+='<label>'+say('Desejo: chance dobrada','Wish: doubled chance')+' <select id="v2Wish"><option value="">—</option>'+cars.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('')+'</select></label>';
-  html+='<details><summary>'+say('Carros e chances por invocação','Cars and odds per pull')+'</summary>'+featuredCars.map(car=>'<p>'+esc(car.name)+' · '+esc(rates.find(row=>row.car===car).chance.toLocaleString(ApexI18n.language==='en'?'en':'pt-BR',{maximumFractionDigits:4}))+'%</p>').join('')+'</details>';
+  html+='<details><summary>'+say('Carros e chances antes da garantia','Cars and odds before guarantees')+'</summary>'+cars.map(car=>'<p>'+esc(car.name)+' · '+esc(rates.find(row=>row.car===car).chance.toLocaleString(ApexI18n.language==='en'?'en':'pt-BR',{maximumFractionDigits:4}))+'%</p>').join('')+'</details>';
   html+='<p>'+say('Próxima garantia de épico ou superior em ','Guarantees: epic ')+Math.max(1,10-pity.epic)+' · '+say('lendário ','legendary ')+Math.max(1,(special?50:featured?100:200)-pity.legendary)+'</p>';
   html+='<p>'+F(c.tickets)+' '+say('fichas','tickets')+' · '+esc(q.featuredTickets)+' '+say('fichas de destaque','featured tickets')+' · '+F(q.pts)+' '+say('pontos de troca','exchange points')+'</p>';
-  html+=button(t('summon')+' ×1 · '+label,'summon',1,!ready||balance<1)+button(t('summon')+' ×10','summon',10,!ready||balance<10);
+  html+=button(t('summon')+' ×1 · '+label,'summon',1,!ready||balance<1)+button(t('summon')+' ×10 · '+(featured?say('10 fichas de destaque','10 featured tickets'):special?say('10 fichas','10 tickets'):F(Shop.summonPrice(s)*10)+' CR'),'summon',10,!ready||balance<10);
   if(featured)html+=button(t('summon')+' · 60 '+say('gemas','gems'),'gemSummon',1,!ready||c.gems-(q.paidGems||0)<60);
   if(!special&&!featured)html+=button(t('summon')+' ×1 · '+say('ficha','ticket'),'ticketSummon',1,!ready||c.tickets<1);
   html+='<p>Mítico na próxima tentativa: '+rates.filter(x=>x.rank===4).reduce((a,x)=>a+x.chance,0).toLocaleString('pt-BR',{maximumFractionDigits:4})+'%. A chance aumenta após cada tentativa sem mítico e reinicia ao obtê-lo. Não há garantia de mítico. A referência de 1 em 700 é a média do principal sem desejo, não um prazo.</p>';
@@ -115,11 +128,26 @@ else if(view==='dailyShop'||view==='weeklyShop'){const slots=view==='dailyShop'?
 if(view==='dailyShop')html+=button(t('reroll')+' · 10 '+say('gemas','gems'),'reroll');
 slots.forEach((item,i)=>html+=row(item.name,item.empty?t('locked'):F(item.offerPrice)+' '+item.currency,button(t('buy'),'offer',i,item.empty||q.limits[item.offerKey]),item.category==='carros'?item.id:''))}
 else{const list=view==='components'?Shop.catalog.items.filter(x=>x.category==='componentes'):view==='cosmetics'?Shop.catalog.items.filter(x=>x.category==='cosmeticos'):view==='premium'?Shop.catalog.items.filter(x=>x.category==='real'):view==='trade'?Shop.bannerCars('banner-padrao'):Shop.catalog.items.filter(x=>x.category==='boosts');
-list.forEach(item=>{const owned=Shop.owned(s,item),trade=view==='trade',price=trade?item.price.pts:Shop.priceInCR(item,s),currency=trade?'pts':item.currency,blocked=!Shop.unlocked(s,item)||item.category==='real'||item.price===0;html+=row(item.name,item.category==='real'?t('soon')+' · '+say('nenhuma cobrança','no charges'):('+'+((item.effect.piPct||0)*100).toFixed(1)+'% PI · '+F(price)+' '+currency),button(owned?t('equipped'):blocked?t('locked'):t('buy'),trade?'trade':'buy',item.id,owned||blocked)+(item.category==='componentes'&&owned?button(t('equip'),'componentEquip',item.id):'')+(item.category==='cosmeticos'&&owned?button(t('equip'),'cosmeticEquip',item.id):''),item.category==='carros'?item.id:'')}
+list.forEach(item=>{const owned=Shop.owned(s,item),trade=view==='trade',price=trade?item.price.pts:Shop.priceInCR(item,s),currency=trade?'pts':item.currency,blocked=!Shop.unlocked(s,item)||item.category==='real'||item.price===0;html+=row(item.name,item.category==='real'?t('soon')+' · '+say('nenhuma cobrança','no charges'):('+'+((item.effect.piPct||0)*100).toFixed(1)+'% PI · '+F(price)+' '+currency),button(owned?(trade&&A.equippedCar(s).id!==item.id?say('Na garagem','In garage'):t('equipped')):blocked?t('locked'):t('buy'),trade?'trade':'buy',item.id,owned||blocked)+(item.category==='componentes'&&owned?button(t('equip'),'componentEquip',item.id):'')+(item.category==='cosmeticos'&&owned?button(t('equip'),'cosmeticEquip',item.id):''),item.category==='carros'?item.id:'')}
 )}
 }
-if(view==='help')html+='<h2>'+say('Um ciclo claro','One clear loop')+'</h2><p>'+say('Corra → ganhe CR e REP → melhore o PI → dispute posições → avance etapas. A equipe é a única renda idle; contratos dão CR e materiais em missões com prazo. Nova temporada é o único prestígio ativo.','Race → earn CR and REP → improve power → fight for position → advance stages. The team is the only idle income; timed contracts give cash and materials. New season is the only active prestige.')+'</p>';
+if(view==='help')html+=button('Mostrar guia de objetivos','showGuide')+'<h2>'+say('Um ciclo claro','One clear loop')+'</h2><p>'+say('Corra → ganhe CR e REP → melhore o PI → dispute posições → avance etapas. A equipe é a única renda idle; contratos dão CR e materiais em missões com prazo. Nova temporada é o único prestígio ativo.','Race → earn CR and REP → improve power → fight for position → advance stages. The team is the only idle income; timed contracts give cash and materials. New season is the only active prestige.')+'</p>';
+const focused=panel.contains(document.activeElement)?document.activeElement:null;
+const controls='button,select,input,summary';
+const controlKey=el=>JSON.stringify([el.id,el.dataset.go,el.dataset.action,el.dataset.id,el.tagName]);
+const key=focused&&controlKey(focused);
+const tabsScroll=panel.querySelector('.v2-tabs')?.scrollLeft||0;
+const expanded=[...panel.querySelectorAll('details')].map(detail=>detail.open);
 ApexSafeDOM.render(panel,html);
+if(!force){
+  const tabs=panel.querySelector('.v2-tabs');
+  if(tabs)tabs.scrollLeft=tabsScroll;
+  [...panel.querySelectorAll('details')].forEach((detail,i)=>{if(expanded[i])detail.open=true});
+}
+if(key){
+  const replacement=[...panel.querySelectorAll(controls)].find(el=>controlKey(el)===key&&!el.disabled);
+  replacement?.focus({preventScroll:true});
+}
 const select=$('v2Batch');
 if(select)select.value=String(batch);
 if($('v2Banner'))$('v2Banner').value=currentBanner;
@@ -148,7 +176,7 @@ else CarArt.draw(g,{x:canvas.width/2,y:canvas.height/2,a:-.14,scale:canvas.width
 )}
 }
 function updateLive(){const finishTraining=panel.querySelector('[data-action="finishTraining"]');if(finishTraining)ApexRender.prop(finishTraining,'disabled',s.shop.training?.end>Date.now());const live=$('v2Standings');if(live&&race){const order=Race.order(race);const signature=order.map(x=>x.name+Math.floor(x.distance*10)).join();if(live.dataset.signature!==signature){live.dataset.signature=signature;ApexSafeDOM.render(live,order.map((x,i)=>'<p class="v2-standing"><b>P'+(i+1)+'</b> '+esc(x.player?'Aurora':x.name)+' <span>'+ (i===0?say('Líder','Leader'):'+'+((order[0].distance-x.distance)*race.duration).toFixed(1)+' s')+'</span></p>').join(''))}}for(const el of panel.querySelectorAll('[data-live="cash"]'))ApexRender.text(el,F(s.money));for(const el of panel.querySelectorAll('[data-countdown]'))ApexRender.text(el,Math.max(0,Math.ceil((+el.dataset.countdown-Date.now())/1000))+' s')}
-function reveal(results){pendingReveal=results.map(r=>({car:{id:r.id,name:r.car.name,rarity:['Comum','Raro','Épico','Lendário','Mítico'][Shop.rarities.indexOf(r.car.rarity)],color:r.car.color||['#b8c9d4','#70caff','#c6a0ff','#ffcd75','#ff86bf'][Shop.rarities.indexOf(r.car.rarity)]},duplicate:r.duplicate,guaranteed:r.guaranteed,points:r.points}));revealIndex=0;summonBusy=true;summonCinema.showModal();startReveal()}
+function reveal(results){pendingReveal=results.map(r=>({car:{id:r.id,name:r.car.name,rarity:['Comum','Raro','Épico','Lendário','Mítico'][Shop.rarities.indexOf(r.car.rarity)],color:r.car.color||['#b8c9d4','#70caff','#c6a0ff','#ffcd75','#ff86bf'][Shop.rarities.indexOf(r.car.rarity)]},duplicate:r.duplicate,guaranteed:r.guaranteed,points:r.points}));revealIndex=0;summonBusy=true;summonCinema.showModal();if(matchMedia('(prefers-reduced-motion: reduce)').matches)finishSummon();else startReveal()}
 function economySnapshot(){return {CR:s.money,Materials:s.materials||0,Tickets:s.championship.tickets||0,Points:s.shop.pts||0,Gems:s.championship.gems||0,FeaturedTickets:s.shop.featuredTickets||0,EventTokens:s.shop.eventTokens||0}}
 let economyObserved=economySnapshot(),economyState=s;
 function resetEconomy(){economyState=s;economyObserved=economySnapshot()}
@@ -178,8 +206,9 @@ if(action==='daily')success=Ret.claimDaily(s,id);
 if(action==='weekly')success=Ret.claimWeekly(s);
 if(action==='pass')success=Ret.claimPass(s,+id);
 if(action==='passAll')success=Ret.claimAllPass(s)>0;
+if(action==='showGuide'){s.onboarding.done=false;save();drawer.close();refreshHUD(true);return}
 if(action==='journeyClaim')success=ApexJourney.claim(s,id);
-if(action==='journeyGo'){const goal=ApexJourney.goals(s).find(g=>g.id===id);if(goal){if(goal.action==='academy')previousOpen('pilots');else if(goal.action==='race'||goal.action==='track')drawer.close();else go(goal.action||'championship')}return}
+if(action==='journeyGo'){goToGoal(ApexJourney.goals(s).find(g=>g.id===id));return}
 if(action==='weeklyChallenge'){success=Ret.startChallenge(s);notice=success?'Desafio agendado para a próxima largada. Prepare pneus e estratégia na Garagem.':''}
 if(action==='legacySelect'){const status=ApexTalents.status(s);if(status.selected&&!await SaveConfirmation.ask('Trocar a especialização ativa? A troca é gratuita.'))return;success=ApexTalents.select(s,id,!!status.selected)}
 
@@ -221,7 +250,21 @@ $('strategyGo').onclick=()=>{strategy.close();NightView.setMaintenance(false)};
 const insights=document.createElement('section');insights.className='race-insights';resultDialog.append(insights);
 function showInsights(){const rows=s.retention?.lastInsights||[];ApexSafeDOM.render(insights,'<h3>Sua estratégia na pista</h3>'+rows.map(x=>'<p>'+esc(x.text)+' '+esc(x.action)+'</p>').join(''));const ch=s.retention?.weeklyChallenge?.lastResult;if(ch?.name){const p=document.createElement('p');p.textContent=ch.name+' · '+(ch.success?(ch.rewarded?'Objetivo concluído. Recompensas recebidas.':'Objetivo repetido. Recorde atualizado.'):'Objetivo ainda não concluído. Ajuste seu conjunto.');insights.append(p)}}
 window.addEventListener('apex-race-analysis',showInsights);showInsights();
-const resultArt=document.createElement('canvas');resultArt.width=440;resultArt.height=210;resultArt.className='v2-result-art';resultArt.setAttribute('aria-label','Seu carro no pódio');resultDialog.append(resultArt);let resultFrame=0;function podium(){resultFrame=0;if(!resultDialog.open)return;ApexCosmetics.drawResult(resultArt.getContext('2d'),A.equippedCar(s),s.shop.equippedCosmetics||{},performance.now()/1000,matchMedia('(prefers-reduced-motion: reduce)').matches);if(!matchMedia('(prefers-reduced-motion: reduce)').matches)resultFrame=requestAnimationFrame(podium)}new MutationObserver(()=>{if(resultDialog.open&&!resultFrame)podium();else if(!resultDialog.open&&resultFrame){cancelAnimationFrame(resultFrame);resultFrame=0}}).observe(resultDialog,{attributes:true,attributeFilter:['open']});
+const resultArt=document.createElement('canvas');resultArt.width=440;resultArt.height=210;resultArt.className='v2-result-art';resultArt.setAttribute('aria-label','Seu carro na chegada');resultDialog.append(resultArt);let resultFrame=0,resultStarted=0;
+function podium(now){
+  resultFrame=0;
+  if(!resultDialog.open)return;
+  const elapsed=Math.min(1,(now-resultStarted)/1000);
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches||s.idle.settings.effects==='off';
+  const finishCar=Shop.get(s.retention.lastRaceCar)||A.equippedCar(s);
+  ApexCosmetics.drawResult(resultArt.getContext('2d'),finishCar,s.shop.equippedCosmetics||{},elapsed,reduced,Number(resultDialog.dataset.place));
+  if(!reduced&&elapsed<1)resultFrame=requestAnimationFrame(podium);
+}
+new MutationObserver(()=>{
+  cancelAnimationFrame(resultFrame);
+  resultFrame=0;
+  if(resultDialog.open){resultStarted=performance.now();podium(resultStarted)}
+}).observe(resultDialog,{attributes:true,attributeFilter:['open']});
 const beforeRender=render;render=function(){beforeRender();refreshHUD()};
 const more=menus.settings.node,extra=document.createElement('section');extra.className='v2-preferences';ApexSafeDOM.render(extra,'<h3>Apex Idle 1.0</h3><label>'+t('language')+' <select id="v2Language"><option value="pt">Português</option><option value="en">English</option></select></label><label><input type="checkbox" id="v2Analytics"> Analytics opcional · desligado por padrão</label><label><input type="checkbox" id="v2Notifications"> Lembretes neste aparelho</label><p id="v2Tuning"></p><button id="v2Install">Instalar jogo</button><button id="v2DeleteCloud">Apagar dados de jogo da nuvem</button><p><a href="/termos.html" target="_blank">'+t('terms')+'</a> · <a href="/privacidade.html" target="_blank">'+t('privacy')+'</a></p><details><summary>Analytics local</summary><pre id="v2Funnel"></pre><button id="v2ExportAnalytics">Exportar eventos deste aparelho</button></details>');more.append(extra);$('v2Language').value=ApexI18n.language;$('v2Analytics').checked=s.consent.analytics===true;$('v2Language').onchange=e=>{s.idle.settings.language=e.target.value;ApexI18n.setLanguage(e.target.value);for(const b of document.querySelectorAll('.area-navigation [data-area]'))ApexRender.text(b.querySelector('span'),t({track:'track',car:'workshop',team:'team',champ:'championship',store:'store'}[b.dataset.area]));stamp='';commit();refreshHUD(true)};$('v2Analytics').onchange=e=>{s.consent.analytics=e.target.checked;resetEconomy();if(s.consent.analytics)ApexCommercial.record(s,'session_start');save();ApexRender.text($('v2Funnel'),JSON.stringify(ApexCommercial.report(s),null,2))};$('v2Notifications').onchange=async e=>{if(e.target.checked&&'Notification'in window){const permission=await Notification.requestPermission();s.idle.settings.notifications=permission==='granted';e.target.checked=s.idle.settings.notifications;save()}else{s.idle.settings.notifications=false;save()}};
 $('v2ExportAnalytics').onclick=()=>{const blob=new Blob([JSON.stringify(ApexCommercial.exportEvents(s),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='apex-eventos.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
@@ -231,10 +274,16 @@ ApexCommercial.loadTuning().then(info=>{s.meta.tuning=info.version;ApexRender.te
 ApexUpdate.start({labels:{ready:say('Nova versão. Recarregar','New version. Reload'),busy:say('Atualizando…','Updating…'),retry:say('Tente atualizar novamente','Try updating again')}});
 ApexCommercial.record(s,'session_start');
 let lastSaveFailure=0;const measuredSave=save;save=function(){const ok=measuredSave();if(ok===false&&!storageOk&&Date.now()-lastSaveFailure>60000){lastSaveFailure=Date.now();ApexCommercial.record(s,'save_error')}return ok};
+function nextReturnAction(){
+  const completed=Ret.contracts(s).some(contract=>contract.end<=Date.now());
+  if(completed)return {view:'contracts',label:'Ver contratos',message:'Você tem um contrato pronto para recolher.'};
+  const summary=Ret.returnSummary(s);
+  return {view:'upgrades',label:'Ver melhorias',message:summary.message};
+}
 const returnPanel=document.createElement('section');returnPanel.className='v2-return';returnPanel.hidden=true;returnPanel.setAttribute('aria-live','polite');document.body.append(returnPanel);let lastReturnAt=0;
-window.addEventListener('apex-offline-settled',event=>{const out=event.detail;if(!ApexAccess.canWrite()||!out||out.seconds<60||out.amount<=0||out.at===lastReturnAt)return;lastReturnAt=out.at;const summary=Ret.returnSummary(s);ApexSafeDOM.render(returnPanel,'<h3>Sua equipe continuou trabalhando</h3><p>+'+F(out.amount)+' CR · '+Math.floor(out.seconds/60)+' min fora. '+esc(summary.message)+'</p><button data-return-go>Ver melhorias</button><button data-return-close>Continuar na pista</button>');returnPanel.hidden=false;if(analyticsHiddenAt&&Date.now()-analyticsHiddenAt>=30*60*1000){analyticsHiddenAt=0;ApexCommercial.record(s,'session_resume')}ApexCommercial.record(s,'offline_return',{seconds:out.seconds,amount:out.amount});ApexCommercial.record(s,'economy_action',{action:Shop.hash('offline_return'),deltaCR:out.amount,passive:true});if(economyState===s)economyObserved.CR+=out.amount});
-returnPanel.onclick=event=>{if(event.target.closest('[data-return-close]'))returnPanel.hidden=true;if(event.target.closest('[data-return-go]')){returnPanel.hidden=true;go('upgrades')}};
-if(s.retention.lastReturn?.seconds>=60&&s.retention.lastReturn.amount>0){const dialog=document.createElement('dialog');dialog.className='idle-dialog';const h=document.createElement('h2'),p=document.createElement('p'),b=document.createElement('button');h.textContent=say('Baú de retorno','Welcome back');p.textContent=F(s.retention.lastReturn.amount)+' CR · '+Math.floor(s.retention.lastReturn.seconds/60)+' min. '+Ret.returnSummary(s).message;ApexCommercial.record(s,'offline_return',{seconds:s.retention.lastReturn.seconds,amount:s.retention.lastReturn.amount});ApexCommercial.record(s,'economy_action',{action:Shop.hash('offline_return'),deltaCR:s.retention.lastReturn.amount,passive:true});b.textContent=t('play');b.onclick=()=>dialog.close();dialog.append(h,p,b);document.body.append(dialog);dialog.showModal()}
+window.addEventListener('apex-offline-settled',event=>{const out=event.detail;if(!ApexAccess.canWrite()||!out||out.seconds<60||out.amount<=0||out.at===lastReturnAt)return;lastReturnAt=out.at;const summary=nextReturnAction();ApexSafeDOM.render(returnPanel,'<h3>Sua equipe continuou trabalhando</h3><p>+'+F(out.amount)+' CR · '+Math.floor(out.seconds/60)+' min fora. '+esc(summary.message)+'</p><button data-return-go>'+esc(summary.label)+'</button><button data-return-close>Continuar na pista</button>');returnPanel.hidden=false;if(analyticsHiddenAt&&Date.now()-analyticsHiddenAt>=30*60*1000){analyticsHiddenAt=0;ApexCommercial.record(s,'session_resume')}ApexCommercial.record(s,'offline_return',{seconds:out.seconds,amount:out.amount});ApexCommercial.record(s,'economy_action',{action:Shop.hash('offline_return'),deltaCR:out.amount,passive:true});if(economyState===s)economyObserved.CR+=out.amount});
+returnPanel.onclick=event=>{if(event.target.closest('[data-return-close]'))returnPanel.hidden=true;if(event.target.closest('[data-return-go]')){returnPanel.hidden=true;go(nextReturnAction().view)}};
+if(s.retention.lastReturn?.seconds>=60&&s.retention.lastReturn.amount>0){const dialog=document.createElement('dialog');dialog.className='idle-dialog';const h=document.createElement('h2'),p=document.createElement('p'),b=document.createElement('button');h.textContent=say('Baú de retorno','Welcome back');const next=nextReturnAction();p.textContent=F(s.retention.lastReturn.amount)+' CR · '+Math.floor(s.retention.lastReturn.seconds/60)+' min. '+next.message;ApexCommercial.record(s,'offline_return',{seconds:s.retention.lastReturn.seconds,amount:s.retention.lastReturn.amount});ApexCommercial.record(s,'economy_action',{action:Shop.hash('offline_return'),deltaCR:s.retention.lastReturn.amount,passive:true});b.textContent=t('play');b.onclick=()=>dialog.close();const action=document.createElement('button');action.textContent=next.label;action.onclick=()=>{dialog.close();go(next.view)};dialog.append(h,p,b,action);document.body.append(dialog);dialog.showModal()}
 ApexRender.schedule('contracts-1',()=>{const day=Shop.day();if(!s.idle.settings.notifications||!document.hidden||typeof Notification==='undefined'||Notification.permission!=='granted'||s.retention.notifiedDay===day||!Ret.contracts(s).some(c=>c.end<=Date.now()))return;navigator.serviceWorker?.ready.then(reg=>reg.showNotification('Apex Idle',{body:say('Um contrato foi concluído. Recolha os materiais na Equipe.','A contract is complete. Collect materials in Team.'),icon:'/icons/icon-192.png',tag:'apex-contract'})).then(()=>{s.retention.notifiedDay=day;save()}).catch(()=>{})},60000,{background:true});
 let analyticsHiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)analyticsHiddenAt=Date.now();else if(analyticsHiddenAt&&Date.now()-analyticsHiddenAt>=30*60*1000){analyticsHiddenAt=0;ApexCommercial.record(s,'session_resume');save()}});
 ApexJourney.init(s);refreshHUD(true);if(sharedFormation){const shortcut=document.createElement('button');shortcut.className='v2-shared-formation';shortcut.textContent='Ver composição recebida';shortcut.onclick=()=>{open('garage');shortcut.remove()};document.body.append(shortcut)}save();

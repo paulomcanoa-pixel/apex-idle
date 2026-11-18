@@ -12,3 +12,20 @@ test('corrupção negativa e nível excessivo usam prev, sem sobrescrever save',
 test('save antigo abre sem perder campos desconhecidos',()=>{const s=A.initial();s.futuro={valor:17};const restored=GS.load(JSON.stringify(s),A.validate);assert.equal(restored.data.futuro.valor,17)});
 test('duas abas: uma grava e segunda permanece somente leitura',async()=>{const storage=memory(),a=T.acquireTabLock({storage,locks:null,Channel:null,id:'a',heartbeat:false}),b=T.acquireTabLock({storage,locks:null,Channel:null,id:'b',heartbeat:false});await Promise.all([a.ready,b.ready]);assert(a.isOwner);assert(!b.isOwner);const manager=M.createManager({storage,canWrite:()=>b.isOwner});assert(!manager.saveNow(A.initial()).ok);a.release();b.release()});
 test('navigator.locks também impede dois proprietários',async()=>{let held=false;const locks={async request(name,options,cb){if(held)return cb(null);held=true;try{return await cb({name})}finally{held=false}}},storage=memory(),a=T.acquireTabLock({storage,locks,Channel:null,heartbeat:false}),b=T.acquireTabLock({storage,locks,Channel:null,heartbeat:false});await Promise.all([a.ready,b.ready]);assert(a.isOwner);assert(!b.isOwner);a.release();b.release()});
+
+test('exportação JSON recompõe o checksum sem alterar o save em memória',()=>{
+  const s=M.seal(A.initial());
+  s.money+=25;
+  const oldChecksum=s.meta.checksum;
+  assert.equal(GS.decode(JSON.stringify(GS.snapshot(s))).money,s.money);
+  assert.equal(s.meta.checksum,oldChecksum);
+});
+test('falha na gravação não muda metadados do progresso em memória',()=>{
+  const s=M.seal(A.initial(),100);
+  const previous=JSON.stringify(s);
+  const storage=memory();
+  storage.setItem=()=>{throw Error('quota')};
+  const manager=M.createManager({storage,validate:A.validate,now:()=>200});
+  assert.throws(()=>manager.saveNow(s),/quota/);
+  assert.equal(JSON.stringify(s),previous);
+});

@@ -159,9 +159,13 @@ function bannerRates(banner,wish,misses=0){
   }
   return rows;
 }
+function bannerUnlocked(s,banner){
+  const initialGate=(s.catProgress?s.stage:s.maxCircuit)>=3;
+  return banner==='banner-lendas'?s.cat>=4:initialGate||s.cat>0;
+}
 function summon(s,banner,count=1,random=Math.random,options={}){if(!catalog||![1,10].includes(count)||!['banner-padrao','banner-destaque','banner-lendas'].includes(banner))return null;
   const q=init(s);
-  if((s.catProgress?s.stage:s.maxCircuit)<3||banner==='banner-lendas'&&s.cat<4)return null;
+  if(!bannerUnlocked(s,banner))return null;
   const currency=options.currency||(banner==='banner-lendas'?'fichas':banner==='banner-destaque'?'featured':'cr'),cost=currency==='cr'?summonPrice(s):currency==='gemas'?60:1;
   if(banner==='banner-lendas'&&currency!=='fichas')return null;
   if(!['cr','gemas','fichas','featured'].includes(currency))return null;
@@ -209,6 +213,6 @@ function finishTraining(s,skip=false,now=Date.now()){const q=init(s),v=q.trainin
 function tradeExtra(s,type,now=Date.now()){if(type==='staff')return false;const q=init(s),prices={featured:200,staff:600,chest:150},limits={featured:3,staff:1,chest:1},key='trade:'+week(now)+':'+type,price=prices[type];if(!price||q.pts<price||(q.limits[key]||0)>=limits[type])return false;let target;if(type==='staff'){target=catalog.items.find(x=>x.category==='pilotos'&&x.rarity==='lendario');if(!unlocked(s,target))return false}q.pts-=price;s.summonPoints=q.pts;q.limits[key]=(q.limits[key]||0)+1;if(type==='featured')q.featuredTickets++;if(type==='staff')apply(s,target,now);if(type==='chest'){s.championship.tickets+=3;s.money+=(root.ApexRetention||require('./retention')).income(s)*3600}return true}
 function buyOffer(s,offer,now=Date.now()){if(!offer||offer.empty||init(s).limits[offer.offerKey])return{ok:false,reason:'Oferta já comprada'};if(offer.bundle){if(wallet(s,'pts')<offer.offerPrice)return{ok:false,reason:'Saldo insuficiente'};pay(s,'pts',offer.offerPrice);s.money+=(root.ApexRetention||require('./retention')).income(s)*3600;s.championship.tickets+=3;s.shop.limits[offer.offerKey]=1;return{ok:true}}const result=buy(s,offer.id,{currency:offer.currency,price:offer.offerPrice,now});if(result.ok)s.shop.limits[offer.offerKey]=1;return result}
 function reroll(s,now=Date.now()){const q=init(s),d=day(now);if(q.dailyReroll?.day===d||wallet(s,'gemas')<10)return false;pay(s,'gemas',10);q.dailyReroll={day:d,count:1};return true}
-const api={trainingPreview,trainingMinutes,valid,driver,engineer,teamRoster,equipStaff,trainingProgress,projectCost,buildProject,mythicChance,bannerCars,bannerRates,finishTraining,tradeExtra,loadCatalog,init,get,day,week,hash,rng,unlocked,priceInCR,summonPrice,wallet,canBuy,buy,owned,componentBonus,carBonus,staffBonus,summon,dailyShop:(s,n)=>slots(s,'daily',n),weeklyShop:(s,n)=>slots(s,'weekly',n),buyOffer,reroll,get catalog(){return catalog},categories,rarities};root.ApexShop=api;if(typeof module!=='undefined')module.exports=api;
+const api={trainingPreview,trainingMinutes,valid,driver,engineer,teamRoster,equipStaff,trainingProgress,projectCost,buildProject,mythicChance,bannerCars,bannerRates,bannerUnlocked,finishTraining,tradeExtra,loadCatalog,init,get,day,week,hash,rng,unlocked,priceInCR,summonPrice,wallet,canBuy,buy,owned,componentBonus,carBonus,staffBonus,summon,dailyShop:(s,n)=>slots(s,'daily',n),weeklyShop:(s,n)=>slots(s,'weekly',n),buyOffer,reroll,get catalog(){return catalog},categories,rarities};root.ApexShop=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
 

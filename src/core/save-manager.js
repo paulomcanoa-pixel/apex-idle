@@ -16,7 +16,12 @@ if(state.loot!==undefined&&raw!==null&&storage.getItem(key+'.bak-loot')===null)s
 backupOriginal(raw);
 // Preserve the previous valid snapshot before replacing it, at most once per five minutes.
 if(raw!==null&&(!rotated||instant-rotated>=300000)){try{const old=JSON.parse(raw);if(verify(old)&&validate(old)){storage.setItem(key+'.prev',raw);rotated=instant}}catch(error){onError(error)}}
-seal(state,instant);const payload=JSON.stringify(state);storage.setItem(key,payload);return{ok:true,payload}}
+const snapshot=seal({...state},instant);
+const payload=JSON.stringify(snapshot);
+storage.setItem(key,payload);
+state.meta=snapshot.meta;
+state.savedAt=snapshot.savedAt;
+return{ok:true,payload}}
 function installAutosave(getState,{target=root,document=root.document,interval=10000,save=state=>saveNow(state,{reason:'automático'})}={}){const flush=()=>save(getState()),hidden=()=>{if(document.hidden)flush()};const timer=setInterval(flush,interval);target.addEventListener('pagehide',flush);target.addEventListener('beforeunload',flush);document.addEventListener('visibilitychange',hidden);return()=>{clearInterval(timer);target.removeEventListener('pagehide',flush);target.removeEventListener('beforeunload',flush);document.removeEventListener('visibilitychange',hidden)}}
 return{read,saveNow,saveWithFallback:saveNow,installAutosave}
 }

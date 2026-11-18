@@ -12,8 +12,28 @@ document.querySelectorAll('[data-upgrade]').forEach(b=>{const i=+b.dataset.upgra
 ApexRender.html($('upgrades'),A.parts.map((p,i)=>`<article class="upgrade"><div class="title">${p.name}<span id="level${i}"></span></div><p>${p.desc}</p><button data-upgrade="${i}"></button></article>`).join(''));ApexRender.html($('circuits'),A.circuits.map((c,i)=>`<button data-circuit="${i}">${CircuitMaps.thumbnail(c)}<b>${c.name}</b><small>${c.region} · ${c.km.toFixed(3)} km</small><small>${c.rep?c.rep+' XP':'LIVRE'} · ×${c.mult}</small></button>`).join(''));
 document.querySelectorAll('[data-upgrade]').forEach(b=>b.onclick=()=>{const i=+b.dataset.upgrade;if(A.buy(s,i)){radio(A.parts[i].name+' melhorada. Vamos buscar mais ritmo!');save();render()}});document.querySelectorAll('[data-circuit]').forEach(b=>b.onclick=()=>{const i=+b.dataset.circuit;if(s.rep>=A.circuits[i].rep){s.circuit=i;s.progress=0;radio('Equipe transferida para '+A.circuits[i].name+'.');save();render()}});
 $('toggle').onclick=()=>{s.running=!s.running;radio(s.running?'Sinal verde. A corrida segue automaticamente!':'Carro nos boxes. Corrida pausada.');save();render()};$('boost').onclick=()=>{if(s.running&&cooldown<=0){boost=5;cooldown=30;radio('Energia liberada! Ritmo +8% por 5 segundos.');render()}};
-$('export').onclick=()=>{save();const blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='apex-idle-save.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
-$('import').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;if(file.size>2000000)throw Error();const data=GameSave.decode(await file.text());if(!A.validate(data))throw Error();if(!await SaveConfirmation.ask('Substituir o progresso atual pelo save importado?'))return;saveRecoveryPending=false;if(typeof NightView!=='undefined')NightView.beforeRestore();s=data;s.savedAt=Date.now();boost=0;cooldown=0;save();render();radio('Progresso importado com sucesso.')}catch{radio('Arquivo inválido. Seu progresso atual foi mantido.')}finally{ApexRender.prop(e.target,"value",'')}};
+function restoreSave(candidate,backupKey){
+  if(!ApexAccess.canWrite())return false;
+  try {
+    if(localStorage.getItem(key)!==observedSave)return false;
+    localStorage.setItem(backupKey,JSON.stringify(GameSave.snapshot(s)));
+    const result=saveManager.saveNow(candidate,{reason:'restauração',expected:observedSave});
+    if(!result.ok)return false;
+    observedSave=result.payload;
+  } catch {
+    return false;
+  }
+  if(typeof NightView!=='undefined')NightView.beforeRestore();
+  s=candidate;
+  saveRecoveryPending=false;
+  boost=0;
+  cooldown=0;
+  storageOk=true;
+  ApexRender.text($('saveStatus'),'✓ Progresso salvo');
+  return true;
+}
+$('export').onclick=()=>{const blob=new Blob([JSON.stringify(GameSave.snapshot(s),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='apex-idle-save.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+$('import').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;if(file.size>2000000)throw Error();const data=GameSave.decode(await file.text());if(!A.validate(data))throw Error();if(!await SaveConfirmation.ask('Substituir o progresso atual pelo save importado?'))return;if(!restoreSave(data,'apex_before_import')){radio('Não foi possível gravar o save. Seu progresso atual foi mantido.');return}ApexIdleUI.settings();render();radio('Progresso importado com sucesso.')}catch{radio('Arquivo inválido. Seu progresso atual foi mantido.')}finally{ApexRender.prop(e.target,"value",'')}};
 const canvas=$('track'),ctx=canvas.getContext('2d');
 const layouts=A.circuits.map(c=>CircuitMaps.world(c));
 function position(t){return CircuitMaps.position(layouts[s.circuit],t)}

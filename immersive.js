@@ -72,7 +72,7 @@ revealTimer=setTimeout(raceCurrent,matchMedia('(prefers-reduced-motion: reduce)'
 function raceCurrent(){
 if(!pendingReveal)return;
 $('cinemaStage').dataset.phase='racing';drawCinemaArt('racing');ApexRender.text($('cinemaCaption'),resultText(pendingReveal[revealIndex])+' Acelerando até a chegada!');ApexRender.prop($('nextSummon'),'disabled',false);
-revealTimer=setTimeout(nextSummon,1600)
+revealTimer=setTimeout(nextSummon,pendingReveal.length>1?920:1350)
 }
 function startReveal(){
 if(!pendingReveal)return;
@@ -81,7 +81,7 @@ ApexRender.text($('cinemaProgress'),'CARRO '+(revealIndex+1)+' DE '+pendingRevea
 ApexRender.text($('cinemaCaption'),'Um Apex misterioso está chegando…');
 ApexRender.prop($('nextSummon'),"disabled",true);
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-revealTimer=setTimeout(revealCurrent,reduced?250:750)
+revealTimer=setTimeout(revealCurrent,reduced?0:pendingReveal.length>1?250:550)
 }
 function nextSummon(){
 if(!pendingReveal||$('nextSummon').disabled)return;

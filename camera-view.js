@@ -53,6 +53,7 @@ if(typeof TrafficView!=='undefined'){TrafficView.racers().filter(c=>c.id!=='play
 dot(s.progress,'#07171e',10);dot(s.progress,s.color||'#d4fc5a',7);ApexRender.text($('mapProgress'),'S'+Math.min(3,Math.floor(s.progress*3)+1)+' · '+Math.floor(s.progress*100)+'%');ApexRender.text($('mapLap'),'VOLTA '+(typeof race!=='undefined'&&race?Math.min(race.totalLaps||5,Math.floor(race.distance)+1):s.laps+1));
 }
 const worldDraw=draw;
+let fittedKey="",fitted=null;
 draw=function(){
 const bounds=canvas.getBoundingClientRect(),w=bounds.width,h=bounds.height,dpr=Math.min(window.devicePixelRatio||1,2);if(!w||!h)return;
 const pw=Math.round(w*dpr),ph=Math.round(h*dpr);if(canvas.width!==pw||canvas.height!==ph){canvas.width=pw;canvas.height=ph}
@@ -61,7 +62,9 @@ const now=performance.now(),dt=Math.min(.5,Math.max(0,(now-lastFrame)/1000));las
 const p=typeof TrafficView!=='undefined'?TrafficView.playerPosition():position(s.progress),ahead=position(s.progress+.008/layouts[s.circuit].scale),tx=follow?p.x*.8+ahead.x*.2:500,ty=follow?p.y*.8+ahead.y*.2:290;
 if(cameraX===null||lastCircuit!==s.circuit){cameraX=tx;cameraY=ty;lastCircuit=s.circuit}else{const blend=1-Math.exp(-dt*8);cameraX+=(tx-cameraX)*blend;cameraY+=(ty-cameraY)*blend}
 const tilt=window.apexPseudo3D ? .78 : 1;
-const fitted=typeof ApexCamera!=='undefined'?ApexCamera.fitProjected(layouts[s.circuit].points,{w:w<760?w:w-280,h:w<760?Math.max(120,h-200):h-110},tilt,.08):null;const scale=!follow&&fitted?fitted.scale:Math.min(w/1000,h/580)*(follow?zoom:1/layouts[s.circuit].scale);if(!follow&&fitted){cameraX=fitted.centerX;cameraY=fitted.centerY}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle=window.apexDaylight?'#274632':'#0B0E24';ctx.fillRect(0,0,w,h);
+const fitKey=[s.circuit,w,h,tilt].join(':');
+if(!follow&&fittedKey!==fitKey&&typeof ApexCamera!=='undefined'){fitted=ApexCamera.fitProjected(layouts[s.circuit].points,{w:w<760?w:w-280,h:w<760?Math.max(120,h-200):h-110},tilt,.08);fittedKey=fitKey}
+const scale=!follow&&fitted?fitted.scale:Math.min(w/1000,h/580)*(follow?(w<760?Math.max(zoom,2.6):zoom):1/layouts[s.circuit].scale);if(!follow&&fitted){cameraX=fitted.centerX;cameraY=fitted.centerY}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle=window.apexDaylight?'#274632':'#0B0E24';ctx.fillRect(0,0,w,h);
 ctx.save();ctx.setTransform(dpr*scale,0,0,dpr*scale*tilt,dpr*((!follow&&w>=760?(w-280)*.5:w*.5)-cameraX*scale),dpr*(h*(w<760?.435:.45)-cameraY*scale*tilt));worldDraw();ctx.restore();ctx.setTransform(1,0,0,1,0,0);minimap();
 };updateControls();
 })();

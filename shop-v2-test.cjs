@@ -53,3 +53,15 @@ test('save preserva carros antigos e migra a seleção fictícia para um histór
   }
   assert.equal(A.equippedCar({...s,shop:{...s.shop,selectedCar:pull.id}}).color,Shop.get(pull.id).color);
 });
+
+test('promoção preserva o banner principal e o exclusivo exige a categoria 4',()=>{
+  const s=player();
+  s.catProgress=true;
+  s.rep=V.openRep(s,12);
+  assert(V.promote(s));
+  assert.equal(s.stage,0);
+  assert(Shop.summon(s,'banner-padrao',1,()=>0));
+  assert(!Shop.bannerUnlocked(s,'banner-lendas'));
+  s.cat=4;
+  assert(Shop.bannerUnlocked(s,'banner-lendas'));
+});

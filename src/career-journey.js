@@ -27,8 +27,8 @@ function init(s){if(!s.journey||typeof s.journey!=='object'||Array.isArray(s.jou
   j.marks.season=Math.max(finite(j.marks.season),finite(s.season?.titles));return j;
 }
 function mark(s,event,details={}){const j=init(s),id=Object.hasOwn(events,event)?events[event]:null;if(event==='car_equip'||event==='equipCar')j.marks.carAction=1;if(id)j.marks[id]=Math.max(1,finite(j.marks[id]));if(event==='race_finish'&&details.place>=1&&details.place<=5)j.marks.top=1;return!!id}
-function goals(s){const j=init(s);return definitions.map((g,i)=>{const progress=Math.min(g.target,finite(j.marks[g.id]));return{...g,reward:{...g.reward},progress,done:progress>=g.target,claimed:j.claimed.includes(g.id),locked:i>0&&!j.claimed.includes(definitions[i-1].id)}})}
-function next(s){return goals(s).find(g=>!g.claimed)||null}
+function goals(s){const j=init(s);return definitions.map((g,i)=>{const progress=Math.min(g.target,finite(j.marks[g.id]));const previous=g.id==='stage'?'top':definitions[i-1]?.id;return{...g,reward:{...g.reward},progress,done:progress>=g.target,claimed:j.claimed.includes(g.id),locked:!!previous&&!j.claimed.includes(previous)}})}
+function next(s){const pending=goals(s).filter(g=>!g.claimed&&!g.locked);return pending.find(g=>g.id!=='academy')||pending[0]||null}
 const chapters=[
   {id:'debut',title:'Uma equipe na largada',text:'Rádio Aurora: começamos com um carro e uma ideia. Complete a prova; o resultado vai mostrar onde investir.'},
   {id:'contender',title:'Um lugar no grid',text:'Rádio Aurora: já conhecemos metade do calendário inicial. Agora cada escolha de pneus e dupla vale posições.'},

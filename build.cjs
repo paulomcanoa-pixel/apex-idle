@@ -30,3 +30,11 @@ fs.writeFileSync('public/locales.js','window.APEX_LANGS='+JSON.stringify({pt:JSO
 if(process.env.APEX_TEST_BUILD!=='true'){const engine=fs.readFileSync('public/engine.js','utf8').replace(/function grantTestCredits\(s\)\{[^\n]*\}\r?\n/,'').replace('shopBuy,grantTestCredits,pity','shopBuy,pity');fs.writeFileSync('public/engine.js',engine);const ui=fs.readFileSync('public/immersive.js','utf8').split(/\r?\n/).filter(line=>!line.includes('grantTestCredits')).join('\n');fs.writeFileSync('public/immersive.js',ui+"\n$('testCredits').hidden=true;\n");if(fs.readFileSync('public/engine.js','utf8').includes('grantTestCredits')||fs.readFileSync('public/immersive.js','utf8').includes('grantTestCredits'))throw Error('Créditos de QA na produção')}
 
 fs.cpSync('src/loot/arte','public/src/loot/arte',{recursive:true});
+
+const shellAssets=[...new Set(
+  [...fs.readFileSync('public/index.html','utf8').matchAll(/<(?:script|link)\b[^>]*?\b(?:src|href)="([^"]+)"/g)]
+    .map(match=>match[1]).filter(url=>!/^[a-z]+:/i.test(url)&&!url.startsWith('//')&&!url.startsWith('#'))
+    .map(url=>'/'+url.replace(/^\/+/,''))
+)].filter(url=>fs.existsSync('public'+url));
+const worker=fs.readFileSync('public/sw.js','utf8');
+fs.writeFileSync('public/sw.js',worker.replace('const BUILD_SHELL=[]','const BUILD_SHELL='+JSON.stringify(shellAssets)));
