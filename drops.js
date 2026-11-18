@@ -1,5 +1,14 @@
 // Arte original de monopostos e apresentação dos drops em Canvas 2D.
 (function(root){
+function feature(model){
+  const D=root.LegendsData||(typeof require==='function'?require('./legends-data'):null);
+  if(!D?.cars.some(c=>c.id===model?.id))return '';
+  const Vehicle=root.ApexVehicle||(typeof require==='function'?require('./src/vehicle-performance'):null);
+  const stats=Vehicle?.characteristics(model.id)?.stats;
+  if(!stats)return '';
+  const key=Object.keys(stats).sort((a,b)=>stats[b]-stats[a])[0];
+  return {straight:'Retas e aceleração',corners:'Precisão em curvas',tyres:'Conservação de pneus'}[key]||'';
+}
 function rank(result){return ['Inicial','Comum','Raro','Épico','Lendário','Mítico'].indexOf(result.car.rarity)}
 function order(results){return results.map((result,index)=>({result,index})).sort((a,b)=>rank(b.result)-rank(a.result)||a.index-b.index).map(x=>x.result)}
 function layout(results,width){
@@ -62,11 +71,11 @@ ctx.strokeStyle=color+'25';ctx.lineWidth=1;ctx.strokeRect(-w/2+6,-ch/2+6,w-12,ch
 if(hero){ctx.shadowColor=color;ctx.shadowBlur=18+Math.sin(time*2)*6;ctx.stroke();ctx.shadowBlur=0}
 const halo=ctx.createRadialGradient(0,-ch*.04,5,0,-ch*.04,w*.6);halo.addColorStop(0,color+'48');halo.addColorStop(1,color+'00');ctx.fillStyle=halo;ctx.fillRect(-w/2,-ch/2,w,ch);
 ctx.textAlign='center';ctx.fillStyle=color;ctx.font='700 '+(hero?12:10)+'px Arial';ctx.fillText(hero?'✦ DESTAQUE · '+c.rarity.toUpperCase():c.rarity.toUpperCase(),0,-ch/2+24,w-12);
-const scale=Math.min((w-22)/120,(ch-104)/200);
+const scale=Math.min((w-22)/120,(ch-118)/200);
 aura(ctx,0,-5,Math.max(35,scale*85),Math.max(50,scale*125),c,time,reduced);car(ctx,0,-5,scale,color,time*2,c.id);
 ctx.fillStyle=color;ctx.font=(hero?13:10)+'px Arial';ctx.fillText('★'.repeat(Math.max(1,rank(result))),0,ch/2-59,w-12);
-ctx.fillStyle='#f4f8fc';ctx.font='700 '+(hero?17:12)+'px Arial';ctx.fillText(c.name,0,ch/2-40,w-12);
-ctx.fillStyle=result.duplicate?'#b0c0cc':'#ffe3a1';ctx.font=(hero?12:10)+'px Arial';ctx.fillText(result.duplicate?'Repetido · +'+result.points+' pontos':'✦ NOVO MONOPOSTO',0,ch/2-19,w-12);ctx.restore()
+ctx.fillStyle='#f4f8fc';ctx.font='700 '+(hero?17:12)+'px Arial';ctx.fillText(c.name,0,ch/2-46,w-12);
+ctx.fillStyle=result.duplicate?'#b0c0cc':'#ffe3a1';ctx.font=(hero?12:10)+'px Arial';ctx.fillText(result.duplicate?'Repetido · +'+result.points+' pontos':'✦ NOVO MONOPOSTO',0,ch/2-29,w-12);ctx.fillStyle='#9CA2D2';ctx.font=(hero?11:9)+'px Arial';ctx.fillText(feature(c),0,ch/2-12,w-12);ctx.restore()
 }
 // Um único brilho suave de entrada no destaque, sem flashes repetidos.
 if(!reduced&&time>.25&&time<.85){ctx.fillStyle='rgba(255,229,165,'+(Math.sin((time-.25)/.6*Math.PI)*.08)+')';ctx.fillRect(0,0,width,h)}
@@ -96,13 +105,14 @@ chassis(true);
 if(reveal){ctx.save();ctx.beginPath();ctx.rect(x-120,52,240*state.paint,186);ctx.clip();chassis(false);ctx.restore();}
 if(!reduced&&phase==='revealed'&&state.paint<1){const scan=x-120+240*state.paint;ctx.save();ctx.globalCompositeOperation='screen';const beam=ctx.createLinearGradient(scan-22,0,scan+12,0);beam.addColorStop(0,color+'00');beam.addColorStop(.7,color+'88');beam.addColorStop(1,color+'00');ctx.fillStyle=beam;ctx.fillRect(scan-22,75,34,140);ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(scan,95);ctx.lineTo(scan,195);ctx.stroke();for(let i=0;i<18;i++){const life=(elapsed*1.8+i*.173)%1;ctx.globalAlpha=(1-life)*state.energy;ctx.fillStyle=color;ctx.fillRect(scan-life*(20+i%4*10),105+i%7*13+(i%2?1:-1)*life*22,2,2)}ctx.restore()}
 if(!reduced&&phase==='racing'){ctx.save();const trail=ctx.createLinearGradient(x-160,0,x-40,0);trail.addColorStop(0,color+'00');trail.addColorStop(1,color+'77');ctx.fillStyle=trail;ctx.fillRect(x-160,128,110,5);ctx.fillRect(x-160,158,110,5);ctx.restore()}
+if(state.paint>=1){ctx.fillStyle='#EEF0FF';ctx.font='bold 15px Arial';ctx.textAlign='center';ctx.fillText(model.name,width/2,262,width-32);ctx.fillStyle='#9CA2D2';ctx.font='12px Arial';ctx.fillText(feature(model),width/2,283,width-32)}
 if(state.question>0){ctx.save();ctx.globalAlpha=state.question;ctx.translate(x,145);const shrink=reduced?1:.88+.12*state.question;ctx.scale(shrink,shrink);ctx.fillStyle='#fff';ctx.shadowColor='#fff';ctx.shadowBlur=18;ctx.font='bold 60px Arial';ctx.fillText('?',0,19);ctx.restore()}
 if(!reduced)frame=requestAnimationFrame(paint)
 }
 resize();paint(performance.now());const observer=new ResizeObserver(()=>{resize();if(reduced)paint(performance.now())});observer.observe(canvas);
 const stop=()=>{stopped=true;cancelAnimationFrame(frame);observer.disconnect()};stop.setPhase=next=>{phase=next;phaseStart=performance.now();if(reduced)paint(phaseStart)};return stop
 }
-root.DropShowcase={order,layout,mount,race,car,aura,auraPalette,revealFrame};
+root.DropShowcase={feature,order,layout,mount,race,car,aura,auraPalette,revealFrame};
 if(typeof module!=='undefined')module.exports=root.DropShowcase;
 })(typeof window!=='undefined'?window:globalThis);
 

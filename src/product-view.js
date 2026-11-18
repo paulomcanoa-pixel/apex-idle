@@ -11,16 +11,20 @@ function collectionIdentity(id){
  const v=Vehicle.characteristics(id),labels={straight:'retas e aceleração',corners:'curvas',tyres:'conservação de pneus'},ordered=Object.entries(v.stats).sort((a,b)=>b[1]-a[1]);
  return{name:car.name,year:car.year,team:car.team,rarity:D.names[car.rarity],feature:car.feature,source:car.source,trait:'Ponto forte no jogo: '+labels[ordered[0][0]]+'.',caution:'Atenção no acerto: '+labels[ordered[ordered.length-1][0]]+'.'};
 }
-function garage(s){
- const X=root.ApexV2,S=X.Shop,selected=root.Apex.equippedCar(s),p=X.performance(s,selected.id),driver=S.driver(s),engineer=S.engineer(s);
+function affinityText(p){
+ if(!p.affinityBonus)return 'Sem bônus de afinidade';
+ return esc(p.affinityOrigin)+' · +'+num(p.affinityBonus*100)+' p.p. de afinidade · +'+num(p.effectiveAffinityBonus*100)+' p.p. efetivos com o limite de 40% da equipe';
+}
+function garage(s,options={}){
+ const X=root.ApexV2,S=X.Shop,selected=root.Apex.equippedCar(s),p=X.performance(s,selected.id,options),driver=S.driver(s),engineer=S.engineer(s);
  const owned=[...new Set([...root.GarageState.init(s).owned,...S.init(s).inventory.cars])].filter(id=>S.get(id)?.historical);
- let html='<h2>Sua garagem</h2><div class="garage-hero"><canvas width="560" height="250" data-art="'+esc(selected.id)+'" aria-label="'+esc(selected.name)+' equipado"></canvas><div><p class="product-kicker">Conjunto na pista</p><h3>'+esc(selected.name)+'</h3><p>'+esc(driver?.name||'Piloto da Aurora')+' · Piloto<br>'+esc(engineer?.name||'Nenhum engenheiro selecionado')+' · Engenharia</p><p>'+esc(p.label||profile(p.profile))+' · '+(p.synergy?'Afinidade ativa':'Sem bônus de afinidade')+'</p></div></div>';
+ let html='<h2>Sua garagem</h2><div class="garage-hero"><canvas width="560" height="250" data-art="'+esc(selected.id)+'" aria-label="'+esc(selected.name)+' equipado"></canvas><div><p class="product-kicker">Conjunto na pista</p><h3>'+esc(selected.name)+'</h3><p>'+esc(driver?.name||'Piloto da Aurora')+' · Piloto<br>'+esc(engineer?.name||'Nenhum engenheiro selecionado')+' · Engenharia</p><p>'+esc(p.label||profile(p.profile))+' · '+esc(p.trackLabel)+' · '+(options.wet?'Chuva':'Pista seca')+'</p><p>'+affinityText(p)+'</p></div></div>';
  html+='<p class="product-help">Compare o conjunto para este circuito. A previsão usa seu piloto e componentes atuais. Pneus, estratégia e clima também mudam o resultado.</p><p class="product-help">A raridade indica a disponibilidade no gacha. Ela não mede importância histórica. Os atributos são uma adaptação para o jogo, sem comparar tempos reais de épocas diferentes.</p>';
- for(const id of owned){const car=S.get(id),v=X.performance(s,id),comparison=X.compare(s,id),active=id===selected.id;
+ for(const id of owned){const car=S.get(id),v=X.performance(s,id,options),comparison=X.compare(s,id,options),active=id===selected.id;
  html+='<article class="v2-row garage-choice" '+(active?'aria-current="true"':'')+'><canvas width="180" height="110" data-art="'+esc(id)+'" aria-label="'+esc(car.name)+'"></canvas><div><h3>'+esc(car.name)+'</h3><p>'+esc(car.year||'')+' · '+esc(car.rarity)+' · '+esc(v.label||profile(v.profile))+'</p><div class="car-stat-lines">';
  for(const [key,label]of [['straight','Retas'],['corners','Curvas'],['tyres','Pneus']])html+='<label>'+label+' <progress max="100" value="'+esc(v.stats?.[key]||0)+'"></progress><b>'+num(v.stats?.[key])+'</b></label>';
  const identity=collectionIdentity(id);
- html+='</div><p>'+(!active?'Previsão '+(comparison.lapDelta<0?'−':'+')+num(Math.abs(comparison.lapDelta))+' s/volta · ':'')+'Afinidade '+(v.synergy?'ativa':'inativa')+' · Janela de pneus '+percent(v.windowMult||1)+'</p>'+(identity?'<p>'+esc(identity.trait)+' '+esc(identity.caution)+'</p><details><summary>Identidade deste carro</summary><p>'+esc(identity.team)+' · '+esc(identity.year)+'. '+esc(identity.feature)+'</p><a href="'+esc(identity.source)+'" target="_blank" rel="noopener noreferrer">Consultar a referência histórica</a></details>':'')+'</div><div class="v2-actions">'+button(active?(s.journey?.marks?.carAction?'Equipado':'Confirmar na pista'):'Equipar','equipCar',id,active&&!!s.journey?.marks?.carAction)+'</div></article>';
+ html+='</div><p>'+(!active?'Previsão '+(comparison.lapDelta<0?'−':'+')+num(Math.abs(comparison.lapDelta))+' s/volta · ':'')+'Janela de pneus '+percent(v.windowMult||1)+'</p><p>'+affinityText(v)+'</p>'+(identity?'<p>'+esc(identity.trait)+' '+esc(identity.caution)+'</p><details><summary>Identidade deste carro</summary><p>'+esc(identity.team)+' · '+esc(identity.year)+'. '+esc(identity.feature)+'</p><a href="'+esc(identity.source)+'" target="_blank" rel="noopener noreferrer">Consultar a referência histórica</a></details>':'')+'</div><div class="v2-actions">'+button(active?(s.journey?.marks?.carAction?'Equipado':'Confirmar na pista'):'Equipar','equipCar',id,active&&!!s.journey?.marks?.carAction)+'</div></article>';
  }
  return html;
 }

@@ -1,5 +1,7 @@
 # Continuação do planejamento — 16/11/2026
 
+> Continuação de 18/11: [pendências implementáveis concluídas e limites restantes](entrega-plano-2026-11-18.md).
+
 > Atualização de 17/11: veja [a continuação publicada](entrega-conclusao-2026-11-17.md). A inspeção anterior confirmou partes da interface; a nova inspeção visual foi encerrada a pedido do usuário. Os registros abaixo descrevem a situação daquela rodada.
 
 Referência: `outputs/APEX-IDLE-ANALISE-PRODUTO-2026-11-14.md`. Este acompanhamento separa implementação, simulação e validação com pessoas.

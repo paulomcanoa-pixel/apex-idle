@@ -48,9 +48,33 @@ function view(db,p,sort='rating',now=Date.now()){const keys={rating:p=>p.rating,
 const ranking=Object.values(db.players).sort((a,b)=>score(b)-score(a)||b.rating-a.rating||a.created-b.created).slice(0,100).map(publicPlayer);
 return {now,me:p?publicPlayer(p):null,ranking,totalPlayers:Object.keys(db.players).length,room:p?roomPublic(db,roomOf(db,p.id)):null,history:p?p.history.map(id=>roomPublic(db,db.rooms.find(r=>r.id===id))).filter(Boolean):[],challenge:challengeView(db,p,now),social:socialView(db,p,now),cars:cars.map((id,i)=>({id,name:names[i],unlock:unlock[i],traits:normalized(id)}))}}
 // Monday UTC boundary shared by all players; scores and device clocks are never accepted.
-function challengeConfig(now){const d=new Date(now);d.setUTCHours(0,0,0,0);d.setUTCDate(d.getUTCDate()-(d.getUTCDay()+6)%7);const week=d.toISOString().slice(0,10),seed=parseInt(hash(week).slice(0,8),16),track=seed%3;return {week,track,title:['Velocidade nas retas','Precisão nas curvas','Conservação de pneus'][track],condition:track===1?'Chuva leve':'Pista seca',pool:[0,7,14].map(n=>cars[(seed+n)%cars.length]),expires:d.getTime()+7*86400000}}
+const firstWeatherWeek='2026-11-23';
+function challengeConfig(now){
+  const d=new Date(now);d.setUTCHours(0,0,0,0);d.setUTCDate(d.getUTCDate()-(d.getUTCDay()+6)%7);
+  const week=d.toISOString().slice(0,10),seed=parseInt(hash(week).slice(0,8),16),track=seed%3;
+  const rulesVersion=week>=firstWeatherWeek?2:1,weather=track===1?'light_rain':'dry';
+  const weatherRules=rulesVersion===1?'Nesta semana, o clima é informativo.':weather==='light_rain'
+    ?'A chuva aumenta os tempos nas curvas e no setor de pneus. Aderência, gestão de pneus e estratégia de conservar reduzem a perda.'
+    :'A pista seca mantém o cálculo padrão dos setores.';
+  return {week,track,title:['Velocidade nas retas','Precisão nas curvas','Conservação de pneus'][track],condition:weather==='light_rain'?'Chuva leve':'Pista seca',rulesVersion,weather,weatherRules,pool:[0,7,14].map(n=>cars[(seed+n)%cars.length]),expires:d.getTime()+7*86400000};
+}
 function challengeStore(db,config){if(db.timeTrial?.week!==config.week)db.timeTrial={week:config.week,players:{}};return db.timeTrial}
-function trialResult(config,car,style){const traits=normalized(car),weights=[[.65,.2,.15],[.15,.65,.2],[.2,.2,.6]][config.track],mode={balanced:[1,1,1],attack:[1.025,.995,.975],save:[.985,1.005,1.01]}[style];const sectors=weights.map((weight,i)=>Math.round(500*weight/(traits[i]*mode[i])*1000)/1000);return {car,style,time:Math.round(sectors.reduce((a,b)=>a+b,0)*1000)/1000,sectors,explanation:['Reta '+sectors[0].toFixed(3)+' s','Curvas '+sectors[1].toFixed(3)+' s','Gestão de pneus '+sectors[2].toFixed(3)+' s']}}
+const roundSeconds=seconds=>Math.round(seconds*1000)/1000;
+function trialResult(config,car,style){
+  const traits=normalized(car),weights=[[.65,.2,.15],[.15,.65,.2],[.2,.2,.6]][config.track];
+  const mode={balanced:[1,1,1],attack:[1.025,.995,.975],save:[.985,1.005,1.01]}[style];
+  const baseline=weights.map((weight,i)=>roundSeconds(500*weight/(traits[i]*mode[i])));
+  const rain=config.rulesVersion===2&&config.weather==='light_rain';
+  const rainRisk={balanced:1,attack:1.25,save:.75}[style];
+  const sectors=rain?[baseline[0],
+    roundSeconds(baseline[1]*(1+(.025-(traits[1]-1)*.5)*rainRisk)),
+    roundSeconds(baseline[2]*(1+(.015-(traits[2]-1)*.4)*rainRisk))]:baseline;
+  const time=roundSeconds(sectors.reduce((a,b)=>a+b,0));
+  const weatherDeltaSeconds=rain?roundSeconds(time-roundSeconds(baseline.reduce((a,b)=>a+b,0))):0;
+  const explanation=['Reta '+sectors[0].toFixed(3)+' s','Curvas '+sectors[1].toFixed(3)+' s','Gestão de pneus '+sectors[2].toFixed(3)+' s'];
+  if(rain)explanation.push('Chuva leve · +'+weatherDeltaSeconds.toFixed(3)+' s em relação à pista seca com a mesma configuração');
+  return {car,style,time,sectors,explanation,weather:config.weather,weatherDeltaSeconds};
+}
 function timeTrial(db,p,input,now){if(!input||typeof input!=='object'||Array.isArray(input))fail(400,'Pedido inválido.');const {car,style,requestId}=input;
 if(['time','score','result','power','pi'].some(k=>Object.hasOwn(input,k)))fail(400,'O resultado é calculado pelo servidor.');
 if(typeof requestId!=='string'||!/^[A-Za-z0-9_-]{8,80}$/.test(requestId))fail(400,'Identificador de tentativa inválido.');

@@ -55,7 +55,7 @@ N.finish=(s,place,time,reward,seed,options={})=>{
   const n=N.init(s);n.races++;if(place===1)n.wins++;n.lastResult=result;
   Ret.raceDone(s,result,Shop.rng(seed),options);
   const academy=root.DriverAcademy||require('../academy-model');
-  academy.record(s,{place,event:options.event||'clear',affinity});
+  academy.record(s,{place,event:options.event||'clear',affinity,trial:options.trial});
   LootHooks.race(s,{place,ers:options.ers,pitWindow:options.pitWindow});
   if(options.competition){Shop.init(s).eventTokens+=10+(place<=3?20:0);Ret.init(s).passXp+=20}
   return result;

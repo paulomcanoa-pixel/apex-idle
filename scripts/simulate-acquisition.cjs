@@ -81,7 +81,7 @@ const profiles=[{id:'ACTIVE',sessions:3,minutesPerSession:40},{id:'CASUAL',sessi
 function distribution(values,total,horizonDays){const achieved=values.filter(Number.isFinite).sort((a,b)=>a-b),at=p=>achieved.length>=Math.ceil(total*p)?round(achieved[Math.ceil(total*p)-1],3):null;return{runs:total,completed:achieved.length,censored:total-achieved.length,horizonDays,p50Days:at(.5),p90Days:at(.9),p95Days:at(.95),minDays:achieved.length?round(achieved[0],3):null,maxObservedDays:achieved.length?round(achieved.at(-1),3):null}}
 function scenarioState(){const s=snapshot('kart-stage4');s.stage=5;s.circuit=10;s.maxCircuit=10;s.globalPeak=6;s.materials=0;s.shop.pts=0;s.idle.categoryScale=V.scale(s);return s}
 function acquisitionScenario(profile,seed,days){
-  const baseline=scenarioState(),gacha=copy(baseline),academy=copy(baseline),offline=copy(baseline),random=Shop.rng(seed),raceRandom=Shop.rng(seed^0x5f3759df),target='mp44',driver='real_fittipaldi';
+  const baseline=scenarioState(),gacha=copy(baseline),academy=copy(baseline),offline=copy(baseline),random=Shop.rng(seed),raceRandom=Shop.rng(seed^0x5f3759df),pitRandom=Shop.rng(seed^0x3c6ef372),target='mp44',driver='real_fittipaldi';
   Academy.init(academy,NOW);Academy.choose(academy,driver,NOW);gacha.shop.wish=target;
   const raceSeconds=A.duration(baseline)*5+6,teamRate=E.production(baseline.idle),lapReward=A.reward(baseline),cost=Shop.summonPrice(baseline),rewards=[];
   for(let place=1;place<=10;place++){const probe=copy(baseline),before=probe.materials,result=V.finish(probe,place,raceSeconds,place);rewards[place]={prize:result.prize,materials:probe.materials-before}}
@@ -96,7 +96,9 @@ function acquisitionScenario(profile,seed,days){
       // Fixed competence assumption: 30% podiums, otherwise P4-P10; weather uses the shipped model.
       const place=raceRandom()<.3?1+Math.floor(raceRandom()*3):4+Math.floor(raceRandom()*7),event=Ret.weather(raceRandom);
       const reward=rewards[place];sessionCR+=lapReward*5+reward.prize-(event==='clear'?0:Math.floor(reward.prize*.08));
-      projectMaterials+=reward.materials;races++;Academy.record(academy,{place,event,affinity:true});
+      projectMaterials+=reward.materials;races++;
+      const pitWindow=pitRandom()<(profile.id==='ACTIVE'?.6:.35);
+      Academy.record(academy,{place,event,affinity:true,trial:{pitWindow,pitStops:1,wornSeconds:pitWindow?0:2}});
     }
     const gross=absent+sessionCR;crIn+=gross;gacha.money+=gross*.25;academy.money+=gross;
     if(outcome.project===null&&projectMaterials>=Shop.projectCost(target)){const probe=copy(baseline);probe.materials=projectMaterials;assert(Shop.buildProject(probe,target));outcome.project=dayAt}
@@ -123,7 +125,7 @@ function simulateProfiles({runs=32,days=90,seed=20261116}={}){
     'Cada corrida usa duração real × 5 voltas + 6s; cinco prêmios de volta, prêmio de V.finish e penalidade de clima. Hipótese de habilidade: 30% de pódios; demais P4-P10, clima Ret.weather, combo inicial ativo. Sem ERS/pit perfeito, missões, baús, passe, bônus ou dinheiro pago.',
     '25% do CR bruto disponível para invocar no banner principal, desejo MP4/4. Shop.summon aplica taxas, garantias e duplicatas reais; contadores começam zerados. Compra em lote não muda a amostragem.',
     'Projeto e troca são alternativas independentes: prazo para juntar recursos e executar a compra se o carro ainda faltar. Materiais e pontos não são compartilhados com outros gastos; a troca continua medindo pontos mesmo se o gacha já tiver dado o alvo.',
-    'Academia usa observar/endurance, provas reais exigidas pelo modelo e assinatura nas visitas; saldo próprio sem concorrência de gastos. Sem corridas, OFFLINE não cumpre provas, mesmo com fragmentos.',
+    'Academia usa observar/endurance, provas exigidas pelo modelo e assinatura nas visitas; assume parada dentro da janela e sem pneus gastos em 60% das corridas ACTIVE e 35% CASUAL para a prova de gestão; saldo próprio sem concorrência de gastos. Sem corridas, OFFLINE não cumpre provas, mesmo com fragmentos.',
     'Percentis por posto sobre TODOS os runs. null significa que a proporção não foi atingida até o horizonte; não é média apenas dos sortudos. Dias são tempo de calendário, com compras contabilizadas no fim da sessão.'
   ],rates:{lapSeconds:round(A.duration(state)),teamCRps:round(E.production(state.idle)),principalPullCR:Shop.summonPrice(state),projectMaterials:Shop.projectCost('mp44'),tradePoints:Shop.get('mp44').price.pts},profiles:profiles.map(profile=>{
     const rows=Array.from({length:runs},(_,i)=>acquisitionScenario(profile,seed+i*997,days)),average=key=>round(rows.reduce((n,row)=>n+row[key],0)/runs,2);

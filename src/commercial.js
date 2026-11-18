@@ -8,7 +8,7 @@ function apply(values){Object.assign(V.B.P,values);V.B.branches.forEach((branch,
 async function loadTuning(fetcher=root.fetch){try{const r=await fetcher('/tuning.json',{cache:'no-cache'});if(!r.ok)throw Error('Falha HTTP no tuning');const data=validateTuning(await r.json());apply(data.values);return{version:data.version,fallback:false}}catch(error){apply(JSON.parse(JSON.stringify(fallback)));console.warn(error.message);return{version:1,fallback:true,error:error.message}}}
 const firstEvents=new Set(['car_equip','staff_equip','upgrade_buy','race_finish','academy_contract','offline_return']);
 const onceEvents=new Set(['tutorial_done',...Array.from(firstEvents,event=>'first_'+event)]);
-const release='2026-11-16',sources=new Set(['direct','topidle','share','search','social','other']),devices=new Set(['mobile','tablet','desktop','unknown']);
+const release='2026-11-18',sources=new Set(['direct','topidle','share','search','social','other']),devices=new Set(['mobile','tablet','desktop','unknown']);
 const currencies=['CR','Materials','Tickets','Points','Gems','FeaturedTickets','EventTokens'];
 function context(s,options={}){
   if(s.consent?.analytics!==true)return null;

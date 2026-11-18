@@ -1,5 +1,7 @@
 # Continuação da entrega — 17/11/2026
 
+> Continuação de 18/11: [pendências implementáveis concluídas e limites restantes](entrega-plano-2026-11-18.md).
+
 ## Alterações
 
 - Atualização do aplicativo: um único aviso; a recarga espera o novo service worker assumir o controle. Falhas permitem tentar novamente e a ativação por outra aba não interrompe a corrida.
