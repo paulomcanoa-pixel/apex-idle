@@ -106,14 +106,21 @@ if(view==='summon'){
   const balance=featured?q.featuredTickets:special?c.tickets:s.money/Shop.summonPrice(s);
   html+='<h2>'+t('summon')+'</h2><nav class="v2-tabs v2-banner-picker" aria-label="'+say('Banners gacha','Gacha banners')+'">'+Shop.catalog.banners.map(b=>'<button data-action="banner" data-id="'+esc(b.id)+'" aria-pressed="'+(b.id===currentBanner)+'">'+esc(b.name)+'</button>').join('')+'</nav>';
   html+='<canvas class="v2-banner" width="900" height="220" data-banner-art aria-label="'+esc(special?'Lotus 97T e Jordan 191 em Canvas':'Monopostos históricos em Canvas')+'"></canvas>';
+  const balanceLabel=featured?say('Fichas de destaque','Featured tickets'):special?say('Fichas','Tickets'):say('Caixa','Balance');
+  const displayedBalance=featured?q.featuredTickets:special?c.tickets:s.money;
+  html+='<div class="v2-summon-order"><p class="v2-summon-balance">'+balanceLabel+' <strong>'+F(displayedBalance)+(special||featured?'':' CR')+'</strong></p>';
+  if(!ready)html+='<p class="v2-summon-hint">'+(special?say('Libere na categoria Elite.','Unlock in the Elite category.'):say('Libere na etapa 4 da primeira categoria.','Unlock at stage 4 in the first division.'))+'</p>';
+  else if(balance<1)html+='<p class="v2-summon-hint">'+say('Saldo insuficiente para invocar com a moeda deste banner.','Insufficient balance in this banner currency.')+'</p>';
+  html+='<div class="v2-summon-buttons">';
+  html+=button(t('summon')+' ×1 · '+label,'summon',1,!ready||balance<1)+button(t('summon')+' ×10 · '+(featured?say('10 fichas de destaque','10 featured tickets'):special?say('10 fichas','10 tickets'):F(Shop.summonPrice(s)*10)+' CR'),'summon',10,!ready||balance<10);
+  if(featured)html+=button(t('summon')+' · 60 '+say('gemas','gems'),'gemSummon',1,!ready||c.gems-(q.paidGems||0)<60);
+  if(!special&&!featured)html+=button(t('summon')+' ×1 · '+say('ficha','ticket'),'ticketSummon',1,!ready||c.tickets<1);
+  html+='</div></div>';
   html+='<p>'+(special?say('Lotus 97T e Jordan 191 são exclusivos deste banner de fichas. Os demais resultados são raros e épicos do principal.','Lotus 97T and Jordan 191 are ticket banner exclusives. Other results are rare and epic cars from the main banner.'):say('20 monopostos históricos de Fórmula 1.','20 historic Formula 1 cars.'))+'</p>';
   if(!special)html+='<label>'+say('Desejo: dobra a chance base','Wish: doubles base chance')+' <select id="v2Wish"><option value="">—</option>'+cars.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('')+'</select></label>';
   html+='<details><summary>'+say('Carros e chances na próxima tentativa','Cars and odds for the next pull')+'</summary>'+cars.map(car=>'<p>'+esc(car.name)+' · '+esc(rates.find(row=>row.car===car).chance.toLocaleString(ApexI18n.language==='en'?'en':'pt-BR',{maximumFractionDigits:4}))+'%</p>').join('')+'</details>';
   html+='<p>'+say('Próxima garantia de épico ou superior em ','Guarantees: epic ')+Math.max(1,10-pity.epic)+' · '+say('lendário ','legendary ')+Math.max(1,Shop.legendaryLimit(currentBanner)-pity.legendary)+'</p>';
   html+='<p>'+F(c.tickets)+' '+say('fichas','tickets')+' · '+esc(q.featuredTickets)+' '+say('fichas de destaque','featured tickets')+' · '+F(q.pts)+' '+say('pontos de troca','exchange points')+'</p>';
-  html+=button(t('summon')+' ×1 · '+label,'summon',1,!ready||balance<1)+button(t('summon')+' ×10 · '+(featured?say('10 fichas de destaque','10 featured tickets'):special?say('10 fichas','10 tickets'):F(Shop.summonPrice(s)*10)+' CR'),'summon',10,!ready||balance<10);
-  if(featured)html+=button(t('summon')+' · 60 '+say('gemas','gems'),'gemSummon',1,!ready||c.gems-(q.paidGems||0)<60);
-  if(!special&&!featured)html+=button(t('summon')+' ×1 · '+say('ficha','ticket'),'ticketSummon',1,!ready||c.tickets<1);
   html+='<p>Mítico na próxima tentativa: '+rates.filter(x=>x.rank===4).reduce((a,x)=>a+x.chance,0).toLocaleString('pt-BR',{maximumFractionDigits:4})+'%. A chance aumenta após cada tentativa sem mítico e reinicia ao obtê-lo. Não há garantia de mítico. A referência de 1 em 700 é a média do principal sem desejo, não um prazo.</p>';
   html+='<h3>'+say('Histórico','History')+'</h3><ol>'+q.history.filter(h=>Shop.get(h.id)?.historical).map(h=>'<li>'+esc(Shop.get(h.id)?.name||h.id)+(h.duplicate?' · +'+esc(h.points)+' pts':' · '+say('Novo','New'))+'</li>').join('')+'</ol>';
 }

@@ -48,3 +48,29 @@
   body.apex-v2 .cloud-save-indicator::before{content:"☁";font-size:17px}
   body.apex-v2 #wallet_gems{padding-right:40px}
 }
+
+.v2-summon-order{
+  margin:10px 0 18px;
+  padding:12px 0;
+  border-block:1px solid var(--night-line,#2b3162);
+}
+.v2-summon-balance{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  gap:4px 12px;
+  margin:0 0 8px;
+}
+.v2-summon-hint{margin:6px 0;color:#9ca2d2}
+.v2-summon-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.v2-panel .v2-summon-buttons button{width:100%;margin:0;min-height:44px}
+.v2-panel .v2-summon-buttons button[data-action=summon]:enabled{border-color:#ffb627}
+.v2-panel .v2-summon-buttons button[data-action=summon]:enabled:first-child{background:#ffb627;color:#171121}
+.v2-panel .v2-summon-buttons button:not([data-action=summon]){grid-column:1/-1}
+@media(max-width:440px){
+  .v2-panel canvas.v2-banner{display:block;height:auto;aspect-ratio:900/220;max-height:90px}
+}
+@media(max-width:760px) and (max-height:640px){
+  .v2-return{bottom:max(88px,calc(env(safe-area-inset-bottom) + 70px));max-height:32dvh}
+  body.apex-v2:has(.v2-return:not([hidden])) .v2-guide{visibility:hidden}
+}
