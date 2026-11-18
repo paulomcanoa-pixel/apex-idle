@@ -7,7 +7,7 @@ const detail=ctx.canvas?.id!=='track'&&scale>=.7;
 function p(pts,c,stroke){ctx.beginPath();pts.forEach((v,i)=>i?ctx.lineTo(v[0],v[1]):ctx.moveTo(v[0],v[1]));ctx.closePath();ctx.fillStyle=c;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=.6;ctx.stroke()}}
 function r(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x,y,w,h)}
 function line(pts,c,width=1){ctx.beginPath();pts.forEach((v,i)=>i?ctx.lineTo(...v):ctx.moveTo(...v));ctx.strokeStyle=c;ctx.lineWidth=width;ctx.stroke()}
-if(shadow){ctx.fillStyle='#03081542';ctx.beginPath();ctx.ellipse(2,4,(N+48)/2,27,0,Math.PI*2);ctx.fill();if(detail){ctx.fillStyle='#03081527';ctx.beginPath();ctx.ellipse(3,6,(N+54)/2,31,0,Math.PI*2);ctx.fill()}}
+if(shadow){ctx.fillStyle='#03081542';ctx.beginPath();ctx.ellipse(2,4,(N+48)/2,27,0,0,Math.PI*2);ctx.fill();if(detail){ctx.fillStyle='#03081527';ctx.beginPath();ctx.ellipse(3,6,(N+54)/2,31,0,0,Math.PI*2);ctx.fill()}}
 if(m.shape!=='cigar')p([[-30,-W-3],[10,-W-4],[25,-7],[25,7],[10,W+4],[-30,W+3]],'#0a1017','#40515c');
 const axles=m.shape==='cigar'?[-25,23]:[-24,24],track=m.shape==='cigar'?18:modern?24:21;
 for(const side of [-1,1])for(const axle of axles){line([[axle-5,side*5],[axle-7,side*track],[axle+5,side*7]],'#9ba8ad',1);line([[axle+5,side*6],[axle+5,side*track]],'#9ba8ad',.9);const tw=m.year<1990&&axle<0?18:modern?17:15,th=modern?12:11;if(detail){

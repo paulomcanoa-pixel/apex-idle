@@ -13,3 +13,22 @@ const roundtrip=JSON.parse(JSON.stringify(s));assert(A.validate(roundtrip));roun
 const weekly=A.initial();weekly.money=1e6;L.init(weekly);L.buy(weekly,'f2004');L.equip(weekly,'f2004');let time=1800000000000;while(Career.weekly(time).rule.maxRank<4)time+=604800000;assert(Career.enter(weekly,A,time));assert(Career.validate(weekly));assert(A.validate(weekly));
 const expectedColors=new Set(D.cars.map(c=>c.color+c.accent+c.shape));assert(expectedColors.size>=18);
 console.log('OK: 20 carros/20 pilotos, atributos, paletas e geometrias, taxas, desejo, garantias, repetidos/troca, compra/equipar, afinidade, campeonato, GP semanal, saves antigos e roundtrip.');
+
+{
+  const fs=require('node:fs'),vm=require('node:vm');
+  const context=vm.createContext({LegendsData:D,CarArt:{models:[],draw(){}}});
+  vm.runInContext(fs.readFileSync('legends-art.js','utf8'),context);
+  let ellipses=0;
+  const canvas=new Proxy({
+    canvas:{id:'track'},
+    ellipse(...args){assert(args.length>=7);assert(args.slice(0,7).every(Number.isFinite));ellipses++},
+    createLinearGradient(){return {addColorStop(){}}}
+  },{get:(target,key)=>key in target?target[key]:()=>{}});
+  for(const car of D.cars){
+    canvas.canvas.id='track';
+    context.LegendsArt.draw(canvas,{id:car.id,scale:.22});
+    canvas.canvas.id='showroom';
+    context.LegendsArt.draw(canvas,{id:car.id,scale:3.3});
+  }
+  assert(ellipses>2*D.cars.length);
+}
