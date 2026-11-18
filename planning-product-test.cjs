@@ -9,3 +9,30 @@ test('previsão de treino bate com XP, duração e bônus efetivamente concedido
 test('uma composição só contém IDs e estratégia e não concede carros ou pilotos',()=>{const source=player();source.money=987654321;source.meta.playerId='private-player';source.email='private@example.test';const code=F.encode(source),shared=F.decode(code);assert(shared);const decoded=atob(code.replace(/-/g,'+').replace(/_/g,'/'));assert(!decoded.includes('private')&&!decoded.includes('987654321'));const target=player(),inventory=JSON.stringify(target.shop.inventory);assert(F.apply(target,shared));assert.equal(target.shop.selectedCar,shared.car);assert.equal(JSON.stringify(target.shop.inventory),inventory);const missing={...shared,car:'mp44'},before=JSON.stringify(target);assert(!F.apply(target,missing));assert.equal(JSON.stringify(target),before);assert(F.availability(target,missing).missing.length);assert.equal(F.decode('!bad'),null);assert.equal(F.decode(btoa(JSON.stringify({...shared,money:1e99}))),null);assert.equal(F.decode(btoa(JSON.stringify({...shared,pilot:'constructor'}))),null)});
 test('desbloqueio da Equipe segue o mesmo marco da compra e as parcelas somam a renda real',()=>{const s=player();s.catProgress=true;s.stage=3;s.maxCircuit=6;s.money=1e9;assert(Adapter.teamUnlocked(s,3));assert.equal(E.buy(s,3),1);assert(!Adapter.teamUnlocked(s,4));assert.equal(E.buy(s,4),0);s.idle.units=[8,4,2,1,0,0];s.idle.upgrades=[2,1,0,0,0,0];s.idle.categoryScale=22;s.idle.escuderia=40;s.idle.seasonTitles=3;const sum=E.generators.reduce((n,_,i)=>n+Adapter.teamProduction(s,i),0);assert(Math.abs(sum-E.production(s.idle))<1e-8)});
 test('retorno de aba emite crédito já aplicado e não duplica pagamento ou resumo',()=>{const s=player(),events=[],prior={document:globalThis.document,dispatchEvent:globalThis.dispatchEvent};globalThis.document={};globalThis.dispatchEvent=event=>events.push(event);try{s.idle.units[0]=10;const before=s.money,first=Tick.offline(s,NOW+2*3600000);assert(first.amount>0);assert.equal(s.money,before+first.amount);assert.equal(events.length,1);assert.equal(events[0].type,'apex-offline-settled');assert.equal(events[0].detail.amount,first.amount);assert.equal(Tick.offline(s,NOW+2*3600000).amount,0);assert.equal(events.length,1)}finally{for(const[key,value]of Object.entries(prior)){if(value===undefined)delete globalThis[key];else globalThis[key]=value}}});
+
+test('a restauração prepara a renda offline em silêncio e só anuncia o crédito confirmado',()=>{
+  const s=player();
+  const events=[];
+  const prior={document:globalThis.document,dispatchEvent:globalThis.dispatchEvent};
+  globalThis.document={};
+  globalThis.dispatchEvent=event=>events.push(event);
+  try{
+    s.idle.units[0]=10;
+    const balance=s.money;
+    const now=NOW+10*3600000;
+    const result=Tick.offline(s,now,{announce:false});
+    assert.equal(result.seconds,8*3600);
+    assert.equal(s.money,balance+result.amount);
+    assert.equal(events.length,0);
+    Adapter.announceOffline(result,now);
+    assert.equal(events.length,1);
+    assert.equal(events[0].detail.amount,result.amount);
+    assert.equal(Tick.offline(s,now).amount,0);
+    assert.equal(events.length,1);
+  }finally{
+    for(const [key,value] of Object.entries(prior)){
+      if(value===undefined)delete globalThis[key];
+      else globalThis[key]=value;
+    }
+  }
+});

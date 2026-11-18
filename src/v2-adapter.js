@@ -75,13 +75,17 @@ E.upgradeCost=(v,i)=>Math.ceil(teamUpgradeCost(v,i)*(v.categoryScale||1));
 E.upgrade=(s,i)=>{if(s.version!==2)return teamUpgrade(s,i);s.idle.categoryScale=V.scale(s);const n=s.idle.upgrades[i],price=E.upgradeCost(s.idle,i);if(!E.generators[i]||n>=4||s.idle.units[i]<E.milestones[n]||s.money<price||!Number.isFinite(price))return false;s.money-=price;s.idle.upgrades[i]++;return true};
 E.click=s=>{if(s.version!==2)return old.click(s);const value=Math.max(1,5*E.production(s.idle));s.idle.clicks++;return E.earn(s,value)};
 E.ascend=s=>s.version===2?0:old.ascend(s);
-T.offline=(s,now=Date.now())=>{
+function announceOffline(result,now){
+  if(result.seconds<60||result.amount<=0||!root.document||typeof root.CustomEvent!=='function')return;
+  root.dispatchEvent(new root.CustomEvent('apex-offline-settled',{detail:{...result,at:now}}));
+}
+T.offline=(s,now=Date.now(),{announce=true}={})=>{
   if(s.version!==2)return old.offline(s,now);
   // Só tempo real ausente; o seguro de retorno não enche a caixa.
   const absent=Math.min(28800,Math.max(0,(now-s.idle.at)/1000));
   const result=Ret.offline(s,now,E.production(s.idle));
   LootHooks.away(s,absent);
-  if(result.seconds>=60&&result.amount>0&&root.document&&typeof root.CustomEvent==='function')root.dispatchEvent(new root.CustomEvent('apex-offline-settled',{detail:{...result,at:now}}));
+  if(announce)announceOffline(result,now);
 
   return result;
 };
@@ -94,7 +98,7 @@ Champ.tick=(s,...a)=>s.version===2?0:old.champTick(s,...a);Champ.settle=(s,...a)
 const draw=root.CarArt?.draw;if(draw)root.CarArt.draw=(ctx,options)=>{const c=Shop.get(options.id);if(c?.category==='carros'&&!c.historical){const i=Shop.rarities.indexOf(c.rarity);options={...options,id:['vento','scarlatto','solar','eclipse','zenith'][Math.max(0,i)],color:options.color||['#96b3c7','#4bb7ed','#a67bff','#ffbd58','#fa6da9'][Math.max(0,i)]}}if(ctx.canvas?.id==='track'&&root.ApexCamera){const matrix=ctx.getTransform(),zoom=Math.hypot(matrix.a,matrix.b)/(root.devicePixelRatio||1);options={...options,scale:Math.max(options.scale||.17,root.ApexCamera.minCarSizePx(root.innerWidth)/(80*Math.max(.01,zoom)))*(options.number==='01'?1.25:1)}}if(ctx.canvas?.id==='track'&&options.number==='01'&&root.ApexCosmetics){options={...options,color:root.ApexCosmetics.paintColor(root.ApexPaintState?.(),options.color)}}draw(ctx,options);if(ctx.canvas?.id==='track'&&options.number==='01'&&root.ApexCosmetics)root.ApexCosmetics.decorate(ctx,options,root.ApexPaintState?.())};
 const equipped=GS.equip;GS.equip=(s,id)=>{const ok=equipped(s,id);if(ok&&s.version===2)Shop.init(s).selectedCar='';return ok};
 const equipStaff=Champ.equip;Champ.equip=(s,id)=>{const ok=equipStaff(s,id);if(ok&&s.version===2){const role=Champ.roster.find(p=>p.id===id)?.role;Shop.init(s)[role==='driver'?'selectedPilot':'selectedEngineer']=''}return ok};
-root.ApexV2={teamUnlocked,teamProduction,V,B,Shop,Ret,power,pi,duration,performance,updateRace,compare,place:s=>B.placeOf(pi(s)*B.aiLeaderPI(V.index(s))/V.leader(s),V.index(s))};
+root.ApexV2={announceOffline,teamUnlocked,teamProduction,V,B,Shop,Ret,power,pi,duration,performance,updateRace,compare,place:s=>B.placeOf(pi(s)*B.aiLeaderPI(V.index(s))/V.leader(s),V.index(s))};
 if(typeof module!=='undefined')module.exports=root.ApexV2;
 })(typeof window!=='undefined'?window:globalThis);
 
