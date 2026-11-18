@@ -41,12 +41,10 @@ function path(){ctx.beginPath();layouts[s.circuit].points.forEach((p,i)=>i?ctx.l
 function drawCar(t,color){const p=position(t),player=color==='#d4fc5a'||color===s.color;CarArt.draw(ctx,{x:p.x,y:p.y,a:p.a,scale:.17,id:player?A.equippedCar(s).id:'vento',color,number:player?'01':'02',depth:window.apexPseudo3D===true})}
 const worldPaths=layouts.map(l=>{const p=new Path2D();l.points.forEach((v,i)=>i?p.lineTo(...v):p.moveTo(...v));p.closePath();return p});
 const bridges=layouts.map((l,index)=>{if(A.circuits[index].id!=='jp-1962')return[];const out=[],pts=l.points;for(let i=0;i<pts.length;i++)for(let j=i+3;j<pts.length-1;j++){const a=pts[i],b=pts[(i+1)%pts.length],u=pts[j],v=pts[(j+1)%pts.length],dx=b[0]-a[0],dy=b[1]-a[1],ex=v[0]-u[0],ey=v[1]-u[1],den=dx*ey-dy*ex;if(Math.abs(den)<1e-8)continue;const t=((u[0]-a[0])*ey-(u[1]-a[1])*ex)/den,q=((u[0]-a[0])*dy-(u[1]-a[1])*dx)/den;if(t>0&&t<1&&q>0&&q<1)out.push({x:a[0]+t*dx,y:a[1]+t*dy,a:Math.atan2(dy,dx)})}return out});
-function draw(){
+function drawTrackEnvironment(ctx,tr,daylight,wet){
 // Draw vectors at camera resolution rather than enlarging a road painted into a small bitmap.
-const tr=ctx.getTransform(),x0=-tr.e/tr.a,y0=-tr.f/tr.d,w=canvas.width/tr.a,h=canvas.height/tr.d;
+const x0=-tr.e/tr.a,y0=-tr.f/tr.d,w=canvas.width/tr.a,h=canvas.height/tr.d;
 ctx.fillStyle={grass:'#0B0E24',coast:'#0B0E24',desert:'#0B0E24',night:'#0B0E24'}[A.circuits[s.circuit].terrain];ctx.fillRect(x0,y0,w,h);
-const daylight=window.apexDaylight!==false;
-const wet=window.NightView?.wetTrack===true;
 const circuit=A.circuits[s.circuit];
 const sceneryCircuit=daylight&&circuit.terrain==='night'?{...circuit,terrain:'grass'}:circuit;
 if(typeof CircuitScenery!=='undefined')CircuitScenery.draw(ctx,sceneryCircuit,layouts[s.circuit],{x:x0,y:y0,w,h});
@@ -72,6 +70,39 @@ for(let row=0;row<6;row++){
   ctx.lineTo(4,offset+4);ctx.lineTo(-4,offset+4);ctx.stroke();
   ctx.restore();
 }
+
+}
+let environmentLayer=null,environmentKey='',previousEnvironmentKey='';
+function draw(){
+  const tr=ctx.getTransform();
+  const daylight=window.apexDaylight!==false;
+  const wet=window.NightView?.wetTrack===true;
+  const key=[s.circuit,s.version,canvas.width,canvas.height,tr.a,tr.d,tr.e,tr.f,
+    window.devicePixelRatio,daylight,wet,window.apexPseudo3D,!!window.NightView,!!window.CircuitScenery].join(':');
+
+  // A fixed camera can reuse the ground, lights, asphalt and grid as one image.
+  // Wait for a repeated transform so a moving camera keeps drawing directly.
+  if(key===environmentKey){
+    ctx.save();
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.drawImage(environmentLayer,0,0);
+    ctx.restore();
+  }else if(key===previousEnvironmentKey){
+    environmentLayer=environmentLayer||document.createElement('canvas');
+    environmentLayer.width=canvas.width;
+    environmentLayer.height=canvas.height;
+    const layer=environmentLayer.getContext('2d');
+    layer.setTransform(tr.a,0,0,tr.d,tr.e,tr.f);
+    drawTrackEnvironment(layer,tr,daylight,wet);
+    environmentKey=key;
+    ctx.save();
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.drawImage(environmentLayer,0,0);
+    ctx.restore();
+  }else{
+    drawTrackEnvironment(ctx,tr,daylight,wet);
+  }
+  previousEnvironmentKey=key;
 drawCar(s.progress*.94+.32,'#e17e60');drawCar(s.progress*1.02+.65,'#8baded');drawCar(s.progress,'#d4fc5a');
 }
 
