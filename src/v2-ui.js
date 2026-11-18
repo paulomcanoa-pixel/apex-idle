@@ -37,7 +37,7 @@ function tabs(items){
   if(!long)return nav;
   return nav+'<label class="v2-section-picker" for="v2Section">'+say('Seção','Section')
     +'<select id="v2Section">'+items.map(([id,key])=>
-      '<option value="'+id+'"'+(view===id?' selected':'')+'>'+esc(t(key))+'</option>'
+      '<option value="'+id+'">'+esc(t(key))+'</option>'
     ).join('')+'</select></label>';
 }
 function button(label,action,id='',disabled=false){return '<button data-action="'+action+'" data-id="'+esc(id)+'" '+(disabled?'disabled':'')+'>'+esc(label)+'</button>'}
@@ -191,6 +191,8 @@ if(key){
 }
 const select=$('v2Batch');
 if(select)select.value=String(batch);
+const sectionPicker=$('v2Section');
+if(sectionPicker)sectionPicker.value=view;
 if($('v2Banner'))$('v2Banner').value=currentBanner;
 if($('v2Wish'))$('v2Wish').value=Shop.bannerCars(currentBanner).some(car=>car.id===s.shop.wish)?s.shop.wish:'';
 if($('v2Focus'))$('v2Focus').value=s.focus||'potencia';
@@ -293,6 +295,7 @@ insights.className='race-insights';
 insights.hidden=true;
 const standings=$('resultRows');
 const standingsDetails=document.createElement('details');
+standingsDetails.id='resultStandingsDetails';
 standingsDetails.className='race-result-standings';
 const standingsLabel=document.createElement('summary');
 standingsLabel.textContent='Ver classificação completa';
