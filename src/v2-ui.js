@@ -199,6 +199,35 @@ if($('v2Focus'))$('v2Focus').value=s.focus||'potencia';
 paintArt();
 updateLive();
 }
+function paintShowroom(g,w,h,accent,banner){
+  const floor=g.createLinearGradient(0,0,0,h);
+  floor.addColorStop(0,'#0a1124');
+  floor.addColorStop(.55,'#25334b');
+  floor.addColorStop(1,'#0d1428');
+  g.fillStyle=floor;
+  g.fillRect(0,0,w,h);
+
+  const glow=g.createRadialGradient(w*.49,h*.44,3,w*.49,h*.44,w*.54);
+  glow.addColorStop(0,accent+'52');
+  glow.addColorStop(1,accent+'00');
+  g.fillStyle=glow;
+  g.fillRect(0,0,w,h);
+
+  g.strokeStyle='#b2c8f12b';
+  g.lineWidth=Math.max(1,w/600);
+  g.beginPath();
+  for(const row of [.59,.66,.78,.94]){
+    g.moveTo(0,h*row);g.lineTo(w,h*row);
+  }
+  for(let i=-4;i<=4;i++){
+    g.moveTo(w*.5+i*w*.04,h*.57);g.lineTo(w*.5+i*w*.24,h);
+  }
+  g.stroke();
+  g.fillStyle=accent;
+  g.fillRect(w*.06,h*.12,w*.18,Math.max(1,h*.013));
+  if(banner)g.fillRect(w*.76,h*.12,w*.18,Math.max(1,h*.013));
+  else g.fillRect(w*.84,h*.12,w*.1,Math.max(1,h*.013));
+}
 function paintArt(){for(const canvas of panel.querySelectorAll('canvas')){if(canvas.hasAttribute('data-art-trophy')){ApexProductView.drawTrophy(canvas,canvas.dataset.artTrophy);continue}const g=canvas.getContext('2d');
 g.fillStyle='#12163A';
 g.fillRect(0,0,canvas.width,canvas.height);
@@ -212,11 +241,14 @@ g.closePath();
 g.stroke()}
 else if(canvas.hasAttribute('data-banner-art')){
   const cars=Shop.bannerCars(currentBanner);
+  paintShowroom(g,canvas.width,canvas.height,currentBanner==='banner-lendas'?'#c48cff':currentBanner==='banner-destaque'?'#6ed2ee':'#ffb627',true);
   const shown=currentBanner==='banner-lendas'?cars.filter(car=>car.exclusive):Shop.rarities.map(rarity=>cars.find(car=>car.rarity===rarity)).filter(Boolean);
   shown.forEach((car,i)=>CarArt.draw(g,{x:canvas.width*(i+.5)/shown.length,y:120,a:-.12,scale:shown.length===2?2.6:1.5,id:car.id}));
 }
-else CarArt.draw(g,{x:canvas.width/2,y:canvas.height/2,a:-.14,scale:canvas.width>300?3.3:1.4,id}
-)}
+else{
+  paintShowroom(g,canvas.width,canvas.height,canvas.width>300?'#ffb627':'#729cda',false);
+  CarArt.draw(g,{x:canvas.width/2,y:canvas.height/2,a:-.14,scale:canvas.width>300?3.3:1.4,id});
+}}
 }
 function updateLive(){const finishTraining=panel.querySelector('[data-action="finishTraining"]');if(finishTraining)ApexRender.prop(finishTraining,'disabled',s.shop.training?.end>Date.now());const live=$('v2Standings');if(live&&race){const order=Race.order(race);const signature=order.map(x=>x.name+Math.floor(x.distance*10)).join();if(live.dataset.signature!==signature){live.dataset.signature=signature;ApexSafeDOM.render(live,order.map((x,i)=>'<p class="v2-standing"><b>P'+(i+1)+'</b> '+esc(x.player?'Aurora':x.name)+' <span>'+ (i===0?say('Líder','Leader'):'+'+((order[0].distance-x.distance)*race.duration).toFixed(1)+' s')+'</span></p>').join(''))}}for(const el of panel.querySelectorAll('[data-live="cash"]'))ApexRender.text(el,F(s.money));for(const el of panel.querySelectorAll('[data-countdown]'))ApexRender.text(el,Math.max(0,Math.ceil((+el.dataset.countdown-Date.now())/1000))+' s')}
 function reveal(results){pendingReveal=results.map(r=>({car:{id:r.id,name:r.car.name,rarity:['Comum','Raro','Épico','Lendário','Mítico'][Shop.rarities.indexOf(r.car.rarity)],color:r.car.color||['#b8c9d4','#70caff','#c6a0ff','#ffcd75','#ff86bf'][Shop.rarities.indexOf(r.car.rarity)]},duplicate:r.duplicate,guaranteed:r.guaranteed,points:r.points}));revealIndex=results.length>1?pendingReveal.indexOf(DropShowcase.order(pendingReveal)[0]):0;summonBusy=true;summonCinema.showModal();if(matchMedia('(prefers-reduced-motion: reduce)').matches)finishSummon();else startReveal()}

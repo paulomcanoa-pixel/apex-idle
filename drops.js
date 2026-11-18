@@ -92,8 +92,17 @@ let stopped=false,frame=0,width=0;const height=300,start=performance.now();let p
 function resize(){width=Math.max(280,canvas.getBoundingClientRect().width);const ratio=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(width*ratio);canvas.height=height*ratio;ctx.setTransform(ratio,0,0,ratio,0,0)}
 function paint(now){
 if(stopped)return;if(document.hidden){frame=requestAnimationFrame(paint);return}const t=reduced?0:(now-start)/1000,finish=width*.7;
-ctx.clearRect(0,0,width,height);ctx.fillStyle='#101826';ctx.fillRect(0,0,width,height);
-ctx.fillStyle='#263542';ctx.fillRect(0,58,width,174);ctx.fillStyle='#82939c';ctx.fillRect(0,55,width,3);ctx.fillRect(0,232,width,3);
+ctx.clearRect(0,0,width,height);
+ctx.fillStyle='#101826';ctx.fillRect(0,0,width,height);
+const asphalt=ctx.createLinearGradient(0,58,0,232);
+asphalt.addColorStop(0,'#132235');asphalt.addColorStop(.48,'#34455c');asphalt.addColorStop(1,'#172630');
+ctx.fillStyle=asphalt;ctx.fillRect(0,58,width,174);
+ctx.fillStyle='#657fa2';ctx.fillRect(0,54,width,3);ctx.fillRect(0,232,width,3);
+ctx.fillStyle='#dbecfe26';ctx.fillRect(0,78,width,1);ctx.fillRect(0,209,width,1);
+for(let x=15;x<width;x+=78){
+  ctx.fillStyle='#7d9bb633';ctx.fillRect(x,69,27,2);
+  ctx.fillStyle='#c5cbd440';ctx.fillRect(x,220,27,2);
+}
 ctx.strokeStyle='#d6e1e833';ctx.lineWidth=2;ctx.setLineDash([24,24]);ctx.beginPath();ctx.moveTo(0,145);ctx.lineTo(width,145);ctx.stroke();ctx.setLineDash([]);
 for(let col=0;col<3;col++)for(let row=0;row<14;row++){ctx.fillStyle=(col+row)%2?'#0a1018':'#eff4ee';ctx.fillRect(finish+col*12,60+row*12,12,12)}
 ctx.fillStyle='#c5d5dc';ctx.font='bold 11px Arial';ctx.textAlign='center';ctx.fillText('CHEGADA',finish+18,40);

@@ -70,7 +70,22 @@ const tilt=window.apexPseudo3D ? .78 : 1;
 const fitKey=[s.circuit,w,h,tilt].join(':');
 if(!follow&&fittedKey!==fitKey&&typeof ApexCamera!=='undefined'){fitted=ApexCamera.fitProjected(layouts[s.circuit].points,{w:w<760?w:w-280,h:w<760?Math.max(120,h-200):h-110},tilt,.08);fittedKey=fitKey}
 const scale=!follow&&fitted?fitted.scale:Math.min(w/1000,h/580)*(follow?(w<760?Math.max(zoom,2.6):zoom):1/layouts[s.circuit].scale);if(!follow&&fitted){cameraX=fitted.centerX;cameraY=fitted.centerY}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle=window.apexDaylight?'#274632':'#0B0E24';ctx.fillRect(0,0,w,h);
-ctx.save();ctx.setTransform(dpr*scale,0,0,dpr*scale*tilt,dpr*((!follow&&w>=760?(w-280)*.5:w*.5)-cameraX*scale),dpr*(h*(w<760?.435:.45)-cameraY*scale*tilt));worldDraw();ctx.restore();ctx.setTransform(1,0,0,1,0,0);minimap(now);
+const cameraLeft=(!follow&&w>=760?(w-280)*.5:w*.5)-cameraX*scale;
+const cameraTop=h*(w<760?.435:.45)-cameraY*scale*tilt;
+ctx.save();
+ctx.setTransform(dpr*scale,0,0,dpr*scale*tilt,dpr*cameraLeft,dpr*cameraTop);
+worldDraw();
+ctx.restore();
+const px=p.x*scale+cameraLeft,py=p.y*scale*tilt+cameraTop;
+if(!follow&&s.running&&px>8&&px<w-8&&py>24&&py<h-10){
+  ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.translate(px,py-10);
+  ctx.beginPath();ctx.moveTo(-5,-6);ctx.lineTo(5,-6);ctx.lineTo(0,0);ctx.closePath();
+  ctx.strokeStyle='#101629';ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle=boost>0?'#d9b8ff':'#ffbf49';ctx.fill();
+  ctx.restore();
+}
+ctx.setTransform(1,0,0,1,0,0);minimap(now);
 };updateControls();
 })();
 

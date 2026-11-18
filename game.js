@@ -51,9 +51,27 @@ const circuit=A.circuits[s.circuit];
 const sceneryCircuit=daylight&&circuit.terrain==='night'?{...circuit,terrain:'grass'}:circuit;
 if(typeof CircuitScenery!=='undefined')CircuitScenery.draw(ctx,sceneryCircuit,layouts[s.circuit],{x:x0,y:y0,w,h});
 if(!daylight){ctx.fillStyle='#060919aa';ctx.fillRect(x0,y0,w,h);if(typeof NightView!=='undefined')NightView.lighting(ctx,{x:x0,y:y0,w,h});}ctx.lineJoin='round';ctx.lineCap='round';
-const roadScale=s.version===2?Math.max(1,6/(44*Math.abs(tr.a)/(window.devicePixelRatio||1))):1;for(const [width,color,dash] of [[64,daylight?'#233a3255':'#05071b88',[]],[56,daylight?'#64746c':'#202750',[]],[50,'#EEF0FF',[]],[50,'#e04b46',[5,7]],[44,daylight?'#34464a':'#11172e',[]],[40,wet?(daylight?'#394c57':'#26364d'):daylight?'#4b595b':'#1b2340',[]],[.8,daylight?'#d0d8ce99':'#a4aed066',[3,9]]]){ctx.lineWidth=width*roadScale;ctx.lineCap=width===50?'butt':'round';ctx.strokeStyle=color;ctx.setLineDash(dash.map(v=>v*roadScale));ctx.stroke(worldPaths[s.circuit])}ctx.setLineDash([]);
+const roadScale=s.version===2?Math.max(1,6/(44*Math.abs(tr.a)/(window.devicePixelRatio||1))):1;for(const [width,color,dash] of [[64,daylight?'#233a3255':'#05071b88',[]],[56,daylight?'#64746c':'#202750',[]],[50,'#EEF0FF',[]],[50,'#e04b46',[5,7]],[44,daylight?'#34464a':'#11172e',[]],[40,wet?(daylight?'#344956':'#263951'):daylight?'#3e494d':'#1d2541',[]],
+[29,wet?'#99c7e21b':daylight?'#28303541':'#0f152d71',[]],
+[.8,daylight?'#eef2de69':'#c7d6ff72',[3,9]]]){ctx.lineWidth=width*roadScale;ctx.lineCap=width===50?'butt':'round';ctx.strokeStyle=color;ctx.setLineDash(dash.map(v=>v*roadScale));ctx.stroke(worldPaths[s.circuit])}ctx.setLineDash([]);
 for(const p of bridges[s.circuit]){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.shadowColor='#000';ctx.shadowBlur=6;ctx.fillStyle='#aebdb8';ctx.fillRect(-30,-25,60,50);ctx.shadowBlur=0;ctx.fillStyle='#33444b';ctx.fillRect(-32,-22,64,44);ctx.restore()}
-const p=position(0);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);for(let x=0;x<2;x++)for(let y=0;y<22;y++){ctx.fillStyle=(x+y)%2?'#fff':'#111b22';ctx.fillRect(x*2-2,y*2-22,2,2)}ctx.restore();
+// Grid markings are painted on the existing track and never affect placement.
+const p=position(0);
+ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);
+for(let x=0;x<2;x++)for(let y=0;y<20;y++){
+  ctx.fillStyle=(x+y)%2?'#f3f4eb':'#101624';
+  ctx.fillRect(x*2-2,(y*2-20)*roadScale,2,2*roadScale);
+}
+ctx.restore();
+for(let row=0;row<6;row++){
+  const slot=position(1-(row+1)*.003/layouts[s.circuit].scale);
+  ctx.save();ctx.translate(slot.x,slot.y);ctx.rotate(slot.a);
+  ctx.strokeStyle=daylight?'#f7f7e887':'#a7bce894';ctx.lineWidth=.85;
+  const offset=(row%2?7:-7)*roadScale;
+  ctx.beginPath();ctx.moveTo(-4,offset-4);ctx.lineTo(4,offset-4);
+  ctx.lineTo(4,offset+4);ctx.lineTo(-4,offset+4);ctx.stroke();
+  ctx.restore();
+}
 drawCar(s.progress*.94+.32,'#e17e60');drawCar(s.progress*1.02+.65,'#8baded');drawCar(s.progress,'#d4fc5a');
 }
 
