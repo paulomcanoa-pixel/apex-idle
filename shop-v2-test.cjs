@@ -65,3 +65,20 @@ test('promoção preserva o banner principal e o exclusivo exige a categoria 4',
   s.cat=4;
   assert(Shop.bannerUnlocked(s,'banner-lendas'));
 });
+
+test('chances do próximo giro redistribuem o peso com a garantia ativa',()=>{
+  const banner='banner-padrao';
+  const wish='lotus49';
+  const base=Shop.bannerRates(banner,wish);
+  for(const [floor,pity] of [[2,{epic:9}],[3,{epic:9,legendary:199}]]){
+    const actual=Shop.nextBannerRates(banner,wish,pity);
+    assert(Math.abs(actual.reduce((sum,row)=>sum+row.chance,0)-100)<1e-8);
+    for(const [i,row] of actual.entries()){
+      if(row.rank<floor)assert.equal(row.chance,0);
+      if(row.rank>floor)assert.equal(row.chance,base[i].chance);
+    }
+    const s=player();
+    s.shop.pity[banner]=pity;
+    assert.equal(Shop.rarities.indexOf(Shop.summon(s,banner,1,()=>0)[0].car.rarity),floor);
+  }
+});

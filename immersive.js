@@ -16,7 +16,7 @@ function drawCinemaArt(phase){if(stopCinemaArt&&phase!=='mystery'&&stopCinemaArt
 const dropsDialog=document.createElement('dialog');dropsDialog.className='drops-dialog';ApexRender.attr(dropsDialog,'aria-labelledby','dropsTitle');
 ApexRender.html(dropsDialog,'<div class="drops-heading"><p class="eyebrow">SEU PRÓXIMO CAPÍTULO COMEÇA NO GRID</p><h2 id="dropsTitle">INVOCAÇÃO CONCLUÍDA</h2><p>Seus monopostos chegaram. O mais raro é o destaque da coleção.</p></div><canvas id="dropsCanvas" role="img" aria-label="Carros invocados, com o mais raro no centro"></canvas><ol id="dropsAccessible" class="sr-only"></ol><div class="drops-controls"><button id="closeDrops" class="primary">Continuar na garagem →</button></div>');
 document.body.append(dropsDialog);let stopDrops=null;
-function closeDrops(){if(stopDrops){stopDrops();stopDrops=null}if(dropsDialog.open)dropsDialog.close();if(drawer.open)$('summonCar').focus()}
+function closeDrops(){if(stopDrops){stopDrops();stopDrops=null}if(dropsDialog.open)dropsDialog.close();if(drawer.open)(drawer.querySelector('[data-action="summon"]:not([disabled])')||$('closeDrawer'))?.focus()}
 dropsDialog.addEventListener('close',closeDrops);dropsDialog.addEventListener('cancel',e=>{e.preventDefault();closeDrops()});$('closeDrops').onclick=closeDrops;
 function showDrops(results){
 closeDrops();
@@ -66,18 +66,18 @@ $('cinemaStage').dataset.phase='revealed';drawCinemaArt('revealed');
 $('cinemaStage').style.setProperty('--reveal-color',result.car.color);
 ApexRender.text($('cinemaCaption'),'A pintura está surgindo sob os refletores…');
 ApexRender.prop($('nextSummon'),"disabled",true);
-ApexRender.text($('nextSummon'),revealIndex===pendingReveal.length-1?'Ver todos os drops →':'Próximo carro →');
+ApexRender.text($('nextSummon'),(s.version===2||revealIndex===pendingReveal.length-1)?'Ver todos os drops →':'Próximo carro →');
 revealTimer=setTimeout(raceCurrent,matchMedia('(prefers-reduced-motion: reduce)').matches?200:1150)
 }
 function raceCurrent(){
 if(!pendingReveal)return;
 $('cinemaStage').dataset.phase='racing';drawCinemaArt('racing');ApexRender.text($('cinemaCaption'),resultText(pendingReveal[revealIndex])+' Acelerando até a chegada!');ApexRender.prop($('nextSummon'),'disabled',false);
-revealTimer=setTimeout(nextSummon,pendingReveal.length>1?920:1350)
+revealTimer=setTimeout(nextSummon,1350)
 }
 function startReveal(){
 if(!pendingReveal)return;
 $('cinemaStage').dataset.phase='mystery';drawCinemaArt('mystery');$('cinemaStage').style.setProperty('--reveal-color','#a2b6c4');
-ApexRender.text($('cinemaProgress'),'CARRO '+(revealIndex+1)+' DE '+pendingReveal.length);
+ApexRender.text($('cinemaProgress'),s.version===2&&pendingReveal.length>1?'Destaque das '+pendingReveal.length+' invocações':'Carro '+(revealIndex+1)+' de '+pendingReveal.length);
 ApexRender.text($('cinemaCaption'),'Um Apex misterioso está chegando…');
 ApexRender.prop($('nextSummon'),"disabled",true);
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -85,7 +85,9 @@ revealTimer=setTimeout(revealCurrent,reduced?0:pendingReveal.length>1?250:550)
 }
 function nextSummon(){
 if(!pendingReveal||$('nextSummon').disabled)return;
-clearTimeout(revealTimer);revealIndex++;
+clearTimeout(revealTimer);
+if(s.version===2){finishSummon();return}
+revealIndex++;
 if(revealIndex>=pendingReveal.length){finishSummon();return}
 startReveal()
 }

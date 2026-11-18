@@ -85,7 +85,7 @@ resize();paint(performance.now());
 const observer=new ResizeObserver(()=>{resize();if(reduced)paint(performance.now())});observer.observe(canvas);
 return ()=>{closed=true;cancelAnimationFrame(frame);observer.disconnect()}
 }
-function revealFrame(phase,elapsed,width,reduced=false){const p=phase==='mystery'?0:phase==='racing'||reduced?1:Math.min(1,Math.max(0,elapsed/1.05)),ease=p*p*(3-2*p);return{paint:ease,question:1-Math.min(1,p*2.3),x:width*(.5+(phase==='racing'&&!reduced?.4*Math.min(1,Math.max(0,elapsed/1.5)):0)),energy:phase==='mystery'?0:ease}}
+function revealFrame(phase,elapsed,width,reduced=false){const p=phase==='mystery'?0:phase==='racing'||reduced?1:Math.min(1,Math.max(0,elapsed/1.05)),ease=p*p*(3-2*p);return{paint:ease,question:1-Math.min(1,p*2.3),x:width*(.5+(phase==='racing'&&!reduced?.4*Math.min(1,Math.max(0,elapsed/1.25)):0)),energy:phase==='mystery'?0:ease}}
 function race(canvas,model,phase){
 const ctx=canvas.getContext('2d');if(!ctx)return ()=>{};
 let stopped=false,frame=0,width=0;const height=300,start=performance.now();let phaseStart=start;const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -98,7 +98,9 @@ ctx.strokeStyle='#d6e1e833';ctx.lineWidth=2;ctx.setLineDash([24,24]);ctx.beginPa
 for(let col=0;col<3;col++)for(let row=0;row<14;row++){ctx.fillStyle=(col+row)%2?'#0a1018':'#eff4ee';ctx.fillRect(finish+col*12,60+row*12,12,12)}
 ctx.fillStyle='#c5d5dc';ctx.font='bold 11px Arial';ctx.textAlign='center';ctx.fillText('CHEGADA',finish+18,40);
 const elapsed=(now-phaseStart)/1000,state=revealFrame(phase,elapsed,width,reduced),x=state.x,reveal=state.paint>0,scale=Math.min(.84,(width-60)/220),color=auraPalette(model).color;
-if(reveal){ctx.save();ctx.globalAlpha=state.energy;aura(ctx,x,145,Math.min(150,width*.30),74,model,t,reduced);ctx.restore()}
+const atFinish=phase==='racing'&&!reduced?Math.max(0,1-Math.abs(x-finish)/(width*.13)):0;
+const auraOpacity=phase==='revealed'?state.energy*.22:phase==="racing"&&!reduced?Math.max(.18,atFinish):0;
+if(auraOpacity>0){ctx.save();ctx.globalAlpha=auraOpacity;aura(ctx,x,145,Math.min(150,width*.30),74,model,t,reduced);ctx.restore()}
 // One continuous chassis: the silhouette stays on screen while a light sweep exposes its livery.
 function chassis(dark){ctx.save();ctx.translate(x,145);ctx.rotate(Math.PI/2);if(dark)ctx.filter='brightness(.12) saturate(0)';car(ctx,0,0,scale,model.color,reduced?0:t*2,model.id);ctx.restore()}
 chassis(true);

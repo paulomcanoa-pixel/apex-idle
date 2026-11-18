@@ -21,14 +21,16 @@ const PROFILES = [
   { id: 'OFFLINE', visits: 3, minutes: 0, order: ['team', 'gacha', 'upgrades'], shares: [.08, .53, .25], purchases: 6, pulls: 5, cleanPitChance: 0, cars: ['trade', 'project'] },
 ];
 
-function startingState() {
+function startingState(freshStart=false) {
   const s = Apex.initial();
-  s.rep = V.openRep(s, 3);
-  V.unlock(s);
+  if (!freshStart) {
+    s.rep = V.openRep(s, 3);
+    V.unlock(s);
+    s.levels = [8, 6, 4, 3, 0, 0];
+    s.idle.units = [10, 5, 1, 0, 0, 0];
+    s.money = 0;
+  }
   s.idle.at = START;
-  s.levels = [8, 6, 4, 3, 0, 0];
-  s.idle.units = [10, 5, 1, 0, 0, 0];
-  s.money = 0;
   Shop.init(s).wish = CAR;
   Retention.init(s, START);
   assert(Academy.choose(s, DRIVER, START));
@@ -37,9 +39,9 @@ function startingState() {
 
 function assertLedger(s, ledger) {
   const { cr, materials, points, fragments } = ledger;
-  const expectedCR = cr.offline + cr.track + cr.laps + cr.prizes + cr.contracts
+  const expectedCR = cr.initial + cr.offline + cr.track + cr.laps + cr.prizes + cr.contracts
     - cr.weather - cr.upgrades - cr.team - cr.gacha - cr.academy;
-  const scale = Math.max(1, cr.offline + cr.track + cr.laps + cr.prizes + cr.contracts);
+  const scale = Math.max(1, cr.initial + cr.offline + cr.track + cr.laps + cr.prizes + cr.contracts);
   assert(Math.abs(s.money - expectedCR) <= scale * 1e-10, 'CR ledger does not reconcile');
   assert.equal(s.materials, materials.races + materials.contracts - materials.project);
   assert.equal(s.shop.pts, points.duplicates - points.trade);
@@ -88,14 +90,14 @@ function nextTeam(s) {
   return candidates.sort((a, b) => a.cost - b.cost)[0];
 }
 
-function simulateRun(profile, days, seed, { teamContracts = false } = {}) {
-  const s = startingState();
+function simulateRun(profile, days, seed, { teamContracts = false, freshStart = false } = {}) {
+  const s = startingState(freshStart);
   const summonRandom = Shop.rng(seed);
   const raceRandom = Shop.rng(seed ^ 0x5f3759df);
   const outcome = { gacha: null, project: null, trade: null, academy: null };
-  const milestones = { projectUnlock: null, firstPromotion: null };
+  const milestones = { projectUnlock: null, firstPromotion: null, firstPull: null };
   const ledger = {
-    cr: { offline: 0, track: 0, laps: 0, prizes: 0, contracts: 0, weather: 0, upgrades: 0, team: 0, gacha: 0, academy: 0 },
+    cr: { initial: s.money, offline: 0, track: 0, laps: 0, prizes: 0, contracts: 0, weather: 0, upgrades: 0, team: 0, gacha: 0, academy: 0 },
     materials: { races: 0, contracts: 0, project: 0 },
     points: { duplicates: 0, trade: 0 },
     fragments: { observation: 0, contract: 0 },
@@ -162,6 +164,7 @@ function simulateRun(profile, days, seed, { teamContracts = false } = {}) {
           ledger.points.duplicates += result[0].points;
           pulls++;
           budget -= spent;
+          if (milestones.firstPull === null) milestones.firstPull = (now - START) / DAY;
           if (result[0].id === CAR) obtainCar(route, now);
           exchangeOrBuild(now);
         }
@@ -248,16 +251,16 @@ function simulateRun(profile, days, seed, { teamContracts = false } = {}) {
   };
 }
 
-function buildReport({ days = 30, runs = 16, seed = 20261118, teamContracts = false } = {}) {
+function buildReport({ days = 30, runs = 16, seed = 20261118, teamContracts = false, freshStart = false } = {}) {
   assert(Number.isInteger(days) && days >= 1 && days <= 90);
   assert(Number.isInteger(runs) && runs >= 1 && runs <= 128);
   assert(Number.isSafeInteger(seed) && Number.isSafeInteger(seed + (runs - 1) * 997));
   const average = values => Number((values.reduce((sum, n) => sum + n, 0) / runs).toFixed(2));
   return {
-    days, runs, seed, teamContracts, start: new Date(START).toISOString(), targetCar: CAR, targetDriver: DRIVER,
-    academyRequirements: Academy.requirements(startingState(), DRIVER),
+    days, runs, seed, teamContracts, freshStart, start: new Date(START).toISOString(), targetCar: CAR, targetDriver: DRIVER,
+    academyRequirements: Academy.requirements(startingState(freshStart), DRIVER),
     profiles: PROFILES.map(profile => {
-      const rows = Array.from({ length: runs }, (_, i) => simulateRun(profile, days, seed + i * 997, { teamContracts }));
+      const rows = Array.from({ length: runs }, (_, i) => simulateRun(profile, days, seed + i * 997, { teamContracts, freshStart }));
       return {
         ...profile,
         routes: Object.fromEntries(Object.keys(rows[0].outcome).map(key => [
@@ -288,7 +291,7 @@ function buildReport({ days = 30, runs = 16, seed = 20261118, teamContracts = fa
 
 if (require.main === module) {
   const [days, runs, seed] = process.argv.slice(2).map(Number);
-  process.stdout.write(JSON.stringify(buildReport({ days, runs, seed, teamContracts: process.argv.includes("--contracts") }), null, 2) + '\n');
+  process.stdout.write(JSON.stringify(buildReport({ days, runs, seed, teamContracts: process.argv.includes("--contracts"), freshStart: process.argv.includes("--fresh") }), null, 2) + '\n');
 }
 
 module.exports = { buildReport, PROFILES, simulateRun };

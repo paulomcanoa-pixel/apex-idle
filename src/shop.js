@@ -159,6 +159,20 @@ function bannerRates(banner,wish,misses=0){
   }
   return rows;
 }
+function legendaryLimit(banner) {
+  return banner==='banner-lendas'?50:banner==='banner-destaque'?100:200;
+}
+function guaranteeFloor(banner,pity) {
+  return pity.legendary>=legendaryLimit(banner)-1?3:pity.epic>=9?2:0;
+}
+function nextBannerRates(banner,wish,pity={}) {
+  const rows=bannerRates(banner,wish,pity.mythic);
+  const floor=guaranteeFloor(banner,pity);
+  if(!floor)return rows;
+  const displaced=rows.filter(row=>row.rank<floor).reduce((sum,row)=>sum+row.chance,0);
+  const eligible=rows.filter(row=>row.rank===floor).reduce((sum,row)=>sum+row.chance,0);
+  return rows.map(row=>({...row,chance:row.rank<floor?0:row.rank===floor&&eligible?row.chance*(1+displaced/eligible):row.chance}));
+}
 function bannerUnlocked(s,banner){
   const initialGate=(s.catProgress?s.stage:s.maxCircuit)>=3;
   return banner==='banner-lendas'?s.cat>=4:initialGate||s.cat>0;
@@ -174,7 +188,6 @@ function summon(s,banner,count=1,random=Math.random,options={}){if(!catalog||![1
   const d={...q,inventory:{...q.inventory,cars:q.inventory.cars.slice()},pity:{...q.pity}};
   const p=d.pity[banner]={epic:0,legendary:0,mythic:0,...q.pity[banner]},results=[];
 
-  const legendary=banner==='banner-lendas'?50:banner==='banner-destaque'?100:200;
   for(let k=0;k<count;k++){
     const rows=bannerRates(banner,d.wish,p.mythic),total=rows.reduce((sum,row)=>sum+row.chance,0);
     if(!total)return null;
@@ -182,7 +195,7 @@ function summon(s,banner,count=1,random=Math.random,options={}){if(!catalog||![1
     if(!Number.isFinite(sample)||sample<0||sample>=1)return null;
     let roll=sample*total;
     let {car,rank}=rows.find(row=>(roll-=row.chance)<0)||rows.at(-1);
-    const floor=p.legendary>=legendary-1?3:p.epic>=9?2:0;
+    const floor=guaranteeFloor(banner,p);
     const target=Math.max(rank,floor);
     const guaranteed=target!==rank;
     if(guaranteed){
@@ -213,6 +226,6 @@ function finishTraining(s,skip=false,now=Date.now()){const q=init(s),v=q.trainin
 function tradeExtra(s,type,now=Date.now()){if(type==='staff')return false;const q=init(s),prices={featured:200,staff:600,chest:150},limits={featured:3,staff:1,chest:1},key='trade:'+week(now)+':'+type,price=prices[type];if(!price||q.pts<price||(q.limits[key]||0)>=limits[type])return false;let target;if(type==='staff'){target=catalog.items.find(x=>x.category==='pilotos'&&x.rarity==='lendario');if(!unlocked(s,target))return false}q.pts-=price;s.summonPoints=q.pts;q.limits[key]=(q.limits[key]||0)+1;if(type==='featured')q.featuredTickets++;if(type==='staff')apply(s,target,now);if(type==='chest'){s.championship.tickets+=3;s.money+=(root.ApexRetention||require('./retention')).income(s)*3600}return true}
 function buyOffer(s,offer,now=Date.now()){if(!offer||offer.empty||init(s).limits[offer.offerKey])return{ok:false,reason:'Oferta já comprada'};if(offer.bundle){if(wallet(s,'pts')<offer.offerPrice)return{ok:false,reason:'Saldo insuficiente'};pay(s,'pts',offer.offerPrice);s.money+=(root.ApexRetention||require('./retention')).income(s)*3600;s.championship.tickets+=3;s.shop.limits[offer.offerKey]=1;return{ok:true}}const result=buy(s,offer.id,{currency:offer.currency,price:offer.offerPrice,now});if(result.ok)s.shop.limits[offer.offerKey]=1;return result}
 function reroll(s,now=Date.now()){const q=init(s),d=day(now);if(q.dailyReroll?.day===d||wallet(s,'gemas')<10)return false;pay(s,'gemas',10);q.dailyReroll={day:d,count:1};return true}
-const api={trainingPreview,trainingMinutes,valid,driver,engineer,teamRoster,equipStaff,trainingProgress,projectCost,buildProject,mythicChance,bannerCars,bannerRates,bannerUnlocked,finishTraining,tradeExtra,loadCatalog,init,get,day,week,hash,rng,unlocked,priceInCR,summonPrice,wallet,canBuy,buy,owned,componentBonus,carBonus,staffBonus,summon,dailyShop:(s,n)=>slots(s,'daily',n),weeklyShop:(s,n)=>slots(s,'weekly',n),buyOffer,reroll,get catalog(){return catalog},categories,rarities};root.ApexShop=api;if(typeof module!=='undefined')module.exports=api;
+const api={trainingPreview,trainingMinutes,valid,driver,engineer,teamRoster,equipStaff,trainingProgress,projectCost,buildProject,mythicChance,bannerCars,bannerRates,nextBannerRates,legendaryLimit,bannerUnlocked,finishTraining,tradeExtra,loadCatalog,init,get,day,week,hash,rng,unlocked,priceInCR,summonPrice,wallet,canBuy,buy,owned,componentBonus,carBonus,staffBonus,summon,dailyShop:(s,n)=>slots(s,'daily',n),weeklyShop:(s,n)=>slots(s,'weekly',n),buyOffer,reroll,get catalog(){return catalog},categories,rarities};root.ApexShop=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
 

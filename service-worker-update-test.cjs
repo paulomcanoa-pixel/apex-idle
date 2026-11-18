@@ -117,3 +117,35 @@ test('worker mantém o evento de mensagem vivo até concluir skipWaiting',async(
   assert.equal(skipped,1);assert.equal(keptAlive,activation);await keptAlive;
   listeners.message({data:'IGNORED',waitUntil(){assert.fail('Mensagem não reconhecida')}});assert.equal(skipped,1);
 });
+test('o primeiro reload offline usa o mesmo cache para HTML, scripts e configuração',async()=>{
+  const handlers={};
+  const snapshots=new Map();
+  let reads=0,claims=0;
+  const cache={
+    async addAll(paths){for(const path of paths)snapshots.set(path,'shell:'+path)},
+    async match(path){return snapshots.get(path)}
+  };
+  const source=fs.readFileSync('sw.js','utf8')
+    .replace('const BUILD_SHELL=[]','const BUILD_SHELL=["/src/v2-ui.js","/catalog.js","/config.js"]');
+  vm.runInNewContext(source,{
+    URL,Response,
+    self:{location:{origin:'https://apex.test'},addEventListener:(type,fn)=>{handlers[type]=fn},clients:{claim(){claims++}}},
+    caches:{open:async()=>cache,keys:async()=>[]},
+    fetch:async()=>{reads++;throw Error('offline')}
+  });
+  const lifecycle=type=>new Promise(resolve=>handlers[type]({waitUntil:promise=>resolve(promise)}));
+  await lifecycle('install');
+  await lifecycle('activate');
+  assert.equal(claims,1);
+  function request(path){
+    let response;
+    handlers.fetch({request:{method:'GET',url:'https://apex.test'+path},respondWith(value){response=value}});
+    return response;
+  }
+  assert.equal(await request('/?play=1'),'shell:/');
+  assert.equal(await request('/src/v2-ui.js'),'shell:/src/v2-ui.js');
+  assert.equal(await request('/catalog.js'),'shell:/catalog.js');
+  assert.equal(await request('/config.js'),'shell:/config.js');
+  assert.equal(reads,1);
+  assert.equal(request('/api/ranked'),undefined);
+});

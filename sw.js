@@ -1,2 +1,40 @@
 const BUILD_SHELL=[];
-const VERSION='apex-product-20261118b',CACHE=VERSION+'-static';const CORE=['/','/index.html','/style.css','/night.css','/src/v2.css','/src/core/service-worker-update.js','/manifest.webmanifest',...BUILD_SHELL];self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE))));self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('apex-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));self.addEventListener('message',event=>{if(event.data==='SKIP_WAITING')event.waitUntil(self.skipWaiting())});self.addEventListener('fetch',event=>{const req=event.request,url=new URL(req.url);if(req.method!=='GET'||url.origin!==self.location.origin||url.pathname.startsWith('/api/')||url.pathname==='/tuning.json')return;event.respondWith(fetch(req).then(response=>{if(response.ok&&response.type==='basic'){const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(req,copy))}return response}).catch(()=>caches.open(CACHE).then(cache=>cache.match(req,{ignoreSearch:CORE.includes(url.pathname)})).then(cached=>cached||(req.mode==='navigate'?caches.match('/index.html'):Response.error()))))});
+const VERSION='apex-product-20261118c';
+const CACHE=VERSION+'-static';
+const SHELL=new Set(['/', '/index.html', '/style.css', '/night.css', '/src/v2.css', '/src/core/service-worker-update.js', '/manifest.webmanifest', ...BUILD_SHELL]);
+
+self.addEventListener('install',event=>{
+  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll([...SHELL])));
+});
+self.addEventListener('activate',event=>{
+  event.waitUntil(caches.keys()
+    .then(keys=>Promise.all(keys.filter(key=>key.startsWith('apex-')&&key!==CACHE).map(key=>caches.delete(key))))
+    .then(()=>self.clients.claim()));
+});
+self.addEventListener('message',event=>{
+  if(event.data==='SKIP_WAITING')event.waitUntil(self.skipWaiting());
+});
+
+self.addEventListener('fetch',event=>{
+  const request=event.request;
+  const url=new URL(request.url);
+  if(request.method!=='GET'||url.origin!==self.location.origin||url.pathname.startsWith('/api/')||url.pathname==='/tuning.json')return;
+
+  if(SHELL.has(url.pathname)){
+    // Serve the HTML and startup scripts from the same installed release.
+    // Retain the public config snapshot for offline play and refresh it online.
+    event.respondWith(caches.open(CACHE).then(async cache=>{
+      const cached=await cache.match(url.pathname);
+      if(cached&&url.pathname!=='/config.js')return cached;
+      try {
+        const response=await fetch(request);
+        if(response.ok&&url.pathname==='/config.js')await cache.put(url.pathname,response.clone()).catch(()=>{});
+        return response.ok||!cached?response:cached;
+      } catch {
+        return cached||Response.error();
+      }
+    }));
+    return;
+  }
+  event.respondWith(fetch(request).catch(()=>Response.error()));
+});

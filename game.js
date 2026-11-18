@@ -46,11 +46,12 @@ function draw(){
 const tr=ctx.getTransform(),x0=-tr.e/tr.a,y0=-tr.f/tr.d,w=canvas.width/tr.a,h=canvas.height/tr.d;
 ctx.fillStyle={grass:'#0B0E24',coast:'#0B0E24',desert:'#0B0E24',night:'#0B0E24'}[A.circuits[s.circuit].terrain];ctx.fillRect(x0,y0,w,h);
 const daylight=window.apexDaylight!==false;
+const wet=window.NightView?.wetTrack===true;
 const circuit=A.circuits[s.circuit];
 const sceneryCircuit=daylight&&circuit.terrain==='night'?{...circuit,terrain:'grass'}:circuit;
 if(typeof CircuitScenery!=='undefined')CircuitScenery.draw(ctx,sceneryCircuit,layouts[s.circuit],{x:x0,y:y0,w,h});
 if(!daylight){ctx.fillStyle='#060919aa';ctx.fillRect(x0,y0,w,h);if(typeof NightView!=='undefined')NightView.lighting(ctx,{x:x0,y:y0,w,h});}ctx.lineJoin='round';ctx.lineCap='round';
-const roadScale=s.version===2?Math.max(1,6/(44*Math.abs(tr.a)/(window.devicePixelRatio||1))):1;for(const [width,color,dash] of [[64,daylight?'#233a3255':'#05071b88',[]],[56,daylight?'#64746c':'#202750',[]],[50,'#EEF0FF',[]],[50,'#e04b46',[5,7]],[44,daylight?'#34464a':'#11172e',[]],[40,daylight?'#4b595b':'#1b2340',[]],[.8,daylight?'#d0d8ce99':'#a4aed066',[3,9]]]){ctx.lineWidth=width*roadScale;ctx.lineCap=width===50?'butt':'round';ctx.strokeStyle=color;ctx.setLineDash(dash.map(v=>v*roadScale));ctx.stroke(worldPaths[s.circuit])}ctx.setLineDash([]);
+const roadScale=s.version===2?Math.max(1,6/(44*Math.abs(tr.a)/(window.devicePixelRatio||1))):1;for(const [width,color,dash] of [[64,daylight?'#233a3255':'#05071b88',[]],[56,daylight?'#64746c':'#202750',[]],[50,'#EEF0FF',[]],[50,'#e04b46',[5,7]],[44,daylight?'#34464a':'#11172e',[]],[40,wet?(daylight?'#394c57':'#26364d'):daylight?'#4b595b':'#1b2340',[]],[.8,daylight?'#d0d8ce99':'#a4aed066',[3,9]]]){ctx.lineWidth=width*roadScale;ctx.lineCap=width===50?'butt':'round';ctx.strokeStyle=color;ctx.setLineDash(dash.map(v=>v*roadScale));ctx.stroke(worldPaths[s.circuit])}ctx.setLineDash([]);
 for(const p of bridges[s.circuit]){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.shadowColor='#000';ctx.shadowBlur=6;ctx.fillStyle='#aebdb8';ctx.fillRect(-30,-25,60,50);ctx.shadowBlur=0;ctx.fillStyle='#33444b';ctx.fillRect(-32,-22,64,44);ctx.restore()}
 const p=position(0);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);for(let x=0;x<2;x++)for(let y=0;y<22;y++){ctx.fillStyle=(x+y)%2?'#fff':'#111b22';ctx.fillRect(x*2-2,y*2-22,2,2)}ctx.restore();
 drawCar(s.progress*.94+.32,'#e17e60');drawCar(s.progress*1.02+.65,'#8baded');drawCar(s.progress,'#d4fc5a');
