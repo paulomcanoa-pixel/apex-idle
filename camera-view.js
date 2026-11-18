@@ -40,7 +40,12 @@ canvas.addEventListener('wheel',e=>{if(e.ctrlKey)return;e.preventDefault();chang
 const observeDrawer=()=>ApexRender.toggle(document.body,'race-panel-open',drawer.open);
 new MutationObserver(observeDrawer).observe(drawer,{attributes:true,attributeFilter:['open']});observeDrawer();
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&drawer.open&&!document.querySelector('dialog:modal')){drawer.close();menuToggle.focus()}});
-function minimap(){
+let nextMapFrame=0;
+mapDisclosure.addEventListener('toggle',()=>{nextMapFrame=0});
+function minimap(now){
+if(!mapDisclosure.open||document.hidden)return;
+if(mapCircuit===s.circuit&&now<nextMapFrame)return;
+nextMapFrame=now+66;
 if(mapCircuit!==s.circuit){mapCircuit=s.circuit;mapBackground=document.createElement('canvas');mapBackground.width=440;mapBackground.height=260;const g=mapBackground.getContext('2d');g.lineJoin='round';g.lineCap='round';g.beginPath();layouts[s.circuit].points.forEach((v,i)=>{const p=CircuitMaps.toMap(layouts[s.circuit],{x:v[0],y:v[1]});i?g.lineTo(p.x*.44,p.y*260/580):g.moveTo(p.x*.44,p.y*260/580)});g.closePath();g.strokeStyle='#07161d';g.lineWidth=12;g.stroke();g.strokeStyle='#8da8a8';g.lineWidth=4;g.stroke();const p=CircuitMaps.toMap(layouts[s.circuit],position(0));g.fillStyle='#f4f7eb';g.fillRect(p.x*.44-3,p.y*260/580-3,6,6);
 for(const [fraction,color] of [[1/3,'#67d8ff'],[2/3,'#ffc867']]){
   const marker=CircuitMaps.toMap(layouts[s.circuit],position(fraction));
@@ -65,7 +70,7 @@ const tilt=window.apexPseudo3D ? .78 : 1;
 const fitKey=[s.circuit,w,h,tilt].join(':');
 if(!follow&&fittedKey!==fitKey&&typeof ApexCamera!=='undefined'){fitted=ApexCamera.fitProjected(layouts[s.circuit].points,{w:w<760?w:w-280,h:w<760?Math.max(120,h-200):h-110},tilt,.08);fittedKey=fitKey}
 const scale=!follow&&fitted?fitted.scale:Math.min(w/1000,h/580)*(follow?(w<760?Math.max(zoom,2.6):zoom):1/layouts[s.circuit].scale);if(!follow&&fitted){cameraX=fitted.centerX;cameraY=fitted.centerY}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle=window.apexDaylight?'#274632':'#0B0E24';ctx.fillRect(0,0,w,h);
-ctx.save();ctx.setTransform(dpr*scale,0,0,dpr*scale*tilt,dpr*((!follow&&w>=760?(w-280)*.5:w*.5)-cameraX*scale),dpr*(h*(w<760?.435:.45)-cameraY*scale*tilt));worldDraw();ctx.restore();ctx.setTransform(1,0,0,1,0,0);minimap();
+ctx.save();ctx.setTransform(dpr*scale,0,0,dpr*scale*tilt,dpr*((!follow&&w>=760?(w-280)*.5:w*.5)-cameraX*scale),dpr*(h*(w<760?.435:.45)-cameraY*scale*tilt));worldDraw();ctx.restore();ctx.setTransform(1,0,0,1,0,0);minimap(now);
 };updateControls();
 })();
 

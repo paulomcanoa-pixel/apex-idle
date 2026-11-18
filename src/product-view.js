@@ -21,7 +21,14 @@ function garage(s,options={}){
  let html='<h2>Sua garagem</h2><div class="garage-hero"><canvas width="560" height="250" data-art="'+esc(selected.id)+'" aria-label="'+esc(selected.name)+' equipado"></canvas><div><p class="product-kicker">Conjunto na pista</p><h3>'+esc(selected.name)+'</h3><p>'+esc(driver?.name||'Piloto da Aurora')+' · Piloto<br>'+esc(engineer?.name||'Nenhum engenheiro selecionado')+' · Engenharia</p><p>'+esc(p.label||profile(p.profile))+' · '+esc(p.trackLabel)+' · '+(options.wet?'Chuva':'Pista seca')+'</p><p>'+affinityText(p)+'</p></div></div>';
  if(options.actions)html+='<div class="v2-actions garage-quick-actions">'+options.actions+'</div>';
  html+='<p class="product-help">Compare o conjunto para este circuito. A previsão usa seu piloto e componentes atuais. Pneus, estratégia e clima também mudam o resultado.</p><p class="product-help">A raridade indica a disponibilidade no gacha. Ela não mede importância histórica. Os atributos são uma adaptação para o jogo, sem comparar tempos reais de épocas diferentes.</p>';
- for(const id of owned){const car=S.get(id),v=X.performance(s,id,options),comparison=X.compare(s,id,options),active=id===selected.id;
+ const choices=owned.map(id=>({id,comparison:X.compare(s,id,options)}))
+   .sort((a,b)=>a.comparison.lapDelta-b.comparison.lapDelta);
+ const recommendation=choices.find(choice=>choice.id!==selected.id&&choice.comparison.lapDelta<=-.05);
+ if(recommendation){
+   const car=S.get(recommendation.id);
+   html+='<section class="garage-recommendation"><h3>Compare para esta pista</h3><p>'+esc(car.name)+' · previsão de '+num(-recommendation.comparison.lapDelta)+' s a menos por volta com sua dupla e acerto atuais.</p>'+button('Equipar '+car.name,'equipCar',car.id)+'</section>';
+ }
+ for(const {id,comparison} of choices){const car=S.get(id),v=X.performance(s,id,options),active=id===selected.id;
  html+='<article class="v2-row garage-choice" '+(active?'aria-current="true"':'')+'><canvas width="180" height="110" data-art="'+esc(id)+'" aria-label="'+esc(car.name)+'"></canvas><div><h3>'+esc(car.name)+'</h3><p>'+esc(car.year||'')+' · '+esc(car.rarity)+' · '+esc(v.label||profile(v.profile))+'</p><div class="car-stat-lines">';
  for(const [key,label]of [['straight','Retas'],['corners','Curvas'],['tyres','Pneus']])html+='<label>'+label+' <progress max="100" value="'+esc(v.stats?.[key]||0)+'"></progress><b>'+num(v.stats?.[key])+'</b></label>';
  const identity=collectionIdentity(id);

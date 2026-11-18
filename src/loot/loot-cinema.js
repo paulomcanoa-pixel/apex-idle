@@ -46,7 +46,16 @@ function createSfx() {
   return {
     supported: () => !!AC,
     isOn: () => on,
-    setOn(v) { on = !!v && !!AC; if (on && ensure() && ctx.state === 'suspended') ctx.resume(); },
+    setOn(v) {
+      on=!!v&&!!AC;
+      if(on&&ensure()&&ctx.state==='suspended')ctx.resume()?.catch(()=>{});
+      if(master)master.gain.value=on ? .18 : 0;
+    },
+    close() {
+      on=false;
+      if(master)master.gain.value=0;
+      ctx?.close?.()?.catch(()=>{});
+    },
     charge() { tone(80, 420, 1.1, 'sawtooth', 0.12); noise(1.1, 0.08, 200, 2400); },
     boom() { tone(110, 38, 0.6, 'sine', 0.7); noise(0.5, 0.25, 3000, 300); },
     flip(rank) { noise(0.12, 0.12, 1800, 900); const n = [1, 2, 3, 5][rank]; for (let i = 0; i < n; i++) tone(scale[i], scale[i], rank === 3 ? 0.8 : 0.35, 'triangle', 0.25, 0.04 + i * 0.07); },
@@ -180,7 +189,7 @@ function play(opts = {}) {
     if (calm) { showAll(); return; }
     setPhase('charge');
     // Dê ao navegador um quadro para mostrar a reação antes de preparar o áudio.
-    const charge = sleep(1100);
+    const charge = sleep(720);
     root.requestAnimationFrame(() => root.requestAnimationFrame(() => {
       if (!ctl.skipped) sfx.charge();
     }));
@@ -192,10 +201,19 @@ function play(opts = {}) {
     const [cx, cy] = center(stage);
     setPhase('burst'); flash.style.setProperty('--fc', RC[best]); flash.classList.add('lc-on'); sfx.boom();
     fxCtl.burst(cx, cy, RC[best], 24 + RANK[best] * 14, 420 + RANK[best] * 90, false); if (RANK[best] >= 2) fxCtl.burst(cx, cy, '#d4fc5a', 30, 520, true);
-    nodes.forEach(n => n.classList.add('lc-dealt')); await sleep(650); if (ctl.skipped) return;
+    nodes.forEach(n => n.classList.add('lc-dealt')); await sleep(430); if (ctl.skipped) return;
     setPhase('reveal');
+    const low=cards.map((card,index)=>({card,index})).filter(({card})=>RANK[card.rarity]<2);
+    if(low.length>1){
+      for(const {index} of low)nodes[index].classList.add('lc-flipped');
+      sfx.flip(Math.max(...low.map(({card})=>RANK[card.rarity])));
+      live.textContent=low.map(({card})=>card.name+', '+RNAME[card.rarity]).join('. ');
+      await sleep(520);
+      if(ctl.skipped)return;
+    }
     for (let i = 0; i < cards.length; i++) {
       const c = cards[i], rank = RANK[c.rarity], n = nodes[i];
+      if(rank<2&&low.length>1)continue;
       if (rank >= 2) { n.style.setProperty('--sus', (rank === 3 ? 1 : 0.55) + 's'); n.classList.add('lc-suspense'); await sleep(rank === 3 ? 1000 : 550); if (ctl.skipped) return; n.classList.remove('lc-suspense'); }
       n.style.setProperty('--flip', (rank === 3 ? 0.9 : 0.52) + 's'); n.classList.add('lc-flipped'); sfx.flip(rank);
       live.textContent = `Carta ${i + 1} de ${cards.length}: ${c.name}, ${RNAME[c.rarity]}`;
@@ -205,7 +223,8 @@ function play(opts = {}) {
       await sleep(rank === 3 ? 700 : rank === 2 ? 600 : 380); if (ctl.skipped) return;
     }
     setPhase('summary'); doneBtn.focus();
-    for (const c of counters) { if (ctl.skipped) return; await countUp(c.node, c.to, 900, fmt, k => { if (k < 1 && Math.random() < 0.15) sfx.coin(); }, () => ctl.skipped || ctl.closed); }
+    await Promise.all(counters.map(c=>countUp(c.node,c.to,460,fmt,()=>{},()=>ctl.skipped||ctl.closed)));
+    if(!ctl.skipped&&counters.length)sfx.coin();
     if (ctl.skipped) return;
     fly(); fxCtl.burst(root.innerWidth / 2, root.innerHeight * 0.6, '#d4fc5a', 40, 380, true);
   }
@@ -225,7 +244,7 @@ function play(opts = {}) {
   function close() {
     if (ctl.closed) return; ctl.closed = true; ctl.skipped = true; if(ctl.tap)ctl.tap(); ctl.sleepers.forEach(f => f());
     if (prepareFrame) root.cancelAnimationFrame(prepareFrame);
-    fxCtl?.stop(); root.removeEventListener('resize', onResize); doc.removeEventListener('keydown', onKey, true);
+    sfx.close();fxCtl?.stop(); root.removeEventListener('resize', onResize); doc.removeEventListener('keydown', onKey, true);
     ov.remove(); doc.body.classList.remove('lc-lock'); active = null;
     if (prevFocus && prevFocus.focus) prevFocus.focus();
     if (opts.onDone) opts.onDone(res); resolve(res);

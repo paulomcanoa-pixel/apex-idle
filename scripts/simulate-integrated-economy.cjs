@@ -115,7 +115,11 @@ function simulateRun(profile, days, seed, { teamContracts = false, freshStart = 
     for (const contract of [...Retention.contracts(s)]) Retention.claimContract(s, contract.id, now);
     ledger.cr.contracts += s.money - balance;
     ledger.materials.contracts += s.materials - materials;
-    const owned = Shop.bannerCars('banner-padrao').filter(car => Shop.owned(s, car)).map(car => car.id);
+    if (s.cat===0&&(s.catProgress?s.stage:s.maxCircuit)<5) return;
+    const equipped=Apex.equippedCar(s).id;
+    const owned=Shop.bannerCars('banner-padrao')
+      .filter(car=>car.id!==equipped&&Shop.owned(s,car))
+      .map(car=>car.id);
     for (const car of owned.slice(0, 3)) Retention.startContract(s, car, 15, owned, now);
   }
 

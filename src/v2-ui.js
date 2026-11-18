@@ -60,9 +60,17 @@ html+='<p>Presets guardam a dupla, componentes, acerto, pneus, parada e engenhei
 if(sharedFormation){const description=ApexFormation.describe(sharedFormation),available=ApexFormation.availability(s,sharedFormation);html+='<article class="v2-row"><canvas width="180" height="110" data-art="'+esc(sharedFormation.car)+'" aria-label="Composição recebida"></canvas><div><h3>Composição compartilhada</h3><p>'+esc(description.car)+' · '+esc(description.pilot)+' · '+esc(description.engineer)+'</p><p>'+esc(description.strategy)+'</p><p>'+esc(available.ok?'Você possui essa dupla. Revise a estratégia e use quando quiser.':'Faltam na sua coleção: '+available.missing.join(', '))+'</p></div><div class="v2-actions">'+button('Usar composição','applyFormation','',!available.ok)+'</div></article>'}
 html+='<details><summary>Presets de corrida</summary>'+['potencia','curvas','aderencia'].map(profile=>button('Salvar '+ApexProductView.profile(profile),'savePreset',profile)+button('Usar '+ApexProductView.profile(profile),'loadPreset',profile,!q.presets?.[profile])).join('')+'</details>';
 }
+function carProgress(item,cost,balance,currency,owned){
+  const identity=ApexProductView.collectionIdentity(item.id);
+  const suffix=identity?'<br>'+esc(identity.trait):'';
+  if(owned)return esc(A.equippedCar(s).id===item.id?t('equipped'):say('Na garagem','In garage'))+suffix;
+  const remaining=Math.max(0,cost-balance);
+  const status=remaining?say('Faltam ','You need ')+F(remaining)+' '+currency:say('Saldo suficiente','Enough balance');
+  return F(cost)+' '+currency+' · '+status+suffix;
+}
 if(view==='projects'){html+='<h2>'+t('projects')+'</h2><p>Construa um histórico com materiais de corrida, sem gastar CR em invocações. O projeto é uma rota de longo prazo; compare o custo com os pontos que já acumulou.</p><p>'+F(s.materials)+' '+t('materials')+'</p>';
 for(const item of Shop.bannerCars('banner-padrao')){const cost=Shop.projectCost(item.id),owned=Shop.owned(s,item);
-html+=row(item.name,cost+' '+t('materials'),button(owned?t('equipped'):say('Construir','Build'),'build',item.id,owned||!checkStage(5)||s.materials<cost),item.id)}
+html+=row(item.name,carProgress(item,cost,s.materials,t('materials'),owned),owned?'':button(checkStage(5)?say('Construir','Build'):say('Libere na etapa 6','Unlock at stage 6'),'build',item.id,!checkStage(5)||s.materials<cost),item.id)}
 }
 if(view==='income'){html+='<h2>'+t('team')+'</h2><p>'+F(E.production(s.idle))+' CR/s · '+say('Uma única renda idle, com marcos de produção.','One idle income system with production milestones.')+'</p><label>'+t('buy')+' <select id="v2Batch"><option value="1">×1</option><option value="10">×10</option><option value="max">Máx</option></select></label>';
 E.generators.forEach((g,i)=>{const mark=E.milestones[s.idle.upgrades[i]];html+=row(g.name,F(teamProduction(i))+' CR/s · '+esc(s.idle.units[i])+'<br>'+say('Próximo marco: ','Next milestone: ')+(mark||'—'),button(t('buy')+' · '+F(E.cost(s.idle,i,1))+' CR','team',i,!genOpen(i))+button(say('Dobrar produção','Double production'),'teamUpgrade',i,!mark||s.idle.units[i]<mark))}
@@ -129,13 +137,21 @@ if(['components','cosmetics','premium','automation','trade','event','dailyShop',
 if(view==='automation')html+=row('ERS '+say('automático','automatic'),say('Ativa quando disponível. Sem vantagem em PvP normalizado.','Activates when available. No advantage in normalized PvP.'),button(s.night.autoERSOwned?(s.night.autoERS?say('Desligar','Turn off'):say('Ligar','Turn on')):t('buy')+' · '+F(150*B.lapReward(V.index(s)))+' CR','auto','',!checkStage(5)));
 if(view==='trade')html+='<p>Use duplicatas para escolher um histórico com custo conhecido. A troca é sua rota previsível; projetos usam materiais de corrida, e o gacha pode antecipar uma novidade. Exclusivos continuam fora desta loja.</p>'+button(say('Ficha destaque · 200 pts (3/semana)','Featured ticket · 200 pts (3/week)'),'tradeExtra','featured')+button(say('Baú semanal · 150 pts','Weekly chest · 150 pts'),'tradeExtra','chest');
 if(view==='dailyShop')html+='<p>'+say('Cosméticos: comum 60 / raro 28 / épico 10 / lendário 2. Equipe: 55 / 30 / 12 / 3.','Cosmetics: common 60 / rare 28 / epic 10 / legendary 2. Staff: 55 / 30 / 12 / 3.')+'</p>';
-if(view==='event'){html+='<p>'+q.eventTokens+' '+say('fichas de evento','event tokens')+'</p>';
+if(view==='trade'){
+  html+='<h3>'+F(q.pts)+' '+say('pontos disponíveis','points available')+'</h3>';
+  for(const item of Shop.bannerCars('banner-padrao')){
+    const owned=Shop.owned(s,item),cost=item.price.pts,unlocked=Shop.unlocked(s,item);
+    const label=unlocked?say('Trocar pontos','Exchange points'):t('locked');
+    html+=row(item.name,carProgress(item,cost,q.pts,'pts',owned),owned?'':button(label,'trade',item.id,!unlocked||q.pts<cost),item.id);
+  }
+}
+else if(view==='event'){html+='<p>'+q.eventTokens+' '+say('fichas de evento','event tokens')+'</p>';
 Shop.catalog.evento.items.forEach((item,i)=>html+=row(item.name,item.cost+' '+say('fichas','tokens'),button(t('buy'),'eventBuy',i,q.eventTokens<item.cost)))}
 else if(view==='dailyShop'||view==='weeklyShop'){const slots=view==='dailyShop'?Shop.dailyShop(s):Shop.weeklyShop(s);
 if(view==='dailyShop')html+=button(t('reroll')+' · 10 '+say('gemas','gems'),'reroll');
 slots.forEach((item,i)=>html+=row(item.name,item.empty?t('locked'):F(item.offerPrice)+' '+item.currency,button(t('buy'),'offer',i,item.empty||q.limits[item.offerKey]),item.category==='carros'?item.id:''))}
-else{const list=view==='components'?Shop.catalog.items.filter(x=>x.category==='componentes'):view==='cosmetics'?Shop.catalog.items.filter(x=>x.category==='cosmeticos'):view==='premium'?Shop.catalog.items.filter(x=>x.category==='real'):view==='trade'?Shop.bannerCars('banner-padrao'):Shop.catalog.items.filter(x=>x.category==='boosts');
-list.forEach(item=>{const owned=Shop.owned(s,item),trade=view==='trade',price=trade?item.price.pts:Shop.priceInCR(item,s),currency=trade?'pts':item.currency,blocked=!Shop.unlocked(s,item)||item.category==='real'||item.price===0;html+=row(item.name,item.category==='real'?t('soon')+' · '+say('nenhuma cobrança','no charges'):('+'+((item.effect.piPct||0)*100).toFixed(1)+'% PI · '+F(price)+' '+currency),button(owned?(trade&&A.equippedCar(s).id!==item.id?say('Na garagem','In garage'):t('equipped')):blocked?t('locked'):t('buy'),trade?'trade':'buy',item.id,owned||blocked)+(item.category==='componentes'&&owned?button(t('equip'),'componentEquip',item.id):'')+(item.category==='cosmeticos'&&owned?button(t('equip'),'cosmeticEquip',item.id):''),item.category==='carros'?item.id:'')}
+else{const list=view==='components'?Shop.catalog.items.filter(x=>x.category==='componentes'):view==='cosmetics'?Shop.catalog.items.filter(x=>x.category==='cosmeticos'):view==='premium'?Shop.catalog.items.filter(x=>x.category==='real'):Shop.catalog.items.filter(x=>x.category==='boosts');
+list.forEach(item=>{const owned=Shop.owned(s,item),price=Shop.priceInCR(item,s),currency=item.currency,blocked=!Shop.unlocked(s,item)||item.category==='real'||item.price===0;html+=row(item.name,item.category==='real'?t('soon')+' · '+say('nenhuma cobrança','no charges'):('+'+((item.effect.piPct||0)*100).toFixed(1)+'% PI · '+F(price)+' '+currency),button(owned?t('equipped'):blocked?t('locked'):t('buy'),'buy',item.id,owned||blocked)+(item.category==='componentes'&&owned?button(t('equip'),'componentEquip',item.id):'')+(item.category==='cosmeticos'&&owned?button(t('equip'),'cosmeticEquip',item.id):''),item.category==='carros'?item.id:'')}
 )}
 }
 if(view==='help')html+=button('Mostrar guia de objetivos','showGuide')+'<h2>'+say('Um ciclo claro','One clear loop')+'</h2><p>'+say('Corra → ganhe CR e REP → melhore o PI → dispute posições → avance etapas. A equipe é a única renda idle; contratos dão CR e materiais em missões com prazo. Nova temporada é o único prestígio ativo.','Race → earn CR and REP → improve power → fight for position → advance stages. The team is the only idle income; timed contracts give cash and materials. New season is the only active prestige.')+'</p>';
@@ -254,9 +270,37 @@ updateLive();if(shown)renderPanel();
 }
 for(const b of document.querySelectorAll('.area-navigation [data-area]')){const small=b.querySelector('small');if(small&&b.dataset.area==='store')ApexRender.text(small,'3 banners');if(small&&b.dataset.area==='car')ApexRender.text(small,'6 ramos')}
 $('strategyGo').onclick=()=>{strategy.close();NightView.setMaintenance(false)};
-const insights=document.createElement('section');insights.className='race-insights';resultDialog.append(insights);
-function showInsights(){const rows=s.retention?.lastInsights||[];ApexSafeDOM.render(insights,'<h3>Sua estratégia na pista</h3>'+rows.map(x=>'<p>'+esc(x.text)+' '+esc(x.action)+'</p>').join(''));const ch=s.retention?.weeklyChallenge?.lastResult;if(ch?.name){const p=document.createElement('p');p.textContent=ch.name+' · '+(ch.success?(ch.rewarded?'Objetivo concluído. Recompensas recebidas.':'Objetivo repetido. Recorde atualizado.'):'Objetivo ainda não concluído. Ajuste seu conjunto.');insights.append(p)}}
-window.addEventListener('apex-race-analysis',showInsights);showInsights();
+const insights=document.createElement('section');
+insights.className='race-insights';
+insights.hidden=true;
+const standings=$('resultRows');
+const standingsDetails=document.createElement('details');
+standingsDetails.className='race-result-standings';
+const standingsLabel=document.createElement('summary');
+standingsLabel.textContent='Ver classificação completa';
+standings.before(insights,standingsDetails);
+standingsDetails.append(standingsLabel,standings);
+
+function showInsights(event){
+  const rows=s.retention?.lastInsights||[];
+  const challenge=event?.detail?.challenge;
+  standingsDetails.open=false;
+  insights.hidden=!rows.length&&!challenge?.name;
+  ApexSafeDOM.render(insights,'<h3>O que aconteceu na pista</h3><ul>'+rows.map(row=>
+    '<li><strong>'+esc(row.text)+'</strong><span>'+esc(row.action)+'</span></li>'
+  ).join('')+'</ul><button type="button" data-result-strategy>Planejar a próxima corrida</button>');
+  if(challenge?.name){
+    const note=document.createElement('p');
+    note.textContent=challenge.name+' · '+(challenge.success
+      ?challenge.rewarded?'Objetivo concluído. Recompensas recebidas.':'Objetivo repetido. Recorde atualizado.'
+      :'Objetivo ainda não concluído. Ajuste seu conjunto.');
+    insights.append(note);
+  }
+}
+insights.addEventListener('click',event=>{
+  if(event.target.closest('[data-result-strategy]'))prepareRace();
+});
+window.addEventListener('apex-race-analysis',showInsights);
 const resultArt=document.createElement('canvas');resultArt.width=440;resultArt.height=210;resultArt.className='v2-result-art';resultArt.setAttribute('aria-label','Seu carro na chegada');resultDialog.append(resultArt);let resultFrame=0,resultStarted=0;
 function podium(now){
   resultFrame=0;

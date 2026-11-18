@@ -57,8 +57,8 @@ function openBox(kind){
       const result=ApexLootTransaction.open(s,kind,{income:Ret.income(s),now:Date.now(),persist:()=>save()});
       if(!result)return;error.textContent='';dialog.close();
       if(resultDialog.open)resultDialog.close();
-      ApexLootCinema.play({kind,result,targets:{cr:'#wallet_money',fragments:fragmentCount},format:fmt,sound:s.loot.settings.sound,
-        onSoundChange:value=>{s.loot.settings.sound=value;save()},onLand:()=>{const target=$('wallet_money');if(target&&s.idle.settings.effects!=='off')ApexEffects.pulse(target)},onDone:()=>{refresh();launch.focus()}});
+      ApexLootCinema.play({kind,result,targets:{cr:'#wallet_money',fragments:fragmentCount},format:fmt,sound:GameState.init(s).settings.sound,
+        onSoundChange:value=>{GameState.init(s).settings.sound=value;s.loot.settings.sound=value;ApexIdleUI.settings();save()},onLand:()=>{const target=$('wallet_money');if(target&&s.idle.settings.effects!=='off')ApexEffects.pulse(target)},onDone:()=>{refresh();launch.focus()}});
     }catch(failure){report(failure)}
     finally{openingKind=null;if(dialog.open)refresh();}
   }));

@@ -74,3 +74,19 @@
   .v2-return{bottom:max(88px,calc(env(safe-area-inset-bottom) + 70px));max-height:32dvh}
   body.apex-v2:has(.v2-return:not([hidden])) .v2-guide{visibility:hidden}
 }
+
+.race-result-standings summary{min-height:44px;padding:10px 2px;cursor:pointer}
+.race-insights ul{display:grid;gap:10px;list-style:none;padding:0;margin:8px 0 12px}
+.race-insights li{display:grid;gap:3px;font-size:13px;line-height:1.45}
+.race-insights li span{color:#9ca2d2}
+.race-insights button{min-height:44px}
+.apex-v2 .race-result{max-height:calc(100dvh - 24px);overflow:auto}
+
+.garage-recommendation{
+  margin:12px 0;
+  padding:10px 12px;
+  border-left:3px solid #35e6a8;
+  background:#0f1330;
+}
+.garage-recommendation h3,.garage-recommendation p{margin:0 0 6px}
+.garage-recommendation button{min-height:44px}
