@@ -20,7 +20,7 @@ function paintRival(car,p,depth){
     rivalSprites.set(key,sprite);
   }
   const transform=ctx.getTransform();
-  const zoom=Math.hypot(transform.a,transform.b)/(window.devicePixelRatio||1);
+  const zoom=Math.hypot(transform.a,transform.b)/(ctx.canvas.apexRenderDpr||window.devicePixelRatio||1);
   const scale=Math.max(.17,ApexCamera.minCarSizePx(innerWidth)/(80*Math.max(.01,zoom)));
   ctx.save();
   ctx.translate(p.x,p.y);

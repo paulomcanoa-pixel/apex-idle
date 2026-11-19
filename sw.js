@@ -1,5 +1,5 @@
 const BUILD_SHELL=[];
-const VERSION='apex-product-20261118m';
+const VERSION='apex-product-20261119a';
 const CACHE=VERSION+'-static';
 const SHELL=new Set(['/', '/index.html', '/style.css', '/night.css', '/src/v2.css', '/src/core/service-worker-update.js', '/manifest.webmanifest', ...BUILD_SHELL]);
 

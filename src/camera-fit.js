@@ -8,5 +8,10 @@ function fitProjected(points,viewport,verticalScale=1,margin=.08){
   return {...fitted,verticalScale:tilt,offsetY:viewport.h/2-fitted.centerY*fitted.scale*tilt};
 }
 function minCarSizePx(w){return w<760?14:18}
-const api={fitCircuit,fitProjected,minCarSizePx};root.ApexCamera=api;if(typeof module!=='undefined')module.exports=api
+function rasterDensity(deviceRatio,effects){
+  const ratio=Number.isFinite(deviceRatio)?Math.max(1,deviceRatio):1;
+  const cap=effects==='off'?1:effects==='low'?1.25:2;
+  return Math.min(ratio,cap);
+}
+const api={fitCircuit,fitProjected,minCarSizePx,rasterDensity};root.ApexCamera=api;if(typeof module!=='undefined')module.exports=api
 })(typeof window!=='undefined'?window:globalThis);

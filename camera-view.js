@@ -60,17 +60,21 @@ dot(s.progress,'#07171e',10);dot(s.progress,s.color||'#d4fc5a',7);ApexRender.tex
 const worldDraw=draw;
 let fittedKey="",fitted=null;
 draw=function(){
-const bounds=canvas.getBoundingClientRect(),w=bounds.width,h=bounds.height,dpr=Math.min(window.devicePixelRatio||1,2);if(!w||!h)return;
+const bounds=canvas.getBoundingClientRect(),w=bounds.width,h=bounds.height;
+if(!w||!h)return;
+const dpr=window.ApexCamera?.rasterDensity(window.devicePixelRatio,s.idle?.settings?.effects)||1;
+canvas.apexRenderDpr=dpr;
 const pw=Math.round(w*dpr),ph=Math.round(h*dpr);if(canvas.width!==pw||canvas.height!==ph){canvas.width=pw;canvas.height=ph}
 // Let the camera catch up after a slow frame instead of leaving the car off-screen.
 const now=performance.now(),dt=Math.min(.5,Math.max(0,(now-lastFrame)/1000));lastFrame=now;
-const p=typeof TrafficView!=='undefined'?TrafficView.playerPosition():position(s.progress),ahead=position(s.progress+.008/layouts[s.circuit].scale),tx=follow?p.x*.8+ahead.x*.2:500,ty=follow?p.y*.8+ahead.y*.2:290;
+const p=typeof TrafficView!=='undefined'?TrafficView.playerPosition():position(s.progress),ahead=position(s.progress+.016/layouts[s.circuit].scale),tx=follow?p.x*.74+ahead.x*.26:500,ty=follow?p.y*.74+ahead.y*.26:290;
 if(cameraX===null||lastCircuit!==s.circuit){cameraX=tx;cameraY=ty;lastCircuit=s.circuit}else{const blend=1-Math.exp(-dt*8);cameraX+=(tx-cameraX)*blend;cameraY+=(ty-cameraY)*blend}
 const tilt=window.apexPseudo3D ? .78 : 1;
 const fitKey=[s.circuit,w,h,tilt].join(':');
 if(!follow&&fittedKey!==fitKey&&typeof ApexCamera!=='undefined'){fitted=ApexCamera.fitProjected(layouts[s.circuit].points,{w:w<760?w:w-280,h:w<760?Math.max(120,h-200):h-110},tilt,.08);fittedKey=fitKey}
-const scale=!follow&&fitted?fitted.scale:Math.min(w/1000,h/580)*(follow?(w<760?Math.max(zoom,2.6):zoom):1/layouts[s.circuit].scale);if(!follow&&fitted){cameraX=fitted.centerX;cameraY=fitted.centerY}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle=window.apexDaylight?'#274632':'#0B0E24';ctx.fillRect(0,0,w,h);
-const cameraLeft=(!follow&&w>=760?(w-280)*.5:w*.5)-cameraX*scale;
+const scale=!follow&&fitted?fitted.scale:Math.min(w/1000,h/580)*(follow?zoom:1/layouts[s.circuit].scale);if(!follow&&fitted){cameraX=fitted.centerX;cameraY=fitted.centerY}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle=window.apexDaylight?'#274632':'#0B0E24';ctx.fillRect(0,0,w,h);
+const focalX=w>=760?(w-280)*.5:w*.53;
+const cameraLeft=focalX-cameraX*scale;
 const cameraTop=h*(w<760?.435:.45)-cameraY*scale*tilt;
 ctx.save();
 ctx.setTransform(dpr*scale,0,0,dpr*scale*tilt,dpr*cameraLeft,dpr*cameraTop);

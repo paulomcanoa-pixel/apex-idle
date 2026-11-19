@@ -49,7 +49,7 @@ const circuit=A.circuits[s.circuit];
 const sceneryCircuit=daylight&&circuit.terrain==='night'?{...circuit,terrain:'grass'}:circuit;
 if(typeof CircuitScenery!=='undefined')CircuitScenery.draw(ctx,sceneryCircuit,layouts[s.circuit],{x:x0,y:y0,w,h});
 if(!daylight){ctx.fillStyle='#060919aa';ctx.fillRect(x0,y0,w,h);if(typeof NightView!=='undefined')NightView.lighting(ctx,{x:x0,y:y0,w,h});}ctx.lineJoin='round';ctx.lineCap='round';
-const roadScale=s.version===2?Math.max(1,6/(44*Math.abs(tr.a)/(window.devicePixelRatio||1))):1;for(const [width,color,dash] of [[64,daylight?'#233a3255':'#05071b88',[]],[56,daylight?'#64746c':'#202750',[]],[50,'#EEF0FF',[]],[50,'#e04b46',[5,7]],[44,daylight?'#34464a':'#11172e',[]],[40,wet?(daylight?'#344956':'#263951'):daylight?'#3e494d':'#1d2541',[]],
+const roadScale=s.version===2?Math.max(1,6/(44*Math.abs(tr.a)/(canvas.apexRenderDpr||window.devicePixelRatio||1))):1;for(const [width,color,dash] of [[64,daylight?'#233a3255':'#05071b88',[]],[56,daylight?'#64746c':'#202750',[]],[50,'#EEF0FF',[]],[50,'#e04b46',[5,7]],[44,daylight?'#34464a':'#11172e',[]],[40,wet?(daylight?'#344956':'#263951'):daylight?'#3e494d':'#1d2541',[]],
 [29,wet?'#99c7e21b':daylight?'#28303541':'#0f152d71',[]],
 [.8,daylight?'#eef2de69':'#c7d6ff72',[3,9]]]){ctx.lineWidth=width*roadScale;ctx.lineCap=width===50?'butt':'round';ctx.strokeStyle=color;ctx.setLineDash(dash.map(v=>v*roadScale));ctx.stroke(worldPaths[s.circuit])}ctx.setLineDash([]);
 for(const p of bridges[s.circuit]){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.shadowColor='#000';ctx.shadowBlur=6;ctx.fillStyle='#aebdb8';ctx.fillRect(-30,-25,60,50);ctx.shadowBlur=0;ctx.fillStyle='#33444b';ctx.fillRect(-32,-22,64,44);ctx.restore()}
@@ -78,7 +78,7 @@ function draw(){
   const daylight=window.apexDaylight!==false;
   const wet=window.NightView?.wetTrack===true;
   const key=[s.circuit,s.version,canvas.width,canvas.height,tr.a,tr.d,tr.e,tr.f,
-    window.devicePixelRatio,daylight,wet,window.apexPseudo3D,!!window.NightView,!!window.CircuitScenery].join(':');
+    window.devicePixelRatio,daylight,wet,s.idle?.settings?.effects,window.apexPseudo3D,!!window.NightView,!!window.CircuitScenery].join(':');
 
   // A fixed camera can reuse the ground, lights, asphalt and grid as one image.
   // Wait for a repeated transform so a moving camera keeps drawing directly.
