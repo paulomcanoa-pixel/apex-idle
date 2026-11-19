@@ -52,6 +52,31 @@ if(!daylight){ctx.fillStyle='#060919aa';ctx.fillRect(x0,y0,w,h);if(typeof NightV
 const roadScale=s.version===2?Math.max(1,6/(44*Math.abs(tr.a)/(canvas.apexRenderDpr||window.devicePixelRatio||1))):1;for(const [width,color,dash] of [[64,daylight?'#233a3255':'#05071b88',[]],[56,daylight?'#64746c':'#202750',[]],[50,'#EEF0FF',[]],[50,'#e04b46',[5,7]],[44,daylight?'#34464a':'#11172e',[]],[40,wet?(daylight?'#344956':'#263951'):daylight?'#3e494d':'#1d2541',[]],
 [29,wet?'#99c7e21b':daylight?'#28303541':'#0f152d71',[]],
 [.8,daylight?'#eef2de69':'#c7d6ff72',[3,9]]]){ctx.lineWidth=width*roadScale;ctx.lineCap=width===50?'butt':'round';ctx.strokeStyle=color;ctx.setLineDash(dash.map(v=>v*roadScale));ctx.stroke(worldPaths[s.circuit])}ctx.setLineDash([]);
+if(wet&&s.idle?.settings?.effects!=='off'){
+  ctx.save();
+  ctx.lineWidth=1.2*roadScale;
+  for(let i=0;i<18;i++){
+    const patch=position((i+.41)/18);
+    if(patch.x<x0-26||patch.x>x0+w+26||patch.y<y0-26||patch.y>y0+h+26)continue;
+    ctx.save();
+    ctx.translate(patch.x,patch.y);
+    ctx.rotate(patch.a);
+    const reflection=ctx.createLinearGradient(-19,0,19,0);
+    reflection.addColorStop(0,'#bcdeff00');
+    reflection.addColorStop(.5,daylight?'#d2eaff42':'#90c4ff8a');
+    reflection.addColorStop(1,'#bcdeff00');
+    ctx.strokeStyle=reflection;
+    ctx.beginPath();
+    for(const offset of [-12,-8,8,12]){
+      ctx.moveTo(-18,offset*roadScale);
+      ctx.lineTo(18,offset*roadScale);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
 for(const p of bridges[s.circuit]){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.shadowColor='#000';ctx.shadowBlur=6;ctx.fillStyle='#aebdb8';ctx.fillRect(-30,-25,60,50);ctx.shadowBlur=0;ctx.fillStyle='#33444b';ctx.fillRect(-32,-22,64,44);ctx.restore()}
 // Grid markings are painted on the existing track and never affect placement.
 const p=position(0);

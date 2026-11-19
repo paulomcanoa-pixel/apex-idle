@@ -62,7 +62,7 @@ let fittedKey="",fitted=null;
 draw=function(){
 const bounds=canvas.getBoundingClientRect(),w=bounds.width,h=bounds.height;
 if(!w||!h)return;
-const dpr=window.ApexCamera?.rasterDensity(window.devicePixelRatio,s.idle?.settings?.effects)||1;
+const dpr=window.ApexCamera?.rasterDensity?.(window.devicePixelRatio,s.idle?.settings?.effects)||Math.min(window.devicePixelRatio||1,2);
 canvas.apexRenderDpr=dpr;
 const pw=Math.round(w*dpr),ph=Math.round(h*dpr);if(canvas.width!==pw||canvas.height!==ph){canvas.width=pw;canvas.height=ph}
 // Let the camera catch up after a slow frame instead of leaving the car off-screen.
